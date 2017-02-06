@@ -1,6 +1,6 @@
 # cfmlDataMapper
 
-CFML Data Mapper is a flexible custom ORM implementation used in conjunction with FW/1 and DI/1. It manages the relationship between an application's beans and the data layer without the overhead and performance hit of using the built in ORM functions available in CFML.
+CFML Data Mapper is a flexible custom ORM alternative used in conjunction with FW/1 and DI/1. It manages the relationship between an application's beans and the data layer without the overhead and performance hit of using the built in ORM functions available in CFML.
 
 Tested on CF9 and Lucee 4.5  
 Tested with FW/1 2.5, 3.0, 3.5  
