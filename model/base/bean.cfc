@@ -9,8 +9,6 @@
 	property cacheService;
 	property dataFactory;
 	property dataGateway;
-	property environmentService;
-	property errorService;
 	property validationService;
 
 	public function init( id=0 ) {
@@ -18,16 +16,18 @@
 		return this;
 	}
 
-	public boolean function delete() {
-		var success = true;
+	public struct function delete() {
+		var result = { "success"=true, "code"=001, "messages"=[] };
 		try {
 			var beanmap = getBeanMap();
 			variables.dataGateway.delete(getBeanName(), variables[ beanmap.primaryKey ]);
 		} catch (any e) {
-			variables.errorService.logError(e);
-			success = false;
+			arrayAppend(result.messages,"There was an issue deleting the " & getBeanName() & ".");
+			result.success = false;
+			result.code = 500;
+			result["error"] = e;
 		}
-		return success;
+		return result;
 	}
 
 	public boolean function exists() {
@@ -103,7 +103,7 @@
 	}
 
 	public struct function save( validate=true ) {
-		var result = { "code"=001, "message"=[] };
+		var result = { "success"=true, "code"=001, "message"=[] };
 
 		transaction {
 			try {
@@ -113,12 +113,13 @@
 				if(arguments.validate){
 					var errors = this.validate();
 					if( arrayLen(errors) ){
-						result.code = 900;
+						result.success = false;
+						result.code = 900;// indicates validation error
 						result.message = errors;
 					}
 				}
 
-				if( result.code == 001 ){
+				if( result.success ){
 					if ( variables[ beanmap.primarykey ] ) {
 						variables.dataGateway.update(bean, this);
 					} else {
@@ -134,7 +135,10 @@
 				transaction action="commit";
 			} catch (any e) {
 				transaction action="rollback";
-				result = variables.errorService.catchresult(e);
+				arrayAppend(result.messages,"There was an issue saving the " & getBeanName() & ".");
+				result.success = false;
+				result.code = 500;
+				result["error"] = e;
 			}
 		}
 
