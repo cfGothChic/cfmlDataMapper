@@ -316,12 +316,7 @@
 		var modulename = ( arrayLen(temp) == 2 ? temp[1] : "" );
 		var beanname = ( arrayLen(temp) == 2 ? temp[2] : arguments.bean );
 
-		if ( len(modulename) && modulename != "core" ) {
-			return variables.fw.getSubsystemBeanFactory(modulename).getBean( beanname & "Bean" );
-		} else {
-			//return variables.beanFactory.getBean( beanname & "Bean" );
-			return variables.fw.getDefaultBeanFactory().getBean( beanname & "Bean" );
-		}
+		return variables.fw.getSubsystemBeanFactory(modulename).getBean( beanname & "Bean" );
 	}
 
 	private struct function getPropertyMetadata( prop ) {
