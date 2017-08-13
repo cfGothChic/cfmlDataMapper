@@ -13,24 +13,26 @@ component accessors=true {
 		var beanmap = variables.dataFactory.getBeanMap(arguments.beanname);
 		var pkproperty = beanmap.properties[ beanmap.primarykey ];
 		var sql = "";
+		var primarykeyfield = getPrimaryKeyField(beanmap);
+		var tablename = getTableName(beanmap);
 
 		if ( pkproperty.isidentity ) {
 			sql &= "DECLARE @ident Table (newid int) ";
 		} else {
-			sql &= "DECLARE @identid int = (SELECT MAX(" & getPrimaryKeyField(beanmap) & ") FROM " & getTableName(beanmap) & ") ";
+			sql &= "DECLARE @identid int = (SELECT MAX(" & tablename & "." & primarykeyfield & ") FROM " & tablename & ") ";
 			sql &= "SET @identid = @identid + 1; ";
 		}
 
 		sql &= "INSERT INTO " & getTableName(beanmap) & " (";
 
 		if ( !pkproperty.isidentity ) {
-			sql &= getPrimaryKeyField(beanmap) & ", ";
+			sql &= tablename & "." & primarykeyfield & ", ";
 		}
 
 		sql &= getFields("insert", beanmap);
 
 		if ( pkproperty.isidentity ) {
-			sql &= ") OUTPUT inserted." & getPrimaryKeyField(beanmap) & " into @ident VALUES (:";
+			sql &= ") OUTPUT inserted." & primarykeyfield & " into @ident VALUES (:";
 		} else {
 			sql &= ") VALUES (@identid, :";
 		}
@@ -74,17 +76,18 @@ component accessors=true {
 	public query function read( string bean, struct params={}, string orderby="", boolean pkOnly=false ) {
 		var querycfc = new query( datasource=variables.dsn );
 		var beanmap = variables.dataFactory.getBeanMap(arguments.bean);
+		var tablename = getTableName(beanmap);
 
 		var sql = "SELECT ";
 		sql &= getFields("select", beanmap, arguments.pkOnly);
-		sql &= " FROM " & getTableName(beanmap);
+		sql &= " FROM " & tablename;
 
 		if ( !structIsEmpty(arguments.params) ) {
 			var where = "";
 			for ( var field IN arguments.params ) {
 				if ( structKeyExists(beanmap.properties,field) ) {
-					where &= ( len(where) ? " AND " : " WHERE " );
-					where &= ( structKeyExists(beanmap.properties[ field ],"columnName") && len(beanmap.properties[ field ].columnName) ? beanmap.properties[ field ].columnName : field ) & " = :" & field;
+					where &= ( len(where) ? " AND " : " WHERE " ) & tablename;
+					where &= ".[" & ( structKeyExists(beanmap.properties[ field ],"columnName") && len(beanmap.properties[ field ].columnName) ? beanmap.properties[ field ].columnName : field ) & "] = :" & field;
 					querycfc.addParam(name=field, value=arguments.params[ field ], cfsqltype=beanmap.properties[ field ].sqltype);
 				} else {
 					throw(message="The property '#field#' was not found in the '#arguments.bean#' bean definition");
@@ -110,14 +113,14 @@ component accessors=true {
 			throw(beanmap.bean & " bean is missing required bean map variables for the " & arguments.relationship.name & " relationship join table: fkColumn, fksqltype, joinColumn, joinTable");
 		}
 
-		var joinpath = ( len(arguments.relationship.joinSchema) ? arguments.relationship.joinSchema & "." : "" ) & arguments.relationship.joinTable;
+		var joinpath = ( len(arguments.relationship.joinSchema) ? "[" & arguments.relationship.joinSchema & "]." : "" ) & "[" & arguments.relationship.joinTable & "]";
 		var primarykey = getPrimaryKeyField(beanmap);
 
 		var sql = "SELECT ";
 		sql &= getFields("select", beanmap);
 		sql &= " FROM " & tablename;
-		sql &= " JOIN " & joinpath & " ON " & joinpath & "." & arguments.relationship.joinColumn & " = " & tablename & "." & primarykey;
-		sql &= " WHERE " & joinpath & "." & arguments.relationship.fkColumn & " = :" & arguments.relationship.fkColumn;
+		sql &= " JOIN " & joinpath & " ON " & joinpath & ".[" & arguments.relationship.joinColumn & "] = " & tablename & "." & primarykey;
+		sql &= " WHERE " & joinpath & ".[" & arguments.relationship.fkColumn & "] = :" & arguments.relationship.fkColumn;
 		if ( len(beanmap.orderby) ) {
 			sql &= " ORDER BY " & beanmap.orderby;
 		}
@@ -159,10 +162,11 @@ component accessors=true {
 
 	public void function update( string beanname, bean ) {
 		var beanmap = variables.dataFactory.getBeanMap(arguments.beanname);
+		var tablename = getTableName(beanmap);
 
-		var sql = "UPDATE " & getTableName(beanmap) & " SET ";
+		var sql = "UPDATE " & tablename & " SET ";
 		sql &= getFields("update", beanmap);
-		sql &= " WHERE " & getPrimaryKeyField(beanmap) & " = :" & beanmap.primarykey;
+		sql &= " WHERE " & tablename & "." & getPrimaryKeyField(beanmap) & " = :" & beanmap.primarykey;
 
 		var querycfc = new query( datasource=variables.dsn, sql=sql );
 
@@ -186,7 +190,7 @@ component accessors=true {
 		var fields = "";
 		for ( var prop IN arguments.beanmap.properties ) {
 			if ( isPropertyIncluded(prop, arguments.beanmap, includepk, arguments.type, arguments.pkOnly) ) {
-				var columnname = tablename & "." & ( len( arguments.beanmap.properties[ prop ].columnName ) ? arguments.beanmap.properties[ prop ].columnName : prop );
+				var columnname = tablename & ".[" & ( len( arguments.beanmap.properties[ prop ].columnName ) ? arguments.beanmap.properties[ prop ].columnName : prop ) & "]";
 				if ( len(fields) ) {
 					fields &= delimiter;
 				}
@@ -199,9 +203,11 @@ component accessors=true {
 					fields &= columnname & " = :" & prop;
 				} else {
 					if ( len( arguments.beanmap.properties[ prop ].columnName ) ) {
-						fields &= getSelectField(columnname,arguments.beanmap.properties[ prop ].sqltype,arguments.beanmap.properties[ prop ].null);
+						fields &= getSelectField(columnname,arguments.beanmap.properties[ prop ].sqltype,arguments.beanmap.properties[ prop ].null,tablename);
+						fields &= "[" & prop & "]";
+					} else {
+						fields &= columnname;
 					}
-					fields &= prop;
 				}
 			}
 		}
@@ -229,14 +235,14 @@ component accessors=true {
 
 	private string function getPrimaryKeyField( struct beanmap ) {
 		var pkproperty = beanmap.properties[ beanmap.primarykey ];
-		return ( len(pkproperty.columnName) ? pkproperty.columnName : beanmap.primarykey );
+		return "[" & ( len(pkproperty.columnName) ? pkproperty.columnName : beanmap.primarykey ) & "]";
 	}
 
 	private string function getSelectField( string columnname, string sqltype, boolean isNull ) {
 		var fieldresult = "";
 
 		if ( arguments.sqltype == "cf_sql_integer" && arguments.isNull ) {
-			fieldresult &= "COALESCE(";
+			fieldresult &= "ISNULL(";
 		}
 
 		fieldresult &= arguments.columnname;
@@ -251,7 +257,7 @@ component accessors=true {
 	}
 
 	private string function getTableName( struct beanmap ) {
-		return ( len(arguments.beanmap.schema) ? arguments.beanmap.schema & "." : "" ) & arguments.beanmap.table;
+		return ( len(arguments.beanmap.schema) ? "[" & arguments.beanmap.schema & "]." : "" ) & "[" & arguments.beanmap.table & "]";
 	}
 
 	private boolean function isPropertyIncluded( string prop, struct beanmap, boolean includepk, string type="update", boolean pkOnly=false ) {

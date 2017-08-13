@@ -46,8 +46,12 @@
 		return variables.beanMap;
 	}
 
+	public numeric function getId(){
+		return isNull(variables.id) || !isNumeric(variables.id) ? 0 : variables.id;
+	}
+
 	public boolean function getIsDeleted() {
-		return isNull(variables.isDeleted) ? false : variables.isDeleted;
+		return isNull(variables.isDeleted) || !isBoolean(variables.isDeleted) ? false : variables.isDeleted;
 	}
 
 	public any function getPropertyValue(propertyname){
@@ -62,6 +66,13 @@
 			}
 			if( isNull(value) ){
 				value = "";
+			}
+		}
+
+		if( !len(value) ){
+			var beanmap = getBeanMap();
+			if( structKeyExists(beanmap.properties,propertyname) ){
+				value = beanmap.properties[propertyname].defaultvalue;
 			}
 		}
 
@@ -215,9 +226,9 @@
 	private function getSingularValue( primarykey, relationship ) {
 		return variables.dataFactory.get(
 			bean = arguments.relationship.bean,
-			id = ( 
-				structKeyExists(variables,arguments.relationship.fkName) 
-				&& isValid("integer", variables[ arguments.relationship.fkName ]) 
+			id = (
+				structKeyExists(variables,arguments.relationship.fkName)
+				&& isValid("integer", variables[ arguments.relationship.fkName ])
 			) ? variables[ arguments.relationship.fkName ] : 0
 		);
 	}
@@ -241,7 +252,7 @@
 		// todo: setPrimaryKey(arguments.id);
 	}
 
-	private function populateBySproc( id=0, bean="", sproc="", params=[], resultkeys=[], context ) {
+	private void function populateBySproc( id=0, bean="", sproc="", params=[], resultkeys=[], context ) {
 		if ( !isNumeric(arguments.id) ) {
 			arguments.id = 0;
 		}

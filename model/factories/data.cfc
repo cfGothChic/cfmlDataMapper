@@ -17,14 +17,14 @@
 
 	public any function get(
 		required string bean,
-		numeric id=0,
+		string id=0,
 		struct params={}
 	) {
-		var result = variables.cacheService.get(bean=arguments.bean, id=arguments.id, params=arguments.params);
+		var result = variables.cacheService.get(bean=arguments.bean, id=trim(val(arguments.id)), params=arguments.params);
 
 		if ( result.success ) {
 			return result.bean;
-		} else if ( !arguments.id && !structIsEmpty(arguments.params) ) {
+		} else if ( !val(arguments.id) && !structIsEmpty(arguments.params) ) {
 			return getByParams(arguments.bean, arguments.params);
 		} else {
 			return getModuleBean(arguments.bean).init(argumentCollection=arguments);
@@ -258,6 +258,7 @@
 	}
 
 	private function getByParams( beanname, params ) {
+		checkBeanExists(arguments.beanname);
 		var qRecord = variables.dataGateway.read(arguments.beanname, arguments.params);
 		var bean = get(arguments.beanname);
 		if ( qRecord.recordCount ) {
@@ -267,6 +268,7 @@
 	}
 
 	private string function getCfSqlType( sqltype ) {
+		arguments.sqltype = listLast(arguments.sqltype,"_") == "int" ? "integer" : arguments.sqltype;
 		return ( findNoCase("cf_sql_",arguments.sqltype) ? arguments.sqltype : "cf_sql_" & arguments.sqltype );
 	}
 
@@ -303,7 +305,7 @@
 	private string function getInheritanceMetadata( metadata ) {
 		var inherits = "";
 		if ( !findNoCase("model.base",arguments.metadata.extends.fullname) ) {
-			if ( listFirst(arguments.metadata.fullname,".") != "model" ) {
+			if ( listFirst(arguments.metadata.extends.fullname,".") != "model" ) {
 				inherits = listFirst(arguments.metadata.fullname,".") & ".";
 			}
 			inherits &= listLast(arguments.metadata.extends.fullname,".");
@@ -312,6 +314,8 @@
 	}
 
 	private function getModuleBean( bean ) {
+		checkBeanExists(arguments.bean);
+
 		var temp = listToArray(arguments.bean,".");
 		var modulename = ( arrayLen(temp) == 2 ? temp[1] : "" );
 		var beanname = ( arrayLen(temp) == 2 ? temp[2] : arguments.bean );
@@ -323,6 +327,7 @@
 		var metadata = {};
 		if ( structKeyExists(prop,"cfsqltype") ) {
 			metadata.name = prop.name;
+			metadata.defaultvalue = ( structKeyExists(prop,"default") ? prop.default : "" );
 			metadata.displayname = ( structKeyExists(prop,"displayname") ? prop.displayname : upperFirst(prop.name) );
 			metadata.columnName = ( structKeyExists(prop,"columnName") ? prop.columnName : "" );
 			metadata.insert = ( structKeyExists(prop,"insert") && isBoolean(prop.insert) ? prop.insert : true );
@@ -369,6 +374,7 @@
 
 			if (
 				findNoCase("model.base", beanmetadata.extends.fullname)
+				|| findNoCase("model.bean", beanmetadata.extends.fullname)
 				|| findNoCase(cfcbeanpath, beanmetadata.extends.fullname)
 			) {
 				createBeanMap(modulepath & beanname, beanmetadata);
