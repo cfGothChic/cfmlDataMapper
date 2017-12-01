@@ -1,5 +1,7 @@
 component name="main" output="false" {
+
 	public void function default(struct rc = {}) {
-		param name="rc.skeletonType" default="Basic FW/1 Skeleton";
+		rc.message = "Welcome to the Framework One User Manager application demo!";
 	}
+
 }

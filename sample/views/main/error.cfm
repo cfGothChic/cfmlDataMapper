@@ -1,19 +1,21 @@
-<h1>An Error Occurred</h1>
-<p>Details of the exception:</p>
-<cfoutput>
-	<ul>
-		<li>Failed action:
-          <cfif structKeyExists( request, 'failedAction' )>
-            <!--- sanitize user supplied value before displaying it --->
-            #replace( request.failedAction, chr(60), "&lt;", "all" )#
-          <cfelse>
-            unknown
-          </cfif>
-        </li>
-		<li>Application event: #request.event#</li>
-		<li>Exception type: #request.exception.type#</li>
-		<li>Exception message: #request.exception.message#</li>
-		<li>Exception detail: #request.exception.detail#</li>
-	</ul>
-    <p>Back to the <a href="#buildURL('main')#">default page</a>?</p>
-</cfoutput>
+<!--- courtesy of Andreas Schuldhaus --->
+<div style="width: 50%; color: red; border: 2px dotted red; background-color: #f9f9f9; padding: 10px;">
+	<h1 style="color: red;">ERROR!</h1>
+	<div style="width: 100%; text-align: left;">
+		<p><b>An error occurred!</b></p>
+		<cfoutput>
+			<cfif structKeyExists( request, 'failedAction' )>
+				<!--- sanitize user supplied value before displaying it --->
+				<b>Action:</b> #replace( request.failedAction, "<", "&lt;", "all" )#<br/>
+			<cfelse>
+				<b>Action:</b> unknown<br/>
+			</cfif>
+			<b>Error:</b> #request.exception.cause.message#<br/>
+			<b>Type:</b> #request.exception.cause.type#<br/>
+			<b>Details:</b> #request.exception.cause.detail#<br/>
+		</cfoutput>
+	</div>
+	<cfif getEnvironment() is "local">
+		<cfdump var="#request.exception#" />
+	</cfif>
+</div>
