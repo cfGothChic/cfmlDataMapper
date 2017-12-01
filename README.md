@@ -13,5 +13,6 @@ this.mappings[ "/cfmlDataMapper" ] = expandPath("../cfmlDataMapper/");
 
 Add the model folder to the list of DI/1 locations
 
-Example fw1 config variable:
-diLocations = "/model,/cfmlDataMapper/model"
+Example fw1 config variables:
+diLocations = "model,/cfmlDataMapper/model"
+diConfig = { singulars = { factories = "factory" } }
