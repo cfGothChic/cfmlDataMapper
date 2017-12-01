@@ -1,28 +1,21 @@
-component accessors=true {
+component accessors="true" extends="cfmlDataMapper.model.base.bean"
+    table="departments"
+    primarykey="id"
+    orderby="name"
+    cached="true"
+{
 
-    property id;
-    property name;
-	property createdate;
-	property updatedate;
+	property name="id" columnName="departmentId" cfsqltype="integer" isidentity="true" default="0";
+	property name="name" cfsqltype="varchar" maxlength="50" default="";
+	property name="createDate" cfsqltype="varchar" default="";
+	property name="updateDate" cfsqltype="varchar" default="";
 
-	function init() {
-		variables.id = 0;
-		variables.name = "";
-		variables.createdate = now();
-		variables.updatedate = "";
-		return this;
+	function getCreateDate() {
+		return isDate(variables.createDate) ? variables.createDate : now();
 	}
 
-	function validate() {
-		var messages = [];
-
-		if ( !len( getName() ) ) {
-			arrayAppend(messages, "Name is required");
-		} else if ( len( getName() ) > 50 ) {
-			arrayAppend(messages, "Name can not be longer than 50 characters");
-		}
-
-		return messages;
+	function getUpdateDate() {
+		return isDate(variables.updateDate) ? variables.updateDate : now();
 	}
 
 }

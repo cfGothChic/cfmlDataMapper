@@ -1,62 +1,76 @@
-component accessors=true {
+component accessors="true" extends="cfmlDataMapper.model.base.bean"
+    table="users"
+    primarykey="id"
+    orderby="lastName, firstName"
+{
 
-	property id;
-	property firstName;
-	property lastName;
-	property email;
-	property departmentId;
-	property department;
-	property userTypeId;
-	property userType;
-	property createdate;
-	property updatedate;
+	property name="id" columnName="userId" cfsqltype="integer" isidentity="true" default="0";
+	property name="firstName" cfsqltype="varchar" maxlength="50" default="";
+	property name="lastName" cfsqltype="varchar" maxlength="50" default="";
+	property name="email" cfsqltype="varchar" maxlength="50" null="true" default="";
+	property name="createDate" cfsqltype="varchar" default="";
+	property name="updateDate" cfsqltype="varchar" default="";
 
-	function init() {
-		variables.id = 0;
-		variables.firstName = "";
-		variables.lastName = "";
-		variables.email = "";
-		variables.departmentId = 0;
-		variables.userTypeId = 0;
-		variables.createdate = now();
-		variables.updatedate = "";
-		return this;
+	property name="departmentId" cfsqltype="integer" null="true" default="0";
+	property name="departmentBean" bean="department" joinType="one" fkName="departmentId";
+
+	property name="userTypeId" cfsqltype="integer" null="true" default="0";
+	property name="userTypeBean" bean="userType" joinType="one" fkName="userTypeId";
+
+	function getCreateDate() {
+		return isDate(variables.createDate) ? variables.createDate : now();
+	}
+
+	function getDepartment() {
+		super.populateRelationship("departmentBean");
+		return variables.departmentBean;
 	}
 
 	function getSortName() {
 		return getLastName() & ", " & getFirstName();
 	}
 
+	function getUpdateDate() {
+		return isDate(variables.updateDate) ? variables.updateDate : now();
+	}
+
+	function getUserType() {
+		super.populateRelationship("userTypeBean");
+		return variables.userTypeBean;
+	}
+
+	function save() {
+		var result = {"code" = 001};
+
+		if ( !getId() ) {
+			setCreateDate( now() );
+		}
+		setUpdateDate( now() );
+
+		var messages = this.validate();
+		if ( arrayLen(messages) ) {
+			result = { "code"=900, "message"=messages };
+		}
+
+		if ( result.code == 001 ) {
+			result = super.save();
+		}
+
+		return result;
+	}
+
 	function validate() {
-		var messages = [];
-
-		if ( !len( getFirstName() ) ) {
-			arrayAppend(messages, "First name is required");
-		} else if ( len( getFirstName() ) > 50 ) {
-			arrayAppend(messages, "First name can not be longer than 50 characters");
-		}
-
-		if ( !len( getLastName() ) ) {
-			arrayAppend(messages, "Last name is required");
-		} else if ( len( getLastName() ) > 50 ) {
-			arrayAppend(messages, "Last name can not be longer than 50 characters");
-		}
-
-		if ( len( getEmail() ) > 50 ) {
-			arrayAppend(messages, "Email can not be longer than 50 characters");
-		} else if ( !isValid("email", getEmail() ) ) {
-			arrayAppend(messages, "Email must be a valid email address");
-		}
+		var errors = super.validate();
 
 		if ( !getDepartmentId() ) {
-			arrayAppend(messages, "Department is required");
+			arrayAppend(errors, "Department is required");
 		}
 
 		if ( !getUserTypeId() ) {
-			arrayAppend(messages, "Type is required");
+			arrayAppend(errors, "Type is required");
 		}
 
-		return messages;
+		return errors;
 	}
 
 }

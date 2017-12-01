@@ -169,7 +169,7 @@
 	private void function addInheritanceMapping( bean ) {
 		var beanmap = variables.beanmaps[ arguments.bean ];
 		if (
-			!structKeyExists(beanmap,"table") 
+			!structKeyExists(beanmap,"table")
 			&& len(beanmap.inherits)
 		) {
 			var parentbeanmap = getBeanMap(beanmap.inherits);
@@ -320,7 +320,12 @@
 		var modulename = ( arrayLen(temp) == 2 ? temp[1] : "" );
 		var beanname = ( arrayLen(temp) == 2 ? temp[2] : arguments.bean );
 
-		return variables.fw.getSubsystemBeanFactory(modulename).getBean( beanname & "Bean" );
+		if ( len(modulename) ) {
+			return variables.fw.getSubsystemBeanFactory(modulename).getBean( beanname & "Bean" );
+		} else {
+			//return variables.beanFactory.getBean( beanname & "Bean" );
+			return variables.fw.getDefaultBeanFactory().getBean( beanname & "Bean" );
+		}
 	}
 
 	private struct function getPropertyMetadata( prop ) {
@@ -390,9 +395,9 @@
 	 * Phil Arnold (philip.r.j.arnold@googlemail.com
 	 *
 	 * @param name 	 String to capitalize the first letter of (Required)
-	 * @return Returns a string. 
-	 * @author Brian Meloche (brianmeloche@gmail.com) 
-	 * @version 0, March 17, 2010 
+	 * @return Returns a string.
+	 * @author Brian Meloche (brianmeloche@gmail.com)
+	 * @version 0, March 17, 2010
 	 */
 	private string function upperFirst(required string name) {
 		return uCase(left(arguments.name,1)) & right(arguments.name,len(arguments.name)-1);

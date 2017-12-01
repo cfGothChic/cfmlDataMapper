@@ -1,7 +1,6 @@
-component accessors=true {
+component accessors="true" {
 
-	property departmentService;
-	property userService;
+	property dataFactory;
 
 	function init(fw) {
 		variables.framework = fw;
@@ -9,24 +8,30 @@ component accessors=true {
 
  	function before(rc) {
 		// url variable
-		param name="rc.id" type="integer" default=0; 
+		param name="rc.id" type="integer" default=0;
 	}
 
 	function delete(rc) {
-		variables.userService.delete( rc.id );
-		variables.framework.frameworkTrace( "deleted user", rc.id );
+		rc.user = variables.dataFactory.get(bean="user", id=rc.id);
+
+		var success = ( rc.user.exists() ? true : false );
+
+		if ( success ) {
+			success = rc.user.delete();
+		}
+
 		variables.framework.redirect( "user.list" );
 	}
-	
+
 	function detail(rc) {
-		rc.user = variables.userService.get( rc.id );
+		rc.user = variables.dataFactory.get(bean="user", id=rc.id);
 		rc.pageTitle = "User Detail";
 	}
 
 	function edit(rc) {
-		rc.user = variables.userService.get( rc.id );
-		rc.departments = variables.departmentService.list();
-		rc.types = variables.userService.listTypes();
+		rc.user = variables.dataFactory.get(bean="user", id=rc.id);
+		rc.departments = variables.dataFactory.list(bean="department");
+		rc.types = variables.dataFactory.list(bean="usertype");
 
 		// form variables from validation errors
 		param name="rc.firstName" default=rc.user.getFirstName();
@@ -40,41 +45,30 @@ component accessors=true {
     }
 
 	function list(rc) {
-		rc.users = variables.userService.list();
+		rc.users = variables.dataFactory.list(bean="user");
 
 		rc.pageTitle = "User List";
 	}
 
 	function save(rc) {
 		// form variables
-		param name="rc.firstName" type="string" default="";
-		param name="rc.lastName" type="string" default="";
-		param name="rc.email" type="string" default="";
-		param name="rc.departmentId" type="integer" default=0;
-		param name="rc.userTypeId" type="integer" default=0;
+		param name="rc.firstName" default="";
+		param name="rc.lastName" default="";
+		param name="rc.email" default="";
+		param name="rc.departmentId" default="0";
+		param name="rc.userTypeId" default="0";
 
-		var user = variables.userService.get( rc.id );
+		var user = variables.dataFactory.get(bean="user", id=rc.id);
 		variables.framework.populate( cfc = user, trim = true );
 
-		if ( rc.departmentId ) {
-			user.setDepartmentId( rc.departmentId );
-			user.setDepartment( variables.departmentService.get( rc.departmentId ) );
-		}
-
-		if ( rc.userTypeId ) {
-			user.setUserTypeId( rc.userTypeId );
-			user.setUserType( variables.userService.getType( rc.userTypeId ) );
-		}
-
-		rc.messages = user.validate();
+		var result = rc.user.save();
+		rc.messages = result.message;
 
 		if ( arrayLen(rc.messages) ) {
 			variables.framework.redirect(action="user.edit",preserve="firstName,lastName,email,departmentId,userTypeId,messages",append="id");
 
 		} else {
-			variables.userService.save( user );
 			rc.id = user.getId();
-			variables.framework.frameworkTrace( "added user", user );
 			variables.framework.redirect(action="user.detail",append="id");
 		}
 	}

@@ -3,14 +3,24 @@ component extends="framework.one" output="false" {
 	this.name = "fw1-usermanagersql";
 	this.applicationTimeout = createTimeSpan(3, 0, 0, 0);
 
+	this.datasources["usermanager"] = {
+		class: "net.sourceforge.jtds.jdbc.Driver",
+		connectionString: "jdbc:jtds:sqlserver://localhost:1433/usermanager",
+		username: "usermanager",
+		password: "usermanager"
+	};
+
 	this.mappings[ "/cfmlDataMapper" ] = expandPath("../");
 
 	variables.framework = {
-		diConfig = { constants = { dsn = "usermanager" } },
-		diLocations = "model, controllers, /cfmlDataMapper/model",
+		diConfig = {
+			constants = { dsn = "usermanager" },
+			singulars = { factories = "factory" }
+		},
+		diLocations = "model, /cfmlDataMapper/model",
 		environments = {
-			local = { reloadApplicationOnEveryRequest = true, trace = true },
-			dev = { reloadApplicationOnEveryRequest = true, trace = true },
+			local = { reloadApplicationOnEveryRequest = true },
+			dev = { reloadApplicationOnEveryRequest = true },
 			prod = { password = "supersecret" }
 		}
 	};
