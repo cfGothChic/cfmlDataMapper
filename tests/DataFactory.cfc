@@ -18,11 +18,6 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 			});
 
 
-			// init()
-			xit( "should cache the model's bean metadata on initialization", function(){
-				testClass.init(frameworkone);
-			});
-
 			describe("initializes and", function(){
 
 				beforeEach(function( currentSpec ){
@@ -32,19 +27,11 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 				// getBeanMap()
 				it( "returns a structure of metadata related to a transient bean", function(){
-					/*dataFactory.$( "getBeanMap", { table="usertypes" } );
+					var result = testClass.getBeanMap( bean="user" );
 
-					var result = testClass.getBeanMap( bean="userType" );
-
-					expect( dataFactory.$once("getBeanMap") ).toBeTrue();
 					expect( result ).toBeTypeOf( "struct" );
-					expect( structKeyExists(result, "table") ).toBeTrue();*/
-				});
-
-
-				// addInheritanceMapping()
-				it( "adds inheritance mapping to a transient bean", function(){
-
+					expect( structKeyExists(result, "bean") ).toBeTrue();
+					expect( result.bean ).toBe( "user" );
 				});
 
 
@@ -130,6 +117,77 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 				});
 
+
+				describe("takes", function(){
+
+					beforeEach(function( currentSpec ){
+						beanFactory = createEmptyMock("cfmlDataMapper.samples.framework.ioc");
+						beanFactory.$( "injectProperties" );
+						testClass.$property( propertyName="beanFactory", mock=beanFactory );
+
+						userBean.$( "getId", 1 );
+						testClass.$( "getModuleBean", userBean );
+					});
+
+
+					describe("a custom query and", function(){
+
+						beforeEach(function( currentSpec ){
+							qRecords = querySim("id
+								1");
+						});
+
+
+						// getBeans()
+						it( "returns an array of transient beans", function(){
+							var result = testClass.getBeans( bean="user", qRecords=qRecords );
+
+							expect( testClass.$once("getModuleBean") ).toBeTrue();
+							expect( beanFactory.$atLeast(1, "injectProperties") ).toBeTrue();
+
+							expect( result ).toBeTypeOf( "array" );
+							expect( arrayLen(result) ).toBe( 1 );
+							expect( result[1] ).toBeInstanceOf( "model.beans.user" );
+						});
+
+
+						// getBeanStruct() {
+						it( "returns a structure by id of transient beans", function(){
+							var result = testClass.getBeanStruct( bean="user", qRecords=qRecords );
+
+							expect( testClass.$once("getModuleBean") ).toBeTrue();
+							expect( beanFactory.$atLeast(1, "injectProperties") ).toBeTrue();
+
+							expect( result ).toBeTypeOf( "struct" );
+							expect( structCount(result) ).toBe( 1 );
+							expect( result[1] ).toBeInstanceOf( "model.beans.user" );
+						});
+
+					});
+
+
+					describe("an array of structures and", function(){
+
+						beforeEach(function( currentSpec ){
+							beansArray = [{ id = 1 }];
+						});
+
+
+						// getBeansFromArray()
+						it( "returns an array of transient beans", function(){
+							var result = testClass.getBeansFromArray( bean="user", beansArray=beansArray );
+
+							expect( testClass.$once("getModuleBean") ).toBeTrue();
+							expect( beanFactory.$atLeast(1, "injectProperties") ).toBeTrue();
+
+							expect( result ).toBeTypeOf( "array" );
+							expect( arrayLen(result) ).toBe( 1 );
+							expect( result[1] ).toBeInstanceOf( "model.beans.user" );
+						});
+
+					});
+
+				});
 
 				// get()
 				describe("calls get() and", function(){
@@ -264,78 +322,39 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 				});
 
+			});
 
-				describe("takes", function(){
+			describe("exposes private methods and", function(){
 
-					beforeEach(function( currentSpec ){
-						beanFactory = createEmptyMock("cfmlDataMapper.samples.framework.ioc");
-						beanFactory.$( "injectProperties" );
-						testClass.$property( propertyName="beanFactory", mock=beanFactory );
-
-						userBean.$( "getId", 1 );
-						testClass.$( "getModuleBean", userBean );
-					});
-
-
-					describe("a custom query and", function(){
-
-						beforeEach(function( currentSpec ){
-							qRecords = querySim("id
-								1");
-						});
-
-
-						// getBeans()
-						it( "returns an array of transient beans", function(){
-							var result = testClass.getBeans( bean="user", qRecords=qRecords );
-
-							expect( testClass.$once("getModuleBean") ).toBeTrue();
-							expect( beanFactory.$atLeast(1, "injectProperties") ).toBeTrue();
-
-							expect( result ).toBeTypeOf( "array" );
-							expect( arrayLen(result) ).toBe( 1 );
-							expect( result[1] ).toBeInstanceOf( "model.beans.user" );
-						});
-
-
-						// getBeanStruct() {
-						it( "returns a structure by id of transient beans", function(){
-							var result = testClass.getBeanStruct( bean="user", qRecords=qRecords );
-
-							expect( testClass.$once("getModuleBean") ).toBeTrue();
-							expect( beanFactory.$atLeast(1, "injectProperties") ).toBeTrue();
-
-							expect( result ).toBeTypeOf( "struct" );
-							expect( structCount(result) ).toBe( 1 );
-							expect( result[1] ).toBeInstanceOf( "model.beans.user" );
-						});
-
-					});
-
-
-					describe("an array of structures and", function(){
-
-						beforeEach(function( currentSpec ){
-							beansArray = [{ id = 1 }];
-						});
-
-
-						// getBeansFromArray()
-						it( "returns an array of transient beans", function(){
-							var result = testClass.getBeansFromArray( bean="user", beansArray=beansArray );
-
-							expect( testClass.$once("getModuleBean") ).toBeTrue();
-							expect( beanFactory.$atLeast(1, "injectProperties") ).toBeTrue();
-
-							expect( result ).toBeTypeOf( "array" );
-							expect( arrayLen(result) ).toBe( 1 );
-							expect( result[1] ).toBeInstanceOf( "model.beans.user" );
-						});
-
-					});
-
+				beforeEach(function( currentSpec ){
+					testClass.init(frameworkone);
 				});
 
+
+				// addInheritanceMapping()
+				it( "adds inheritance mapping to a transient bean", function(){
+					testClass.$( "getBeanMap", {
+						bean = "user",
+						properties = {
+							name = "id"
+						},
+						relationships = {
+							name = "userType"
+						}
+					});
+
+					makePublic( testClass, "addInheritanceMapping" );
+					testClass.addInheritanceMapping( bean="adminuser" );
+
+					expect( testClass.$once("getBeanMap") ).toBeTrue();
+				});
+
+			});
+
+
+			// init()
+			xit( "should cache the model's bean metadata on initialization", function(){
+				testClass.init(frameworkone);
 			});
 
 		});
