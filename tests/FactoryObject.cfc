@@ -8,46 +8,9 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 	function run() {
 
-
 		describe("The Factory Object", function(){
 
-
-			// validateConfig()
-			describe("validates the data factory config and", function(){
-
-
-				it( "succeeds if all required variables are present", function(){
-					var config = {
-						dsn = "test",
-						locations = "/test"
-					};
-					testClass.init(config);
-				});
-
-
-				it( "errors if the dsn variable is not present", function(){
-					var config = {
-						locations = "/test"
-					};
-
-					expect( function(){ testClass.init(config); } ).toThrow(type="application", regex="(dsn)");
-				});
-
-
-				it( "errors if the locations variable is not present", function(){
-					var config = {
-						dsn = "test"
-					};
-
-					expect( function(){ testClass.init(config); } ).toThrow(type="application", regex="(locations)");
-				});
-
-
-			});
-
-
 			describe("initializes and", function(){
-
 
 				beforeEach(function( currentSpec ){
 					beanModalLocation = "/model";
@@ -96,23 +59,6 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				});
 
 
-				it( "returns the framework config with reloadApplicationOnEveryRequest updated with the framework config variable", function(){
-					var config = {
-						dsn = "test",
-						locations = beanModalLocation,
-						reloadApplicationOnEveryRequest = true
-					};
-					testClass.init(config);
-
-					makePublic( testClass, "getFrameworkConfig" );
-
-					var result = testClass.getFrameworkConfig();
-
-					expect( structKeyExists(result, "reloadApplicationOnEveryRequest") ).toBeTrue();
-					expect( result.reloadApplicationOnEveryRequest ).toBeTrue();
-				});
-
-
 				// getLocations()
 				it( "returns a string of model locations for the framework config", function(){
 					makePublic( testClass, "getLocations" );
@@ -120,13 +66,12 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					var result = testClass.getLocations();
 
 					expect( result ).toBeTypeOf( "string" );
-					expect( result ).toMatch( "(/model)" );
-					expect( result ).toMatch( "(/cfmlDataMapper)" );
+					expect( result ).toMatch( "(#beanModalLocation#)" );
+					expect( result ).toMatch( "(/cfmlDataMapper/model)" );
 				});
 
 
 				describe("calls fw1 and", function(){
-
 
 					beforeEach(function( currentSpec ){
 						frameworkone = createEmptyMock("cfmlDataMapper.samples.framework.one");
@@ -167,12 +112,10 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						expect( frameworkone.$once("populate") ).toBeTrue();
 					});
 
-
 				});
 
 
 				describe("calls the data factory and", function(){
-
 
 					beforeEach(function( currentSpec ){
 						userTypeBean = createEmptyMock("model.beans.userType");
@@ -208,23 +151,13 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 
 					// hasBean()
-					it( "returns true when a bean exists in the model", function(){
+					it( "returns a boolean when checking if a bean exists in the model", function(){
 						dataFactory.$( "hasBean", true );
 
 						var result = testClass.hasBean( bean="userType" );
 
 						expect( dataFactory.$once("hasBean") ).toBeTrue();
-						expect( result ).toBeTrue();
-					});
-
-
-					it( "returns false when a bean doesn't exist in the model", function(){
-						dataFactory.$( "hasBean", false );
-
-						var result = testClass.hasBean( bean="test" );
-
-						expect( dataFactory.$once("hasBean") ).toBeTrue();
-						expect( result ).toBeFalse();
+						expect( result ).toBeTypeOf( "boolean" );
 					});
 
 
@@ -278,17 +211,70 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						expect( result[1] ).toBeInstanceOf( "model.beans.userType" );
 					});
 
-
 				});
-
 
 			});
 
 
+			// validateConfig()
+			describe("validates the data factory config and", function(){
+
+				beforeEach(function( currentSpec ){
+					makePublic( testClass, "validateConfig" );
+
+					testClass.$( "setFactoryConfig" );
+				});
+
+
+				it( "succeeds if all required variables are present", function(){
+					testClass.$( "getFactoryConfig", {
+						dsn = "test",
+						locations = "/test"
+					});
+
+					testClass.validateConfig();
+
+					expect( testClass.$once("setFactoryConfig") ).toBeTrue();
+				});
+
+
+				it( "errors if the dsn variable is not present", function(){
+					testClass.$( "getFactoryConfig", {
+						locations = "/test"
+					});
+
+					expect( function(){ testClass.validateConfig(); } ).toThrow(type="application", regex="(dsn)");
+				});
+
+
+				it( "errors if the locations variable is not present", function(){
+					testClass.$( "getFactoryConfig", {
+						dsn = "test"
+					});
+
+					expect( function(){ testClass.validateConfig(); } ).toThrow(type="application", regex="(locations)");
+				});
+
+			});
+
+			// init()
+			describe("on initialization", function(){
+
+				it( "should cache and validate the framework config", function(){
+					testClass.$( "setFactoryConfig" )
+						.$( "validateConfig" );
+
+					var result = testClass.init({});
+
+					expect( testClass.$once("setFactoryConfig") ).toBeTrue();
+					expect( testClass.$once("validateConfig") ).toBeTrue();
+					expect( result ).toBeInstanceOf( "cfmlDataMapper.factory" );
+				});
+
+			});
+
 		});
 
-
 	}
-
 
 }
