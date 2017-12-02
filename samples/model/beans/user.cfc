@@ -8,8 +8,8 @@ component accessors="true" extends="cfmlDataMapper.model.base.bean"
 	property name="firstName" cfsqltype="varchar" maxlength="50" default="";
 	property name="lastName" cfsqltype="varchar" maxlength="50" default="";
 	property name="email" cfsqltype="varchar" maxlength="50" null="true" default="";
-	property name="createDate" cfsqltype="varchar" default="";
-	property name="updateDate" cfsqltype="varchar" default="";
+	property name="createDate" cfsqltype="timestamp" insert="false" default="";
+	property name="updateDate" cfsqltype="timestamp" default="";
 
 	property name="departmentId" cfsqltype="integer" null="true" default="0";
 	property name="departmentBean" bean="department" joinType="one" fkName="departmentId";

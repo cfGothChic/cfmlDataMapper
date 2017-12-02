@@ -146,7 +146,7 @@
 				transaction action="commit";
 			} catch (any e) {
 				transaction action="rollback";
-				arrayAppend(result.messages,"There was an issue saving the " & getBeanName() & ".");
+				arrayAppend(result.message,"There was an issue saving the " & getBeanName() & ".");
 				result.success = false;
 				result.code = 500;
 				result["error"] = e;

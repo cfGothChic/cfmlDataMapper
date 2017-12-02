@@ -61,7 +61,7 @@ component accessors="true" {
 		var user = variables.dataFactory.get(bean="user", id=rc.id);
 		variables.framework.populate( cfc = user, trim = true );
 
-		var result = rc.user.save();
+		var result = user.save();
 		rc.messages = result.message;
 
 		if ( arrayLen(rc.messages) ) {

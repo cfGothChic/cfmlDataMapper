@@ -7,8 +7,8 @@ component accessors="true" extends="cfmlDataMapper.model.base.bean"
 
 	property name="id" columnName="departmentId" cfsqltype="integer" isidentity="true" default="0";
 	property name="name" cfsqltype="varchar" maxlength="50" default="";
-	property name="createDate" cfsqltype="varchar" default="";
-	property name="updateDate" cfsqltype="varchar" default="";
+	property name="createDate" cfsqltype="timestamp" insert="false" default="";
+	property name="updateDate" cfsqltype="timestamp" default="";
 
 	function getCreateDate() {
 		return isDate(variables.createDate) ? variables.createDate : now();

@@ -10,14 +10,15 @@ component extends="framework.one" output="false" {
 		password: "usermanager"
 	};
 
-	this.mappings[ "/cfmlDataMapper" ] = expandPath("../");
+	this.mappings[ "/cfmlDataMapper" ] = expandPath("../../");
+	this.mappings[ "/model" ] = expandPath("../model");
 
 	variables.framework = {
 		diConfig = {
 			constants = { dsn = "usermanager" },
 			singulars = { factories = "factory" }
 		},
-		diLocations = "model, /cfmlDataMapper/model",
+		diLocations = "/model, /cfmlDataMapper/model",
 		environments = {
 			local = { reloadApplicationOnEveryRequest = true },
 			dev = { reloadApplicationOnEveryRequest = true },
