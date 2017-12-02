@@ -8,8 +8,8 @@ component accessors="true" extends="cfmlDataMapper.model.base.bean"
 	property name="firstName" cfsqltype="varchar" maxlength="50" default="";
 	property name="lastName" cfsqltype="varchar" maxlength="50" default="";
 	property name="email" cfsqltype="varchar" maxlength="50" null="true" default="";
-	property name="createDate" cfsqltype="varchar" default="";
-	property name="updateDate" cfsqltype="varchar" default="";
+	property name="createDate" cfsqltype="timestamp" insert="false" default="";
+	property name="updateDate" cfsqltype="timestamp" default="";
 
 	property name="departmentId" cfsqltype="integer" null="true" default="0";
 	property name="departmentBean" bean="department" joinType="one" fkName="departmentId";
@@ -19,6 +19,10 @@ component accessors="true" extends="cfmlDataMapper.model.base.bean"
 
 	function getCreateDate() {
 		return isDate(variables.createDate) ? variables.createDate : now();
+	}
+
+  function getCreateDateFormatted() {
+		return dateformat(getCreateDate(), "m/d/yyyy");
 	}
 
 	function getDepartment() {
@@ -32,6 +36,10 @@ component accessors="true" extends="cfmlDataMapper.model.base.bean"
 
 	function getUpdateDate() {
 		return isDate(variables.updateDate) ? variables.updateDate : now();
+	}
+
+  function getUpdateDateFormatted() {
+		return dateformat(getUpdateDate(), "m/d/yyyy");
 	}
 
 	function getUserType() {

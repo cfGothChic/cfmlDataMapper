@@ -38,7 +38,6 @@
 						<li<cfif getSectionAndItem() is "main.default"> class="active"</cfif>><a href="#buildUrl('')#">Home</a></li>
 						<li<cfif getSectionAndItem() is "user.list"> class="active"</cfif>><a href="#buildUrl('user.list')#" title="View the list of users">Users</a></li>
 						<li<cfif getSectionAndItem() is "user.edit"> class="active"</cfif>><a href="#buildUrl('user.edit')#" title="Fill out form to add new user">Add User</a></li>
-						<li><a href="#buildUrl('?reload=true')#" title="Resets framework cache">Reload</a></li>
 					</ul>
 				</div><!-- /.navbar-collapse -->
 			</div><!-- /.container-fluid -->

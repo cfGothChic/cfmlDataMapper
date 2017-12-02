@@ -1,4 +1,4 @@
-# cfmlDataMapper Sample App
+# cfmlDataMapper Sample Apps
 
 create a new MSSQL database named "usermanager"
 
