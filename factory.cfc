@@ -15,7 +15,7 @@ component accessors="true" output="false" {
 
   private component function _get_framework_one() {
 		if ( !structKeyExists( request, '_framework_one' ) ) {
-			request._framework_one = new framework.one(getFrameworkConfig());
+			request._framework_one = new cfmlDataMapper.samples.framework.one(getFrameworkConfig());
 		}
 		return request._framework_one;
 	}

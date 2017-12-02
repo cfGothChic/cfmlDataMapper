@@ -38,6 +38,9 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 			describe("initializes and", function(){
 
 				beforeEach(function( currentSpec ){
+					frameworkone = createEmptyMock("cfmlDataMapper.samples.framework.one");
+					frameworkone.$( "onRequestStart", true );
+
 					var config = {
 						dsn = "test",
 						locations = "/test"
@@ -47,20 +50,20 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 				// _get_framework_one()
 				it( "initializes fw1 and returns it as an object", function(){
-
+					makePublic( testClass, "_get_framework_one" );
+					var result = testClass._get_framework_one();
+					expect( result ).toBeInstanceOf( "cfmlDataMapper.samples.framework.one" );
 				});
 
 				// getFactory()
 				it( "returns the model factory object", function(){
-					var frameworkone = createEmptyMock("cfmlDataMapper.samples.framework.one");
 					var frameworkioc = createEmptyMock("cfmlDataMapper.samples.framework.ioc");
 					var dataFactory = createEmptyMock("cfmlDataMapper.model.factory.data");
-					frameworkone.$( "onRequestStart", true )
-						.$( "getDefaultBeanFactory", frameworkioc )
+					frameworkone.$( "getDefaultBeanFactory", frameworkioc )
 						.getDefaultBeanFactory().$( "getBean", dataFactory );
 					testClass.$( "_get_framework_one", frameworkone );
 
-					var factory = testClass.getFactory();
+					var result = testClass.getFactory();
 					expect( testClass.$times(2,"_get_framework_one") ).toBeTrue();
 					expect( frameworkone.$once("onRequestStart") ).toBeTrue();
 					expect( frameworkone.$atLeast(1, "getDefaultBeanFactory") ).toBeTrue();
@@ -69,7 +72,13 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 				// populate()
 				it( "calls the fw1 populate function", function(){
+					frameworkone.$( "populate" );
+					testClass.$( "_get_framework_one", frameworkone );
 
+					testClass.populate();
+					expect( testClass.$times(2,"_get_framework_one") ).toBeTrue();
+					expect( frameworkone.$once("onRequestStart") ).toBeTrue();
+					expect( frameworkone.$once("populate") ).toBeTrue();
 				});
 
 				// getConstants()
