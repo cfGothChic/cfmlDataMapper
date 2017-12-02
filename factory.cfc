@@ -57,6 +57,8 @@ component accessors="true" output="false" {
     }
 
     param name="config.reloadApplicationOnEveryRequest" default="false";
+
+    setFactoryConfig(config);
   }
 
   // data factory function passthroughs
