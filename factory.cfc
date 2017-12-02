@@ -36,7 +36,7 @@ component accessors="true" output="false" {
         constants = getConstants()
       },
       diLocations = getLocations(),
-      reloadApplicationOnEveryRequest = true
+      reloadApplicationOnEveryRequest = getFactoryConfig().reloadApplicationOnEveryRequest
     };
   }
 
@@ -48,12 +48,15 @@ component accessors="true" output="false" {
 
   private void function validateConfig() {
     var config = getFactoryConfig();
+
     if ( !structKeyExists(config, "dsn") || !len(config.dsn) ) {
       throw("The cfmlDataMapper Factory requires the dsn config variable.");
     }
     if ( !structKeyExists(config, "locations") || !len(config.locations) ) {
       throw("The cfmlDataMapper Factory requires the locations config variable.");
     }
+
+    param name="config.reloadApplicationOnEveryRequest" default="false";
   }
 
   // data factory function passthroughs
@@ -67,7 +70,7 @@ component accessors="true" output="false" {
 	}
 
 	public function getBeans() {
-    return getFactory().getBeanMap( argumentCollection=arguments );
+    return getFactory().getBeans( argumentCollection=arguments );
 	}
 
 	public function getBeansFromArray() {

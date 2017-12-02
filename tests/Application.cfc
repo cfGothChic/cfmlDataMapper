@@ -9,7 +9,7 @@ component{
 
 	this.mappings[ "/testbox" ] = getDirectoryFromPath( getCurrentTemplatePath() );;
 	this.mappings[ "/cfmlDataMapper" ] = expandPath("../");
-	this.mappings[ "/model" ] = expandPath("../model");
+	this.mappings[ "/model" ] = expandPath("../samples/model");
 
 	public boolean function onRequestStart( String targetPage ){
 		return true;
