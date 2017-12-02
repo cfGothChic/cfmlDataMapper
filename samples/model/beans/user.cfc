@@ -21,6 +21,10 @@ component accessors="true" extends="cfmlDataMapper.model.base.bean"
 		return isDate(variables.createDate) ? variables.createDate : now();
 	}
 
+  function getCreateDateFormatted() {
+		return dateformat(getCreateDate(), "m/d/yyyy");
+	}
+
 	function getDepartment() {
 		super.populateRelationship("departmentBean");
 		return variables.departmentBean;
@@ -32,6 +36,10 @@ component accessors="true" extends="cfmlDataMapper.model.base.bean"
 
 	function getUpdateDate() {
 		return isDate(variables.updateDate) ? variables.updateDate : now();
+	}
+
+  function getUpdateDateFormatted() {
+		return dateformat(getUpdateDate(), "m/d/yyyy");
 	}
 
 	function getUserType() {

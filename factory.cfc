@@ -86,4 +86,11 @@ component accessors="true" output="false" {
     return getFactory().list( argumentCollection=arguments );
 	}
 
+  // fw1 functionality to use with beans
+
+  public function populate() {
+    _get_framework_one().onRequestStart("");
+    return _get_framework_one().populate( argumentCollection=arguments );
+  }
+
 }

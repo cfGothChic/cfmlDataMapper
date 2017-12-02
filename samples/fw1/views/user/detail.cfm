@@ -32,11 +32,11 @@
 
 	<div class="row">
 		<div class="col-md-3"><strong>Created:</strong></div>
-		<div class="col-md-9">#dateformat( rc.user.getCreateDate(), "m/d/yyyy")#</div>
+		<div class="col-md-9">#rc.user.getCreateDateFormatted()#</div>
 	</div>
 
 	<div class="row">
 		<div class="col-md-3"><strong>Updated:</strong></div>
-		<div class="col-md-9">#dateformat( rc.user.getUpdateDate(), "m/d/yyyy")#</div>
+		<div class="col-md-9">#rc.user.getUpdateDateFormatted()#</div>
 	</div>
 </cfoutput>

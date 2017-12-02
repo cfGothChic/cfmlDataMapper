@@ -19,7 +19,8 @@
 		<div class="container-fluid">
 			<h2>cfmlDataMapper Samples</h2>
 			<ul>
-				<li><a href="fw1">fw1 example</a></li>
+				<li><a href="fw1">FW/1 example</a></li>
+				<li><a href="standalone">Standalone example</a></li>
 			</ul>
 		</div>
 
