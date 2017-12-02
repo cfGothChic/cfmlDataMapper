@@ -16,7 +16,8 @@ component {
 	boolean function onApplicationStart() {
 		application.dataFactory = new cfmlDataMapper.factory({
 			dsn = "usermanager",
-			locations = "/model"
+			locations = "/model",
+			reloadApplicationOnEveryRequest = true
 		});
 
 		return true;
