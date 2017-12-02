@@ -1,6 +1,6 @@
 component extends="framework.one" output="false" {
 
-	this.name = "fw1-usermanagersql";
+	this.name = "fw1-usermanager";
 	this.applicationTimeout = createTimeSpan(3, 0, 0, 0);
 
 	this.datasources["usermanager"] = {
@@ -15,33 +15,10 @@ component extends="framework.one" output="false" {
 
 	variables.framework = {
 		diConfig = {
-			constants = { dsn = "usermanager" },
-			singulars = { factories = "factory" }
+			constants = { dsn = "usermanager" }
 		},
 		diLocations = "/model, /cfmlDataMapper/model",
-		environments = {
-			local = { reloadApplicationOnEveryRequest = true },
-			dev = { reloadApplicationOnEveryRequest = true },
-			prod = { password = "supersecret" }
-		}
+		reloadApplicationOnEveryRequest = false
 	};
-
-	public void function setupSession() {  }
-
-	public void function setupRequest() {  }
-
-	public void function setupView() {  }
-
-	public void function setupResponse() {  }
-
-	public string function onMissingView(struct rc = {}) {
-		return "Error 404 - Page not found.";
-	}
-
-	public string function getEnvironment() {
-		if ( findNoCase( "www", CGI.SERVER_NAME ) ) return "prod";
-		if ( findNoCase( "dev", CGI.SERVER_NAME ) ) return "dev";
-		else return "local";
-	}
 
 }
