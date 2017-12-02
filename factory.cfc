@@ -8,6 +8,11 @@ component accessors="true" output="false" {
     return this;
   }
 
+  public cfmlDataMapper.model.factory.data function getFactory() {
+    _get_framework_one().onRequestStart("");
+    return _get_framework_one().getDefaultBeanFactory().getBean("dataFactory");
+  }
+
   private component function _get_framework_one() {
 		if ( !structKeyExists( request, '_framework_one' ) ) {
 			request._framework_one = new framework.one(getFrameworkConfig());
@@ -23,11 +28,6 @@ component accessors="true" output="false" {
     };
 
     return contants;
-  }
-
-  public cfmlDataMapper.model.factory.data function getFactory() {
-    _get_framework_one().onRequestStart("");
-    return _get_framework_one().getDefaultBeanFactory().getBean("dataFactory");
   }
 
   private struct function getFrameworkConfig() {

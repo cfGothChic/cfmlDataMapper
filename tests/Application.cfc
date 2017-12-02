@@ -8,7 +8,8 @@ component{
 	this.sessionManagement = true;
 
 	this.mappings[ "/testbox" ] = getDirectoryFromPath( getCurrentTemplatePath() );;
-	this.mappings[ "/model" ] = expandPath("../../../model");
+	this.mappings[ "/cfmlDataMapper" ] = expandPath("../");
+	this.mappings[ "/model" ] = expandPath("../model");
 
 	public boolean function onRequestStart( String targetPage ){
 		return true;
