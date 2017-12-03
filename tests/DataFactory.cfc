@@ -20,9 +20,9 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 		dataGateway = createEmptyMock("cfmlDataMapper.model.gateways.data");
 		testClass.$property( propertyName="dataGateway", mock=dataGateway );
 
-		utilities = createEmptyMock("cfmlDataMapper.model.utilities");
-		utilities.$( "upperFirst", "Test" )
-		testClass.$property( propertyName="utilities", mock=utilities );
+		utilityService = createEmptyMock("cfmlDataMapper.model.services.utility");
+		utilityService.$( "upperFirst", "Test" );
+		testClass.$property( propertyName="utilityService", mock=utilityService );
 	}
 
 	function run() {
@@ -37,7 +37,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 			describe("initializes and", function(){
 
 				beforeEach(function( currentSpec ){
-					testClass.init(frameworkone);
+					testClass.init(frameworkone,utilityService);
 				});
 
 
@@ -362,7 +362,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 			describe("uses bean metadata and", function(){
 
 				beforeEach(function( currentSpec ){
-					testClass.init(frameworkone);
+					testClass.init(frameworkone,utilityService);
 
 					metadata = {
 						table = "users",
@@ -419,7 +419,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					var result = testClass.getInheritanceMetadata( metadata=metadata );
 
 					expect( result ).toBeTypeOf( "string" );
-					expect( result ).toBe( "" );
+					expect( result ).toBeEmpty();
 				});
 
 
@@ -651,7 +651,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 			describe("interacts with the file system and", function(){
 
 				beforeEach(function( currentSpec ){
-					testClass.init(frameworkone);
+					testClass.init(frameworkone,utilityService);
 
 					makePublic( testClass, "cacheBeanMetadata" );
 					makePublic( testClass, "readBeanDirectory" );
@@ -686,7 +686,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				it( "should cache the model's bean metadata", function(){
 					testClass.$( "cacheBeanMetadata" );
 
-					var result = testClass.init(frameworkone);
+					var result = testClass.init(frameworkone,utilityService);
 
 					expect( testClass.$once("cacheBeanMetadata") ).toBeTrue();
 					expect( result ).toBeInstanceOf( "cfmlDataMapper.model.factory.data" );
