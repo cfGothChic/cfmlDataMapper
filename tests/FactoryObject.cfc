@@ -40,7 +40,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					var result = testClass.getConstants();
 
 					expect( result ).toBeTypeOf( "struct" );
-					expect( structKeyExists(result, "dsn") ).toBeTrue();
+					expect( result ).toHaveKey( "dsn" );
 				});
 
 
@@ -51,11 +51,11 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					var result = testClass.getFrameworkConfig();
 
 					expect( result ).toBeTypeOf( "struct" );
-					expect( structKeyExists(result, "diConfig") ).toBeTrue();
-					expect( structKeyExists(result.diConfig, "constants") ).toBeTrue();
-					expect( structKeyExists(result.diConfig.constants, "dsn") ).toBeTrue();
-					expect( structKeyExists(result, "diLocations") ).toBeTrue();
-					expect( structKeyExists(result, "reloadApplicationOnEveryRequest") ).toBeTrue();
+					expect( result ).toHaveKey( "diConfig" );
+					expect( result.diConfig ).toHaveKey( "constants" );
+					expect( result.diConfig.constants ).toHaveKey( "dsn" );
+					expect( result ).toHaveKey( "diLocations" );
+					expect( result ).toHaveKey( "reloadApplicationOnEveryRequest" );
 				});
 
 
@@ -169,7 +169,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 						expect( dataFactory.$once("getBeanMap") ).toBeTrue();
 						expect( result ).toBeTypeOf( "struct" );
-						expect( structKeyExists(result, "table") ).toBeTrue();
+						expect( result ).toHaveKey( "table" );
 					});
 
 

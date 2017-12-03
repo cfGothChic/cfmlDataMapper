@@ -54,7 +54,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						var result = testClass.getBeanMap( bean="user" );
 
 						expect( result ).toBeTypeOf( "struct" );
-						expect( structKeyExists(result, "bean") ).toBeTrue();
+						expect( result ).toHaveKey( "bean" );
 						expect( result.bean ).toBe( "user" );
 					});
 
@@ -458,7 +458,21 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 					expect( result ).toBeTypeOf( "struct" );
 					expect( structCount(result) ).toBe( 15 );
-					expect( structKeyExists(result, "datatype") ).toBeTrue();
+					expect( result ).toHaveKey( "name" );
+					expect( result ).toHaveKey( "defaultvalue" );
+					expect( result ).toHaveKey( "displayname" );
+					expect( result ).toHaveKey( "columnName" );
+					expect( result ).toHaveKey( "insert" );
+					expect( result ).toHaveKey( "isidentity" );
+					expect( result ).toHaveKey( "null" );
+					expect( result ).toHaveKey( "sqltype" );
+					expect( result ).toHaveKey( "valtype" );
+					expect( result ).toHaveKey( "regex" );
+					expect( result ).toHaveKey( "minvalue" );
+					expect( result ).toHaveKey( "maxvalue" );
+					expect( result ).toHaveKey( "minlength" );
+					expect( result ).toHaveKey( "maxlength" );
+					expect( result ).toHaveKey( "datatype" );
 				});
 
 
@@ -558,7 +572,16 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 					expect( result ).toBeTypeOf( "struct" );
 					expect( structCount(result) ).toBe( 10 );
-					expect( structKeyExists(result, "joinType") ).toBeTrue();
+					expect( result ).toHaveKey( "name" );
+					expect( result ).toHaveKey( "bean" );
+					expect( result ).toHaveKey( "joinType" );
+					expect( result ).toHaveKey( "contexts" );
+					expect( result ).toHaveKey( "fkColumn" );
+					expect( result ).toHaveKey( "fkName" );
+					expect( result ).toHaveKey( "fksqltype" );
+					expect( result ).toHaveKey( "joinSchema" );
+					expect( result ).toHaveKey( "joinTable" );
+					expect( result ).toHaveKey( "joinColumn" );
 				});
 
 
@@ -568,7 +591,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 					expect( result ).toBeTypeOf( "struct" );
 					expect( structCount(result) ).toBe( 1 );
-					expect( structKeyExists(result, "cached") ).toBeTrue();
+					expect( result ).toHaveKey( "cached" );
 				});
 
 
@@ -577,7 +600,14 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 					expect( result ).toBeTypeOf( "struct" );
 					expect( structCount(result) ).toBe( 8 );
-					expect( structKeyExists(result, "cacheparams") ).toBeTrue();
+					expect( result ).toHaveKey( "table" );
+					expect( result ).toHaveKey( "primarykey" );
+					expect( result ).toHaveKey( "orderby" );
+					expect( result ).toHaveKey( "schema" );
+					expect( result ).toHaveKey( "cached" );
+					expect( result ).toHaveKey( "cacheparams" );
+					expect( result ).toHaveKey( "cacheparamdefault" );
+					expect( result ).toHaveKey( "cacheparamwild" );
 				});
 
 
