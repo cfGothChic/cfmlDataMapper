@@ -81,10 +81,10 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 					// getFactory()
 					it( "returns the model factory object", function(){
-						var frameworkioc = createEmptyMock("cfmlDataMapper.samples.framework.ioc");
+						var beanFactory = createEmptyMock("cfmlDataMapper.samples.framework.ioc");
 						var dataFactory = createEmptyMock("cfmlDataMapper.model.factory.data");
 
-						frameworkone.$( "getDefaultBeanFactory", frameworkioc )
+						frameworkone.$( "getDefaultBeanFactory", beanFactory )
 							.getDefaultBeanFactory().$( "getBean", dataFactory );
 						testClass.$( "_get_framework_one", frameworkone );
 

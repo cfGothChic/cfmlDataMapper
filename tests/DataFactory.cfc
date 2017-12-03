@@ -8,6 +8,18 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 		userBean = createMock("model.beans.user");
 		userTypeBean = createMock("model.beans.userType");
 
+		beanFactory = createEmptyMock("cfmlDataMapper.samples.framework.ioc");
+		beanFactory.$( "getBean" ).$args( "departmentBean" ).$results( departmentBean )
+			.$( "getBean" ).$args( "userBean" ).$results( userBean )
+			.$( "getBean" ).$args( "userTypeBean" ).$results( userTypeBean );
+		testClass.$property( propertyName="beanFactory", mock=beanFactory );
+
+		cacheService = createEmptyMock("cfmlDataMapper.model.services.cache");
+		testClass.$property( propertyName="cacheService", mock=cacheService );
+
+		dataGateway = createEmptyMock("cfmlDataMapper.model.gateways.data");
+		testClass.$property( propertyName="dataGateway", mock=dataGateway );
+
 		utilities = createEmptyMock("cfmlDataMapper.model.utilities");
 		utilities.$( "upperFirst", "Test" )
 		testClass.$property( propertyName="utilities", mock=utilities );
@@ -69,12 +81,8 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					beforeEach(function( currentSpec ){
 						makePublic( testClass, "getModuleBean" );
 
-						frameworkioc = createEmptyMock("cfmlDataMapper.samples.framework.ioc");
-						frameworkioc.$( "getBean" ).$args( "userBean" ).$results( userBean )
-							.$( "getBean" ).$args( "userTypeBean" ).$results( userTypeBean );
-
-						frameworkone.$( "getDefaultBeanFactory", frameworkioc )
-							.$( "getSubsystemBeanFactory", frameworkioc );
+						frameworkone.$( "getDefaultBeanFactory", beanFactory )
+							.$( "getSubsystemBeanFactory", beanFactory );
 
 						testClass.$property( propertyName="fw", mock=frameworkone );
 
@@ -111,9 +119,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				describe("takes", function(){
 
 					beforeEach(function( currentSpec ){
-						beanFactory = createEmptyMock("cfmlDataMapper.samples.framework.ioc");
 						beanFactory.$( "injectProperties" );
-						testClass.$property( propertyName="beanFactory", mock=beanFactory );
 
 						userBean.$( "getId", 1 );
 						testClass.$( "getModuleBean", userBean );
@@ -186,11 +192,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					beforeEach(function( currentSpec ){
 						makePublic( testClass, "getByParams" );
 
-						cacheService = createEmptyMock("cfmlDataMapper.model.services.cache");
 						cacheService.$( "get", { success = false });
-						testClass.$property( propertyName="cacheService", mock=cacheService );
-
-						dataGateway = createEmptyMock("cfmlDataMapper.model.gateways.data");
 
 						testClass.$( "checkBeanExists", true );
 					});
@@ -198,7 +200,6 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 					it( "returns an empty bean when nothing matches the param criteria", function(){
 						dataGateway.$( "read", querySim("") );
-						testClass.$property( propertyName="dataGateway", mock=dataGateway );
 
 						var result = testClass.getByParams( beanname="user", params={} );
 
@@ -213,7 +214,6 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					it( "returns a populated bean that meets the param criteria", function(){
 						dataGateway.$( "read", querySim("id
 							1") );
-						testClass.$property( propertyName="dataGateway", mock=dataGateway );
 
 						userTypeBean.$( "populateBean" );
 						cacheService.$( "get", {
@@ -238,8 +238,6 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				describe("calls get() and", function(){
 
 					beforeEach(function( currentSpec ){
-						cacheService = createEmptyMock("cfmlDataMapper.model.services.cache");
-
 						testClass.$( "getByParams", departmentBean );
 						testClass.$( "getModuleBean", userBean );
 					});
@@ -250,7 +248,6 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 							success = true,
 							bean = userTypeBean
 						});
-						testClass.$property( propertyName="cacheService", mock=cacheService );
 
 						var result = testClass.get( bean="userType" );
 
@@ -265,7 +262,6 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 					it( "returns a bean filtered by params", function(){
 						cacheService.$( "get", { success = false });
-						testClass.$property( propertyName="cacheService", mock=cacheService );
 
 						var result = testClass.get( bean="userType", params={ foo="bar" } );
 
@@ -280,7 +276,6 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 					it( "returns a bean from the model", function(){
 						cacheService.$( "get", { success = false });
-						testClass.$property( propertyName="cacheService", mock=cacheService );
 
 						var result = testClass.get( bean="userType" );
 
@@ -299,11 +294,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				describe("calls list() and", function(){
 
 					beforeEach(function( currentSpec ){
-						cacheService = createEmptyMock("cfmlDataMapper.model.services.cache");
-
-						dataGateway = createEmptyMock("cfmlDataMapper.model.gateways.data");
 						dataGateway.$( "read", querySim("") );
-						testClass.$property( propertyName="dataGateway", mock=dataGateway );
 
 						testClass.$( "getBeans", [userBean] );
 					});
@@ -319,7 +310,6 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 							success = true,
 							beans = [userTypeBean]
 						});
-						testClass.$property( propertyName="cacheService", mock=cacheService );
 
 						var result = testClass.list( bean="userType" );
 
@@ -334,7 +324,6 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 					it( "returns an array of beans from the model", function(){
 						cacheService.$( "list", { success = false });
-						testClass.$property( propertyName="cacheService", mock=cacheService );
 
 						var result = testClass.list( bean="userType" );
 
