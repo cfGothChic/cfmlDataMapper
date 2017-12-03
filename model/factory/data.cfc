@@ -3,6 +3,7 @@
 	property beanFactory;
 	property cacheService;
 	property dataGateway;
+	property utilities;
 
 	variables.moduleCache = [];
 	variables.beanmaps = {};
@@ -332,7 +333,7 @@
 		if ( structKeyExists(prop,"cfsqltype") ) {
 			metadata.name = prop.name;
 			metadata.defaultvalue = ( structKeyExists(prop,"default") ? prop.default : "" );
-			metadata.displayname = ( structKeyExists(prop,"displayname") ? prop.displayname : upperFirst(prop.name) );
+			metadata.displayname = ( structKeyExists(prop,"displayname") ? prop.displayname : variables.utilities.upperFirst(prop.name) );
 			metadata.columnName = ( structKeyExists(prop,"columnName") ? prop.columnName : "" );
 			metadata.insert = ( structKeyExists(prop,"insert") && isBoolean(prop.insert) ? prop.insert : true );
 			metadata.isidentity = ( structKeyExists(prop,"isidentity") && isBoolean(prop.isidentity) ? prop.isidentity : false );
@@ -389,16 +390,4 @@
 		}
 	}
 
-	/**
-	 * Upper cases the first letter of a string.
-	 * Phil Arnold (philip.r.j.arnold@googlemail.com
-	 *
-	 * @param name 	 String to capitalize the first letter of (Required)
-	 * @return Returns a string.
-	 * @author Brian Meloche (brianmeloche@gmail.com)
-	 * @version 0, March 17, 2010
-	 */
-	private string function upperFirst(required string name) {
-		return uCase(left(arguments.name,1)) & right(arguments.name,len(arguments.name)-1);
-	}
 }

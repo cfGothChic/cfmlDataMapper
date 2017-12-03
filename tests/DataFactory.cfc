@@ -7,6 +7,10 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 		departmentBean = createMock("model.beans.department");
 		userBean = createMock("model.beans.user");
 		userTypeBean = createMock("model.beans.userType");
+
+		utilities = createEmptyMock("cfmlDataMapper.model.utilities");
+		utilities.$( "upperFirst", "Test" )
+		testClass.$property( propertyName="utilities", mock=utilities );
 	}
 
 	function run() {
@@ -22,14 +26,6 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 				beforeEach(function( currentSpec ){
 					testClass.init(frameworkone);
-				});
-
-
-				// upperFirst()
-				it( "returns a string with the first letter capitalized", function(){
-					makePublic( testClass, "upperFirst" );
-					var result = testClass.upperFirst( name="test" );
-					expect( result ).toBeWithCase( "Test" );
 				});
 
 
