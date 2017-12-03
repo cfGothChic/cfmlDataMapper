@@ -191,10 +191,11 @@
 		}
 	}
 
-	private void function checkBeanExists( beanname ) {
+	private boolean function checkBeanExists( beanname ) {
 		if ( !hasBean(arguments.beanname) ) {
 			throw ("Bean does not exist for: " & arguments.beanname);
 		}
+		return true;
 	}
 
 	private void function createBeanMap( name, metadata ) {
@@ -295,8 +296,6 @@
 					datatype = "numeric";
 				break;
 			}
-		} else {
-			datatype = "any";
 		}
 
 		return datatype;
