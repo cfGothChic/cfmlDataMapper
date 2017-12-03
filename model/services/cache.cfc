@@ -3,7 +3,7 @@ component accessors="true" {
 	property beanFactory;
 	property dataFactory;
 	property dataGateway;
-	property utilities;
+	property utilityService;
 
 	variables.beanCache = {};
 
@@ -275,7 +275,7 @@ component accessors="true" {
 		) {
 			for ( var cacheparam in arguments.beanmap.cacheparams ) {
 				// check for exact match
-				var success = variables.utilities.structCompare(cacheparam,arguments.params);
+				var success = variables.utilityService.structCompare(cacheparam,arguments.params);
 				if ( success ) {
 					json = serializeJSON(cacheparam);
 					break;

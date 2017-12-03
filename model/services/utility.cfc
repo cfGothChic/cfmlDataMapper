@@ -14,7 +14,7 @@
 	 * @author Ja Carter (ja@nuorbit.com)
 	 * @version 2, October 14, 2005
 	 */
-	private boolean function structCompare(LeftStruct,RightStruct) {
+	public boolean function structCompare(LeftStruct,RightStruct) {
 		var result = true;
 		var LeftStructKeys = "";
 		var RightStructKeys = "";
@@ -55,7 +55,7 @@
 	 * @author Brian Meloche (brianmeloche@gmail.com)
 	 * @version 0, March 17, 2010
 	 */
-	private string function upperFirst(required string name) {
+	public string function upperFirst(required string name) {
 		return uCase(left(arguments.name,1)) & right(arguments.name,len(arguments.name)-1);
 	}
 

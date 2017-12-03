@@ -3,13 +3,14 @@
 	property beanFactory;
 	property cacheService;
 	property dataGateway;
-	property utilities;
+	property utilityService;
 
 	variables.moduleCache = [];
 	variables.beanmaps = {};
 
-	public any function init( fw ) {
+	public any function init( fw, utilityService ) {
 		variables.fw = arguments.fw;
+		variables.utilityService = arguments.utilityService;
 		lock timeout="10" scope="application" type="exclusive" {
 			cacheBeanMetadata();
 		}
@@ -333,7 +334,7 @@
 		if ( structKeyExists(prop,"cfsqltype") ) {
 			metadata.name = prop.name;
 			metadata.defaultvalue = ( structKeyExists(prop,"default") ? prop.default : "" );
-			metadata.displayname = ( structKeyExists(prop,"displayname") ? prop.displayname : variables.utilities.upperFirst(prop.name) );
+			metadata.displayname = ( structKeyExists(prop,"displayname") ? prop.displayname : variables.utilityService.upperFirst(prop.name) );
 			metadata.columnName = ( structKeyExists(prop,"columnName") ? prop.columnName : "" );
 			metadata.insert = ( structKeyExists(prop,"insert") && isBoolean(prop.insert) ? prop.insert : true );
 			metadata.isidentity = ( structKeyExists(prop,"isidentity") && isBoolean(prop.isidentity) ? prop.isidentity : false );
