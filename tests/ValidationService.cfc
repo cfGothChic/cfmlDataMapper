@@ -13,6 +13,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 				beforeEach(function( currentSpec ){
 					makePublic( testClass, "validateByDataType" );
+					makePublic( testClass, "validateLength" );
 					makePublic( testClass, "validateRange" );
 					makePublic( testClass, "validateZipCode" );
 				});
@@ -121,6 +122,58 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				});
 
 
+				// validateLength()
+				it( "returns an empty string if the value length is within the minimum and maximum length", function(){
+					var result = testClass.validateLength( minlength=21, maxlength=50, value=30, displayname="Name" );
+
+					expect( result ).toBeTypeOf( "string" );
+					expect( result ).toBeEmpty();
+				});
+
+
+				it( "returns an error message if the value length is not within the minimum and maximum length", function(){
+					var result = testClass.validateLength( minlength=21, maxlength=50, value=15, displayname="Name" );
+
+					expect( result ).toBeTypeOf( "string" );
+					expect( result ).toMatch( "(Name)" );
+					expect( result ).toMatch( "(between)" );
+				});
+
+
+				it( "returns an empty string if the value length is above the minimum length", function(){
+					var result = testClass.validateLength( minlength=21, maxlength="", value=30, displayname="Name" );
+
+					expect( result ).toBeTypeOf( "string" );
+					expect( result ).toBeEmpty();
+				});
+
+
+				it( "returns an error message if the value length is below the minimum length", function(){
+					var result = testClass.validateLength( minlength=21, maxlength="", value=15, displayname="Name" );
+
+					expect( result ).toBeTypeOf( "string" );
+					expect( result ).toMatch( "(Name)" );
+					expect( result ).toMatch( "(longer)" );
+				});
+
+
+				it( "returns an empty string if the value length is below the maximum length", function(){
+					var result = testClass.validateLength( minlength="", maxlength=50, value=30, displayname="Name" );
+
+					expect( result ).toBeTypeOf( "string" );
+					expect( result ).toBeEmpty();
+				});
+
+
+				it( "returns an error message if the value length is above the maximum length", function(){
+					var result = testClass.validateLength( minlength="", maxlength=50, value=75, displayname="Name" );
+
+					expect( result ).toBeTypeOf( "string" );
+					expect( result ).toMatch( "(Name)" );
+					expect( result ).toMatch( "(less)" );
+				});
+
+
 				// validateRange()
 				it( "returns an empty string if the value is within the minimum and maximum range", function(){
 					var result = testClass.validateRange( minvalue=21, maxvalue=50, value=30, displayname="Age" );
@@ -197,9 +250,10 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					expect( result ).toBeFalse();
 				});
 
-			}):
+			});
 
-			describe("exposes the private functions and", function(){
+
+			describe("calls public functions and", function(){
 
 				beforeEach(function( currentSpec ){
 

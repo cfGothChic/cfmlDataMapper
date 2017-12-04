@@ -23,7 +23,8 @@ component accessors="true" {
 
 			/*if( isRequired && beanproperty.datatype == 'numeric' && value <= 0){
 				arrayAppend(errors, displayname & " must be greater than zero.");
-			} else*/ if( isRequired && !len(trim(value)) ){
+			} else*/
+			if( isRequired && !len(trim(value)) ){
 				arrayAppend(errors, displayname & " is required.");
 			} else if( !len(trim(value)) ){
 				continue;
@@ -42,29 +43,24 @@ component accessors="true" {
 
 				// Handle range rules
 				validationMessage = validateRange(
-					minvalue = beanProperty.minvalue
-					, maxvalue = beanProperty.maxvalue
-					, value = value
-					, displayname = displayname
+					minvalue = beanProperty.minvalue,
+					maxvalue = beanProperty.maxvalue,
+					value = value,
+					displayname = displayname
 				);
 				if( len(trim(validationMessage)) ){
 					arrayAppend(errors, validationMessage);
 				}
 
 				// Handle length rules
-				if(
-					len(beanProperty.minlength)
-					&& len(beanProperty.maxlength)
-					&& (
-						beanProperty.minlength > len(value)
-						|| beanProperty.maxlength < len(value)
-					)
-				){
-					arrayAppend(errors, displayname & " must be between " & beanProperty.minlength & " and " & beanProperty.maxlength & " long.");
-				} else if( len(beanProperty.minlength) && beanProperty.minvalue > len(value)){
-					arrayAppend(errors, displayname & " must be a longer than " & beanProperty.minlength & " characters.");
-				} else if( len(beanProperty.maxlength) && beanProperty.maxlength < len(value)){
-					arrayAppend(errors, displayname & " must be a less than " & beanProperty.maxlength & " characters.");
+				validationMessage = validateLength(
+					minvalue = beanProperty.minlength,
+					maxvalue = beanProperty.maxlength,
+					value = value,
+					displayname = displayname
+				);
+				if( len(trim(validationMessage)) ){
+					arrayAppend(errors, validationMessage);
 				}
 			}
 		}
@@ -113,6 +109,27 @@ component accessors="true" {
 					returnString = arguments.displayname & " must be a valid zipcode or postal code.";
 				}
 			break;
+		}
+
+		return returnString;
+	}
+
+	private string function validateLength( minlength, maxlength, value, displayname ){
+		var returnString = "";
+
+		if(
+			len(arguments.minlength)
+			&& len(arguments.maxlength)
+			&& (
+				arguments.minlength > len(arguments.value)
+				|| arguments.maxlength < len(arguments.value)
+			)
+		){
+			returnString = arguments.displayname & " must be between " & arguments.minlength & " and " & arguments.maxlength & " long.";
+		} else if( len(arguments.minlength) && arguments.minlength > len(arguments.value)){
+			returnString = arguments.displayname & " must be longer than " & arguments.minlength & " characters.";
+		} else if( len(arguments.maxlength) && arguments.maxlength < len(arguments.value)){
+			returnString = arguments.displayname & " must be less than " & arguments.maxlength & " characters.";
 		}
 
 		return returnString;
