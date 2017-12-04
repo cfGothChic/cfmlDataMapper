@@ -1,0 +1,22 @@
+{
+    "name" : "cfmlDataMapper",
+    "version" : "1.0.0+buildID",
+    "author" : "Daria Norris <daria@cfgothchic.com>",
+    "location" : "cfGothChic/cfmlDataMapper",
+
+    "devDependencies":{
+        "testbox":"^2.5.0+107"
+    },
+    "installPaths":{
+        "testbox":"testbox"
+    },
+
+    testbox :{
+        runner : [
+            { "default": "http://localhost:8500/tests/runner.cfm" }
+        ],
+        "directory" : "tests",
+        "recurse" : false,
+        "verbose" : true
+    }
+}
