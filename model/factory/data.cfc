@@ -3,12 +3,14 @@
 	property beanFactory;
 	property cacheService;
 	property dataGateway;
+	property utilityService;
 
 	variables.moduleCache = [];
 	variables.beanmaps = {};
 
-	public any function init( fw ) {
+	public any function init( fw, utilityService ) {
 		variables.fw = arguments.fw;
+		variables.utilityService = arguments.utilityService;
 		lock timeout="10" scope="application" type="exclusive" {
 			cacheBeanMetadata();
 		}
@@ -191,10 +193,11 @@
 		}
 	}
 
-	private void function checkBeanExists( beanname ) {
+	private boolean function checkBeanExists( beanname ) {
 		if ( !hasBean(arguments.beanname) ) {
 			throw ("Bean does not exist for: " & arguments.beanname);
 		}
+		return true;
 	}
 
 	private void function createBeanMap( name, metadata ) {
@@ -295,8 +298,6 @@
 					datatype = "numeric";
 				break;
 			}
-		} else {
-			datatype = "any";
 		}
 
 		return datatype;
@@ -333,7 +334,7 @@
 		if ( structKeyExists(prop,"cfsqltype") ) {
 			metadata.name = prop.name;
 			metadata.defaultvalue = ( structKeyExists(prop,"default") ? prop.default : "" );
-			metadata.displayname = ( structKeyExists(prop,"displayname") ? prop.displayname : upperFirst(prop.name) );
+			metadata.displayname = ( structKeyExists(prop,"displayname") ? prop.displayname : variables.utilityService.upperFirst(prop.name) );
 			metadata.columnName = ( structKeyExists(prop,"columnName") ? prop.columnName : "" );
 			metadata.insert = ( structKeyExists(prop,"insert") && isBoolean(prop.insert) ? prop.insert : true );
 			metadata.isidentity = ( structKeyExists(prop,"isidentity") && isBoolean(prop.isidentity) ? prop.isidentity : false );
@@ -390,16 +391,4 @@
 		}
 	}
 
-	/**
-	 * Upper cases the first letter of a string.
-	 * Phil Arnold (philip.r.j.arnold@googlemail.com
-	 *
-	 * @param name 	 String to capitalize the first letter of (Required)
-	 * @return Returns a string.
-	 * @author Brian Meloche (brianmeloche@gmail.com)
-	 * @version 0, March 17, 2010
-	 */
-	private string function upperFirst(required string name) {
-		return uCase(left(arguments.name,1)) & right(arguments.name,len(arguments.name)-1);
-	}
 }

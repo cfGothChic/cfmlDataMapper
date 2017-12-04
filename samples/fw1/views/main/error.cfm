@@ -15,7 +15,5 @@
 			<b>Details:</b> #request.exception.cause.detail#<br/>
 		</cfoutput>
 	</div>
-	<cfif getEnvironment() is "local">
-		<cfdump var="#request.exception#" />
-	</cfif>
+	<cfdump var="#request.exception#" />
 </div>

@@ -8,9 +8,14 @@ component accessors="true" output="false" {
     return this;
   }
 
+  public cfmlDataMapper.model.factory.data function getFactory() {
+    _get_framework_one().onRequestStart("");
+    return _get_framework_one().getDefaultBeanFactory().getBean("dataFactory");
+  }
+
   private component function _get_framework_one() {
 		if ( !structKeyExists( request, '_framework_one' ) ) {
-			request._framework_one = new framework.one(getFrameworkConfig());
+			request._framework_one = new cfmlDataMapper.samples.framework.one(getFrameworkConfig());
 		}
 		return request._framework_one;
 	}
@@ -25,9 +30,8 @@ component accessors="true" output="false" {
     return contants;
   }
 
-  public cfmlDataMapper.model.factory.data function getFactory() {
-    _get_framework_one().onRequestStart("");
-    return _get_framework_one().getDefaultBeanFactory().getBean("dataFactory");
+  private struct function getFactoryConfig() {
+    return variables.factoryConfig;
   }
 
   private struct function getFrameworkConfig() {
@@ -36,7 +40,7 @@ component accessors="true" output="false" {
         constants = getConstants()
       },
       diLocations = getLocations(),
-      reloadApplicationOnEveryRequest = true
+      reloadApplicationOnEveryRequest = getFactoryConfig().reloadApplicationOnEveryRequest
     };
   }
 
@@ -48,12 +52,17 @@ component accessors="true" output="false" {
 
   private void function validateConfig() {
     var config = getFactoryConfig();
+
     if ( !structKeyExists(config, "dsn") || !len(config.dsn) ) {
       throw("The cfmlDataMapper Factory requires the dsn config variable.");
     }
     if ( !structKeyExists(config, "locations") || !len(config.locations) ) {
       throw("The cfmlDataMapper Factory requires the locations config variable.");
     }
+
+    param name="config.reloadApplicationOnEveryRequest" default="false";
+
+    setFactoryConfig(config);
   }
 
   // data factory function passthroughs
@@ -67,7 +76,7 @@ component accessors="true" output="false" {
 	}
 
 	public function getBeans() {
-    return getFactory().getBeanMap( argumentCollection=arguments );
+    return getFactory().getBeans( argumentCollection=arguments );
 	}
 
 	public function getBeansFromArray() {
