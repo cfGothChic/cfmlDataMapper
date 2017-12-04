@@ -163,13 +163,14 @@ component accessors="true" {
 	}
 
 	private boolean function checkBeanCache( required struct beanmap, required string paramjson, required string orderby ) {
-		return (
+		return arguments.beanmap.cached && (
 			(
 				structIsEmpty(arguments.beanmap.cacheparams[1])
 				&& !len(arguments.paramjson)
 			)
 			|| len(arguments.paramjson)
-			|| arrayLen(arguments.beanmap.cacheparams)
+			|| arrayLen(arguments.beanmap.cacheparams) > 1
+			|| !structIsEmpty(arguments.beanmap.cacheparams[1])
 			|| len(arguments.orderby)
 		);
 	}
@@ -181,7 +182,7 @@ component accessors="true" {
 		var sortorder = structKeyExists(beanData.sortorder,arguments.orderby) ? beanData.sortorder[arguments.orderby] : beanData.sortorder.default;
 		var paramids = len(arguments.paramjson) && structKeyExists(beanData.params,arguments.paramjson) ? beanData.params[arguments.paramjson] : sortorder;
 
-		if ( !len(arguments.paramjson) && !structIsEmpty(arguments.params) ) {
+		if ( !len(arguments.paramjson) && structCount(arguments.params) ) {
 			paramids = getParamBeanIds(arguments.bean, arguments.params);
 		}
 
@@ -311,11 +312,8 @@ component accessors="true" {
 
 	private boolean function sortOrderIsNotCached( required struct beanmap, required string bean, required string orderby ) {
 		return (
-			(
-				len(arguments.orderby)
-				&& arguments.beanmap.orderby != arguments.orderby
-			)
-
+			len(arguments.orderby)
+			&& arguments.beanmap.orderby != arguments.orderby
 			&& !structKeyExists(variables.beanCache[ arguments.bean ].sortorder,arguments.orderby)
 		);
 	}

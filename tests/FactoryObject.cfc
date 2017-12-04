@@ -145,7 +145,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 						expect( dataFactory.$once("list") ).toBeTrue();
 						expect( result ).toBeTypeOf( "array" );
-						expect( arrayLen(result) ).toBe( 1 );
+						expect( result ).toHaveLength( 1 );
 						expect( result[1] ).toBeInstanceOf( "model.beans.userType" );
 					});
 
@@ -181,7 +181,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 						expect( dataFactory.$once("getBeans") ).toBeTrue();
 						expect( result ).toBeTypeOf( "array" );
-						expect( arrayLen(result) ).toBe( 1 );
+						expect( result ).toHaveLength( 1 );
 						expect( result[1] ).toBeInstanceOf( "model.beans.userType" );
 					});
 
@@ -194,7 +194,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 						expect( dataFactory.$once("getBeansFromArray") ).toBeTrue();
 						expect( result ).toBeTypeOf( "array" );
-						expect( arrayLen(result) ).toBe( 1 );
+						expect( result ).toHaveLength( 1 );
 						expect( result[1] ).toBeInstanceOf( "model.beans.userType" );
 					});
 

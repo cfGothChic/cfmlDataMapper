@@ -142,7 +142,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 							expect( beanFactory.$atLeast(1, "injectProperties") ).toBeTrue();
 
 							expect( result ).toBeTypeOf( "array" );
-							expect( arrayLen(result) ).toBe( 1 );
+							expect( result ).toHaveLength( 1 );
 							expect( result[1] ).toBeInstanceOf( "model.beans.user" );
 						});
 
@@ -177,7 +177,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 							expect( beanFactory.$atLeast(1, "injectProperties") ).toBeTrue();
 
 							expect( result ).toBeTypeOf( "array" );
-							expect( arrayLen(result) ).toBe( 1 );
+							expect( result ).toHaveLength( 1 );
 							expect( result[1] ).toBeInstanceOf( "model.beans.user" );
 						});
 
@@ -317,7 +317,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						expect( testClass.$once("getBeans") ).toBeFalse();
 
 						expect( result ).toBeTypeOf( "array" );
-						expect( arrayLen(result) ).toBe( 1 );
+						expect( result ).toHaveLength( 1 );
 						expect( result[1] ).toBeInstanceOf( "model.beans.userType" );
 					});
 
@@ -331,7 +331,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						expect( testClass.$once("getBeans") ).toBeTrue();
 
 						expect( result ).toBeTypeOf( "array" );
-						expect( arrayLen(result) ).toBe( 1 );
+						expect( result ).toHaveLength( 1 );
 						expect( result[1] ).toBeInstanceOf( "model.beans.user" );
 					});
 
