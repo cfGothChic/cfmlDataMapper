@@ -118,7 +118,7 @@ component accessors="true" {
 		return returnString;
 	}
 
-	private string function validateRange( minvalue, maxvalue, value, displayname){
+	private string function validateRange( minvalue, maxvalue, value, displayname ){
 		var returnString = "";
 
 		if(

@@ -636,7 +636,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						expect( dataFactory.$once("getBeanMap") ).toBeTrue();
 
 						expect( result.success ).toBeFalse();
-						expect( result.beans ).toHaveLength( 0 );
+						expect( result.beans ).toBeEmpty();
 					});
 
 
