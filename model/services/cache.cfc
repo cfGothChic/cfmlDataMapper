@@ -3,6 +3,7 @@ component accessors="true" {
 	property beanFactory;
 	property dataFactory;
 	property dataGateway;
+	property utilityService;
 
 	variables.beanCache = {};
 
@@ -16,7 +17,7 @@ component accessors="true" {
 
 	public struct function get(
 		required string bean,
-		required numeric id, 
+		required numeric id,
 		struct params={}
 	) {
 		var result = { success = false };
@@ -51,8 +52,8 @@ component accessors="true" {
 	}
 
 	public struct function list(
-		required string bean, 
-		struct params={}, 
+		required string bean,
+		struct params={},
 		string orderby=""
 	) {
 		var result = { success = false, beans = [] };
@@ -98,10 +99,10 @@ component accessors="true" {
 	}
 
 	private void function cacheBeans(
-		required struct beanmap, 
-		required string bean, 
+		required struct beanmap,
+		required string bean,
 		struct params={},
-		string paramjson="", 
+		string paramjson="",
 		string orderby=""
 	) {
 		if ( checkBeanCache(arguments.beanmap, arguments.paramjson, arguments.orderby) ) {
@@ -162,13 +163,14 @@ component accessors="true" {
 	}
 
 	private boolean function checkBeanCache( required struct beanmap, required string paramjson, required string orderby ) {
-		return (
+		return arguments.beanmap.cached && (
 			(
 				structIsEmpty(arguments.beanmap.cacheparams[1])
 				&& !len(arguments.paramjson)
 			)
 			|| len(arguments.paramjson)
-			|| arrayLen(arguments.beanmap.cacheparams)
+			|| arrayLen(arguments.beanmap.cacheparams) > 1
+			|| !structIsEmpty(arguments.beanmap.cacheparams[1])
 			|| len(arguments.orderby)
 		);
 	}
@@ -180,7 +182,7 @@ component accessors="true" {
 		var sortorder = structKeyExists(beanData.sortorder,arguments.orderby) ? beanData.sortorder[arguments.orderby] : beanData.sortorder.default;
 		var paramids = len(arguments.paramjson) && structKeyExists(beanData.params,arguments.paramjson) ? beanData.params[arguments.paramjson] : sortorder;
 
-		if ( !len(arguments.paramjson) && !structIsEmpty(arguments.params) ) {
+		if ( !len(arguments.paramjson) && structCount(arguments.params) ) {
 			paramids = getParamBeanIds(arguments.bean, arguments.params);
 		}
 
@@ -267,14 +269,14 @@ component accessors="true" {
 		if (
 			!structIsEmpty(arguments.params)
 			&& (
-				arrayLen(arguments.beanmap.cacheparams) > 1 
+				arrayLen(arguments.beanmap.cacheparams) > 1
 				|| !structIsEmpty(arguments.beanmap.cacheparams[1])
 				|| arrayLen(arguments.beanmap.cacheparamwild)
 			)
 		) {
 			for ( var cacheparam in arguments.beanmap.cacheparams ) {
 				// check for exact match
-				var success = structCompare(cacheparam,arguments.params);
+				var success = variables.utilityService.structCompare(cacheparam,arguments.params);
 				if ( success ) {
 					json = serializeJSON(cacheparam);
 					break;
@@ -310,54 +312,10 @@ component accessors="true" {
 
 	private boolean function sortOrderIsNotCached( required struct beanmap, required string bean, required string orderby ) {
 		return (
-			(
-				len(arguments.orderby)
-				&& arguments.beanmap.orderby != arguments.orderby
-			)
-			
+			len(arguments.orderby)
+			&& arguments.beanmap.orderby != arguments.orderby
 			&& !structKeyExists(variables.beanCache[ arguments.bean ].sortorder,arguments.orderby)
 		);
 	}
 
-	/**
-	 * Recursive functions to compare structures and arrays.
-	 * Fix by Jose Alfonso.
-	 * 
-	 * @param LeftStruct 	 The first struct. (Required)
-	 * @param RightStruct 	 The second structure. (Required)
-	 * @return Returns a boolean. 
-	 * @author Ja Carter (ja@nuorbit.com) 
-	 * @version 2, October 14, 2005 
-	 */
-	private boolean function structCompare(LeftStruct,RightStruct) {
-		var result = true;
-		var LeftStructKeys = "";
-		var RightStructKeys = "";
-		var key = "";
-	
-		//Make sure both params are structures
-		if (NOT (isStruct(LeftStruct) AND isStruct(RightStruct))) return false;
-
-		//Make sure both structures have the same keys
-		LeftStructKeys = ListSort(StructKeyList(LeftStruct),"TextNoCase","ASC");
-		RightStructKeys = ListSort(StructKeyList(RightStruct),"TextNoCase","ASC");
-		if(LeftStructKeys neq RightStructKeys) return false;	
-	
-		// Loop through the keys and compare them one at a time
-		for (key in LeftStruct) {
-			//Key is a structure, call structCompare()
-			if (isStruct(LeftStruct[key])){
-				result = structCompare(LeftStruct[key],RightStruct[key]);
-				if (NOT result) return false;
-			//Key is an array, call arrayCompare()
-			} else if (isArray(LeftStruct[key])){
-				result = arrayCompare(LeftStruct[key],RightStruct[key]);
-				if (NOT result) return false;
-			// A simple type comparison here
-			} else {
-				if(LeftStruct[key] IS NOT RightStruct[key]) return false;
-			}
-		}
-		return true;
-	}
 }
