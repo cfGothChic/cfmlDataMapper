@@ -1,0 +1,17 @@
+language: java
+sudo: required
+dist: trusty
+
+before_install:
+- sudo apt-key adv --keyserver keys.gnupg.net --recv 6DA70622
+- sudo echo "deb http://downloads.ortussolutions.com/debs/noarch /" | sudo tee -a
+  /etc/apt/sources.list.d/commandbox.list
+
+install:
+- sudo apt-get update && sudo apt-get --assume-yes install commandbox
+- cd tests
+- box install
+- box server start
+
+script:
+- box testbox run
