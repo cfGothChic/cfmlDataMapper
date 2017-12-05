@@ -342,6 +342,7 @@
 			metadata.sqltype = getCfSqlType(prop.cfsqltype);
 			metadata.valtype = ( structKeyExists(prop,"valtype") ? prop.valtype : "" );
 			metadata.regex = ( structKeyExists(prop,"regex") ? prop.regex : "" );
+			metadata.regexlabel = ( structKeyExists(prop,"regexlabel") ? prop.regexlabel : "" );
 			metadata.minvalue = ( structKeyExists(prop,"minvalue") ? prop.minvalue : "" );
 			metadata.maxvalue = ( structKeyExists(prop,"maxvalue") ? prop.maxvalue : "" );
 			metadata.minlength = ( structKeyExists(prop,"minlength") ? prop.minlength : "" );
