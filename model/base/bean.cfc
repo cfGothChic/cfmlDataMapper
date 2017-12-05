@@ -102,7 +102,7 @@
 		}
 	}
 
-	public void function populateBean( qRecord ) {
+	public void function populateBean( required query qRecord ) {
 		var columns = listToArray(qRecord.columnList);
 
 		var properties = {};

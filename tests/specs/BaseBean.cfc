@@ -36,7 +36,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					makePublic( testClass, "populate" );
 					makePublic( testClass, "setBeanName" );
 
-					readQuery = querySim("id
+					qRecords = querySim("id
 						1");
 				});
 
@@ -185,10 +185,27 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				});
 
 
+				describe("uses the beanFactory and", function(){
+
+					beforeEach(function( currentSpec ){
+						beanFactory.$( "injectProperties" );
+					});
+
+
+					// populateBean()
+					it( "processes a query and injects it into the bean", function(){qRecords
+						testClass.populateBean( qRecord=qRecords );
+
+						expect( beanFactory.$once("injectProperties") ).toBeTrue();
+					});
+
+				});
+
+
 				describe("calls populate() and", function(){
 
 					beforeEach(function( currentSpec ){
-						dataGateway.$( "read" ).$args( bean="test", params={ id = 1 } ).$results( readQuery );
+						dataGateway.$( "read" ).$args( bean="test", params={ id = 1 } ).$results( qRecords );
 						dataGateway.$( "read" ).$args( bean="test", params={ id = 2 } ).$results( querySim("id") );
 
 						testClass.$( "getBeanName", "test" )
@@ -309,12 +326,6 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 
 				it( "errors if the function name does not start with 'set'", function(){
-
-				});
-
-
-				// populateBean()
-				it( "processes a query and injects it into the bean", function(){
 
 				});
 
