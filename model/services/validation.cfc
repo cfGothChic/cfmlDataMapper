@@ -125,7 +125,7 @@ component accessors="true" {
 				|| arguments.maxlength < len(arguments.value)
 			)
 		){
-			returnString = arguments.displayname & " must be between " & arguments.minlength & " and " & arguments.maxlength & " long.";
+			returnString = arguments.displayname & " must be between " & arguments.minlength & " and " & arguments.maxlength & " characters long.";
 		} else if( len(arguments.minlength) && arguments.minlength > len(arguments.value)){
 			returnString = arguments.displayname & " must be longer than " & arguments.minlength & " characters.";
 		} else if( len(arguments.maxlength) && arguments.maxlength < len(arguments.value)){

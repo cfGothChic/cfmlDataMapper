@@ -124,7 +124,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 				// validateLength()
 				it( "returns an empty string if the value length is within the minimum and maximum length", function(){
-					var result = testClass.validateLength( minlength=21, maxlength=50, value=30, displayname="Name" );
+					var result = testClass.validateLength( minlength=10, maxlength=50, value="Daria Norris", displayname="Name" );
 
 					expect( result ).toBeTypeOf( "string" );
 					expect( result ).toBeEmpty();
@@ -132,7 +132,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 
 				it( "returns an error message if the value length is not within the minimum and maximum length", function(){
-					var result = testClass.validateLength( minlength=21, maxlength=50, value=15, displayname="Name" );
+					var result = testClass.validateLength( minlength=10, maxlength=50, value="Daria", displayname="Name" );
 
 					expect( result ).toBeTypeOf( "string" );
 					expect( result ).toMatch( "(Name)" );
@@ -141,7 +141,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 
 				it( "returns an empty string if the value length is above the minimum length", function(){
-					var result = testClass.validateLength( minlength=21, maxlength="", value=30, displayname="Name" );
+					var result = testClass.validateLength( minlength=10, maxlength="", value="Daria Norris", displayname="Name" );
 
 					expect( result ).toBeTypeOf( "string" );
 					expect( result ).toBeEmpty();
@@ -149,7 +149,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 
 				it( "returns an error message if the value length is below the minimum length", function(){
-					var result = testClass.validateLength( minlength=21, maxlength="", value=15, displayname="Name" );
+					var result = testClass.validateLength( minlength=10, maxlength="", value="Daria", displayname="Name" );
 
 					expect( result ).toBeTypeOf( "string" );
 					expect( result ).toMatch( "(Name)" );
@@ -158,7 +158,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 
 				it( "returns an empty string if the value length is below the maximum length", function(){
-					var result = testClass.validateLength( minlength="", maxlength=50, value=30, displayname="Name" );
+					var result = testClass.validateLength( minlength="", maxlength=10, value="Daria", displayname="Name" );
 
 					expect( result ).toBeTypeOf( "string" );
 					expect( result ).toBeEmpty();
@@ -166,7 +166,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 
 				it( "returns an error message if the value length is above the maximum length", function(){
-					var result = testClass.validateLength( minlength="", maxlength=50, value=75, displayname="Name" );
+					var result = testClass.validateLength( minlength="", maxlength=10, value="Daria Norris", displayname="Name" );
 
 					expect( result ).toBeTypeOf( "string" );
 					expect( result ).toMatch( "(Name)" );
