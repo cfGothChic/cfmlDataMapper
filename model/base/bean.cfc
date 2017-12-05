@@ -185,7 +185,17 @@
 		return "";
 	}
 
-	private function getManyToManyValue( primarykey, relationship ) {
+	private numeric function getForeignKeyId( required string fkName ) {
+		return (
+			(
+				structKeyExists(variables,arguments.fkName)
+				&& isValid("integer", variables[ arguments.fkName ])
+			)
+			? variables[ arguments.fkName ] : 0
+		);
+	}
+
+	private array function getManyToManyValue( required string primarykey, required struct relationship ) {
 		if ( variables[ arguments.primarykey ] ) {
 			var qRecords = variables.dataGateway.readByJoinTable(
 				beanid = variables[ arguments.primarykey ],
@@ -197,7 +207,7 @@
 		}
 	}
 
-	private function getOneToManyValue( primarykey, relationship ) {
+	private array function getOneToManyValue( required string primarykey, required struct relationship ) {
 		if ( variables[ arguments.primarykey ] ) {
 			return variables.dataFactory.list(
 				bean = arguments.relationship.bean,
@@ -227,13 +237,10 @@
 		return relationshipkeys;
 	}
 
-	private function getSingularValue( primarykey, relationship ) {
+	private component function getSingularValue( required string primarykey, required struct relationship ) {
 		return variables.dataFactory.get(
 			bean = arguments.relationship.bean,
-			id = (
-				structKeyExists(variables,arguments.relationship.fkName)
-				&& isValid("integer", variables[ arguments.relationship.fkName ])
-			) ? variables[ arguments.relationship.fkName ] : 0
+			id = getForeignKeyId(arguments.relationship.fkName)
 		);
 	}
 
