@@ -246,11 +246,20 @@
 		return relationshipkeys;
 	}
 
-	private component function getSingularValue( required string primarykey, required struct relationship ) {
+	private component function getSingularBean( required string primarykey, required struct relationship ) {
 		return variables.dataFactory.get(
 			bean = arguments.relationship.bean,
 			id = getForeignKeyId(arguments.relationship.fkName)
 		);
+	}
+
+	private component function getSingularSprocBean( required string bean, required query qRecords ) {
+		var beans = variables.dataFactory.getBeans( bean=arguments.bean, qRecords=arguments.qRecords );
+		if ( arrayLen(beans) ) {
+			return beans[1];
+		} else {
+			return variables.dataFactory.get( bean=arguments.bean );
+		}
 	}
 
 	private string function getSprocContext() {
@@ -262,6 +271,15 @@
 		}
 		else {
 			return arguments.context;
+		}
+	}
+
+	private any function getSprocRelationship( required string bean, required string joinType, required query qRecords ) {
+		var isSingular = ( arguments.joinType == "one" );
+		if ( isSingular ) {
+			return getSingularSprocBean( bean=arguments.bean, qRecords=arguments.qRecords );
+		} else {
+			return variables.dataFactory.getBeans( bean=arguments.bean, qRecords=arguments.qRecords );
 		}
 	}
 
@@ -332,7 +350,7 @@
 			var value = "";
 			switch ( relationship.joinType ) {
 				case "one":
-					value = getSingularValue(beanmap.primarykey, relationship);
+					value = getSingularBean(beanmap.primarykey, relationship);
 					break;
 				case "one-to-many":
 					value = getOneToManyValue(beanmap.primarykey, relationship);
@@ -352,23 +370,19 @@
 		var beanmap = getBeanMap();
 		var properties = {};
 		for ( var relationship in arguments.resultkeys ) {
-			var isSingular = ( relationship != "_bean" && beanmap.relationships[relationship].joinType == "one" );
+
 			if ( relationship == "_bean" ) {
 				if ( arguments.data._bean.recordCount ) {
 					populateBean(arguments.data._bean);
 				}
+			}
 
-			} else if ( arguments.data[relationship].recordCount ) {
-				var beans = variables.dataFactory.getBeans( beanmap.relationships[relationship].bean, arguments.data[relationship] );
-				if ( isSingular ) {
-					properties[relationship] = beans[1];
-				} else {
-					properties[relationship] = beans;
-				}
-			} else if ( isSingular ) {
-				properties[relationship] = variables.dataFactory.get( beanmap.relationships[relationship].bean );
-			} else {
-				properties[relationship] = [];
+			else {
+				properties[relationship] = getSprocRelationship(
+					bean=beanmap.relationships[relationship].bean,
+					joinType=beanmap.relationships[relationship].joinType,
+					qRecords=arguments.data[relationship]
+				);
 			}
 		}
 

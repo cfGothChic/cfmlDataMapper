@@ -43,33 +43,35 @@
 		var beans = [];
 		var columns = listToArray(arguments.qRecords.columnList);
 
-		if ( structKeyExists(server, "railo") || structKeyExists(server, "lucee") ) {
-			var recordbeantemplate = getModuleBean(arguments.bean);
+		if ( arguments.qRecords.recordCount ) {
+			if ( structKeyExists(server, "railo") || structKeyExists(server, "lucee") ) {
+				var recordbeantemplate = getModuleBean(arguments.bean);
 
-			for ( var i=1; i lte arguments.qRecords.recordCount; i++ ) {
-				var recordbean = structcopy(recordbeantemplate);
+				for ( var i=1; i lte arguments.qRecords.recordCount; i++ ) {
+					var recordbean = structcopy(recordbeantemplate);
 
-				var properties = {};
-				for ( var columnname in columns ) {
-					properties[columnname] = arguments.qRecords[columnname][i];
+					var properties = {};
+					for ( var columnname in columns ) {
+						properties[columnname] = arguments.qRecords[columnname][i];
+					}
+
+					variables.beanFactory.injectProperties(recordbean, properties);
+
+					arrayAppend(beans,recordbean);
 				}
+			} else {
+				for ( var i=1; i lte arguments.qRecords.recordCount; i++ ) {
+					var recordbean = getModuleBean(arguments.bean);
 
-				variables.beanFactory.injectProperties(recordbean, properties);
+					var properties = {};
+					for ( var columnname in columns ) {
+						properties[columnname] = arguments.qRecords[columnname][i];
+					}
 
-				arrayAppend(beans,recordbean);
-			}
-		} else {
-			for ( var i=1; i lte arguments.qRecords.recordCount; i++ ) {
-				var recordbean = getModuleBean(arguments.bean);
+					variables.beanFactory.injectProperties(recordbean, properties);
 
-				var properties = {};
-				for ( var columnname in columns ) {
-					properties[columnname] = arguments.qRecords[columnname][i];
+					arrayAppend(beans,recordbean);
 				}
-
-				variables.beanFactory.injectProperties(recordbean, properties);
-
-				arrayAppend(beans,recordbean);
 			}
 		}
 
@@ -106,33 +108,35 @@
 		var columns = listToArray(arguments.qRecords.columnList);
 		var beanmap = getBeanMap(arguments.bean);
 
-		if ( structKeyExists(server, "railo") || structKeyExists(server, "lucee") ) {
-			var recordbeantemplate = getModuleBean(arguments.bean);
+		if ( arguments.qRecords.recordCount ) {
+			if ( structKeyExists(server, "railo") || structKeyExists(server, "lucee") ) {
+				var recordbeantemplate = getModuleBean(arguments.bean);
 
-			for ( var i=1; i lte arguments.qRecords.recordCount; i++ ) {
-				var recordbean = structcopy(recordbeantemplate);
+				for ( var i=1; i lte arguments.qRecords.recordCount; i++ ) {
+					var recordbean = structcopy(recordbeantemplate);
 
-				var properties = {};
-				for ( var columnname in columns ) {
-					properties[columnname] = arguments.qRecords[columnname][i];
+					var properties = {};
+					for ( var columnname in columns ) {
+						properties[columnname] = arguments.qRecords[columnname][i];
+					}
+
+					variables.beanFactory.injectProperties(recordbean, properties);
+
+					beans[ recordbean.getPropertyValue(beanmap.primarykey) ] = recordbean;
 				}
+			} else {
+				for ( var i=1; i lte arguments.qRecords.recordCount; i++ ) {
+					var recordbean = getModuleBean(arguments.bean);
 
-				variables.beanFactory.injectProperties(recordbean, properties);
+					var properties = {};
+					for ( var columnname in columns ) {
+						properties[columnname] = arguments.qRecords[columnname][i];
+					}
 
-				beans[ recordbean.getPropertyValue(beanmap.primarykey) ] = recordbean;
-			}
-		} else {
-			for ( var i=1; i lte arguments.qRecords.recordCount; i++ ) {
-				var recordbean = getModuleBean(arguments.bean);
+					variables.beanFactory.injectProperties(recordbean, properties);
 
-				var properties = {};
-				for ( var columnname in columns ) {
-					properties[columnname] = arguments.qRecords[columnname][i];
+					beans[ recordbean.getId() ] = recordbean;
 				}
-
-				variables.beanFactory.injectProperties(recordbean, properties);
-
-				beans[ recordbean.getId() ] = recordbean;
 			}
 		}
 

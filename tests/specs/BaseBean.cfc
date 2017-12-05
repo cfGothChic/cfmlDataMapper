@@ -52,8 +52,10 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					makePublic( testClass, "getManyToManyValue" );
 					makePublic( testClass, "getPrimaryKeyFromSprocData" );
 					makePublic( testClass, "getRelationshipKeys" );
-					makePublic( testClass, "getSingularValue" );
+					makePublic( testClass, "getSingularBean" );
+					makePublic( testClass, "getSingularSprocBean" );
 					makePublic( testClass, "getSprocContext" );
+					makePublic( testClass, "getSprocRelationship" );
 					makePublic( testClass, "populate" );
 					makePublic( testClass, "populateBySproc" );
 					makePublic( testClass, "populateRelationship" );
@@ -262,15 +264,98 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						expect( result ).toBeEmpty();
 					});
 
-					// getSingularValue()
+
+					// getSingularBean()
 					it( "returns a bean for a one-to-one or many-to-one relationship", function(){
-						var result = testClass.getSingularValue( primarykey="id", relationship=beanmap.relationships.test );
+						var result = testClass.getSingularBean( primarykey="id", relationship=beanmap.relationships.test );
 
 						expect( dataFactory.$once("get") ).toBeTrue();
 						expect( testClass.$once("getForeignKeyId") ).toBeTrue();
 
 						expect( result ).toBeTypeOf( "component" );
 						expect( result ).toBeInstanceOf( "model.beans.user" );
+					});
+
+
+					// getSingularSprocBean()
+					it( "returns a bean populated from the stored procedure query", function(){
+						var result = testClass.getSingularSprocBean( bean="test", qRecords=qRecords );
+
+						expect( dataFactory.$once("getBeans") ).toBeTrue();
+						expect( dataFactory.$never("get") ).toBeTrue();
+
+						expect( result ).toBeTypeOf( "component" );
+						expect( result ).toBeInstanceOf( "model.beans.user" );
+					});
+
+
+					it( "returns an empty bean if the stored procedure query has no results", function(){
+						dataFactory.$( "getBeans", [] );
+
+						var result = testClass.getSingularSprocBean( bean="test", qRecords=querySim("") );
+
+						expect( dataFactory.$once("getBeans") ).toBeTrue();
+						expect( dataFactory.$once("get") ).toBeTrue();
+
+						expect( result ).toBeTypeOf( "component" );
+						expect( result ).toBeInstanceOf( "model.beans.user" );
+					});
+
+
+					// getSprocRelationship()
+					describe("calls getSprocRelationship() and", function(){
+
+						beforeEach(function( currentSpec ){
+							testClass.$( "getSingularSprocBean", userBean );
+						});
+
+
+						it( "returns a bean from the stored procedure data if the joinType is one", function(){
+							var result = testClass.getSprocRelationship( bean="test", joinType="one", qRecords=qRecords );
+
+							expect( testClass.$once("getSingularSprocBean") ).toBeTrue();
+							expect( dataFactory.$never("getBeans") ).toBeTrue();
+
+							expect( result ).toBeTypeOf( "component" );
+							expect( result ).toBeInstanceOf( "model.beans.user" );
+						});
+
+
+						it( "returns an array from the stored procedure data if the joinType is many", function(){
+							var result = testClass.getSprocRelationship( bean="test", joinType="many", qRecords=qRecords );
+
+							expect( testClass.$never("getSingularSprocBean") ).toBeTrue();
+							expect( dataFactory.$once("getBeans") ).toBeTrue();
+
+							expect( result ).toBeTypeOf( "array" );
+							expect( result ).toHaveLength( 1 );
+							expect( result[1] ).toBeInstanceOf( "model.beans.user" );
+						});
+
+
+						it( "returns an array from the stored procedure data if the joinType is one-to-many", function(){
+							var result = testClass.getSprocRelationship( bean="test", joinType="one-to-many", qRecords=qRecords );
+
+							expect( testClass.$never("getSingularSprocBean") ).toBeTrue();
+							expect( dataFactory.$once("getBeans") ).toBeTrue();
+
+							expect( result ).toBeTypeOf( "array" );
+							expect( result ).toHaveLength( 1 );
+							expect( result[1] ).toBeInstanceOf( "model.beans.user" );
+						});
+
+
+						it( "returns an array from the stored procedure data if the joinType is many-to-many", function(){
+							var result = testClass.getSprocRelationship( bean="test", joinType="many-to-many", qRecords=qRecords );
+
+							expect( testClass.$never("getSingularSprocBean") ).toBeTrue();
+							expect( dataFactory.$once("getBeans") ).toBeTrue();
+
+							expect( result ).toBeTypeOf( "array" );
+							expect( result ).toHaveLength( 1 );
+							expect( result[1] ).toBeInstanceOf( "model.beans.user" );
+						});
+
 					});
 
 				});
@@ -381,7 +466,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 							testClass.$( "getBeanMap", beanmap )
 								.$( "getManyToManyValue", [] )
 								.$( "getOneToManyValue", [] )
-								.$( "getSingularValue", userBean )
+								.$( "getSingularBean", userBean )
 								.$( "getNext" )
 								.$( "getTest" );
 						});
@@ -391,7 +476,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 							testClass.populateRelationship( relationshipName="test" );
 
 							expect( testClass.$once("getBeanMap") ).toBeTrue();
-							expect( testClass.$once("getSingularValue") ).toBeTrue();
+							expect( testClass.$once("getSingularBean") ).toBeTrue();
 							expect( testClass.$never("getOneToManyValue") ).toBeTrue();
 							expect( testClass.$never("getManyToManyValue") ).toBeTrue();
 							expect( beanFactory.$once("injectProperties") ).toBeTrue();
@@ -404,7 +489,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 							testClass.populateRelationship( relationshipName="test" );
 
 							expect( testClass.$once("getBeanMap") ).toBeTrue();
-							expect( testClass.$never("getSingularValue") ).toBeTrue();
+							expect( testClass.$never("getSingularBean") ).toBeTrue();
 							expect( testClass.$once("getOneToManyValue") ).toBeTrue();
 							expect( testClass.$never("getManyToManyValue") ).toBeTrue();
 							expect( beanFactory.$once("injectProperties") ).toBeTrue();
@@ -417,7 +502,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 							testClass.populateRelationship( relationshipName="test" );
 
 							expect( testClass.$once("getBeanMap") ).toBeTrue();
-							expect( testClass.$never("getSingularValue") ).toBeTrue();
+							expect( testClass.$never("getSingularBean") ).toBeTrue();
 							expect( testClass.$never("getOneToManyValue") ).toBeTrue();
 							expect( testClass.$once("getManyToManyValue") ).toBeTrue();
 							expect( beanFactory.$once("injectProperties") ).toBeTrue();
@@ -435,10 +520,8 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					describe("calls populateSprocData() and", function(){
 
 						beforeEach(function( currentSpec ){
-							dataFactory.$( "get", userBean )
-								.$( "getBeans", [userBean] );
-
 							testClass.$( "getBeanMap", beanmap )
+								.$( "getSprocRelationship", [] )
 								.$( "populateBean" );
 						});
 
@@ -448,8 +531,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 							expect( testClass.$once("getBeanMap") ).toBeTrue();
 							expect( testClass.$once("populateBean") ).toBeTrue();
-							expect( dataFactory.$never("getBeans") ).toBeTrue();
-							expect( dataFactory.$never("get") ).toBeTrue();
+							expect( testClass.$never("getSprocRelationship") ).toBeTrue();
 							expect( beanFactory.$never("injectProperties") ).toBeTrue();
 						});
 
@@ -459,56 +541,17 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 							expect( testClass.$once("getBeanMap") ).toBeTrue();
 							expect( testClass.$never("populateBean") ).toBeTrue();
-							expect( dataFactory.$never("getBeans") ).toBeTrue();
-							expect( dataFactory.$never("get") ).toBeTrue();
+							expect( testClass.$never("getSprocRelationship") ).toBeTrue();
 							expect( beanFactory.$never("injectProperties") ).toBeTrue();
 						});
 
 
-						it( "populates a bean one relationship from stored procedure data", function(){
+						it( "populates a bean relationship from stored procedure data", function(){
 							testClass.populateSprocData( data={ "test"=qRecords }, resultkeys=["test"] );
 
 							expect( testClass.$once("getBeanMap") ).toBeTrue();
 							expect( testClass.$never("populateBean") ).toBeTrue();
-							expect( dataFactory.$once("getBeans") ).toBeTrue();
-							expect( dataFactory.$never("get") ).toBeTrue();
-							expect( beanFactory.$once("injectProperties") ).toBeTrue();
-						});
-
-
-						it( "populates a bean one relationship with an empty bean when the stored procedure relationship query has no results", function(){
-							testClass.populateSprocData( data={ "test"=querySim("") }, resultkeys=["test"] );
-
-							expect( testClass.$once("getBeanMap") ).toBeTrue();
-							expect( testClass.$never("populateBean") ).toBeTrue();
-							expect( dataFactory.$never("getBeans") ).toBeTrue();
-							expect( dataFactory.$once("get") ).toBeTrue();
-							expect( beanFactory.$once("injectProperties") ).toBeTrue();
-						});
-
-
-						it( "populates a bean many relationship from stored procedure data", function(){
-							beanmap.relationships.test.joinType = "one-to-many";
-
-							testClass.populateSprocData( data={ "test"=qRecords }, resultkeys=["test"] );
-
-							expect( testClass.$once("getBeanMap") ).toBeTrue();
-							expect( testClass.$never("populateBean") ).toBeTrue();
-							expect( dataFactory.$once("getBeans") ).toBeTrue();
-							expect( dataFactory.$never("get") ).toBeTrue();
-							expect( beanFactory.$once("injectProperties") ).toBeTrue();
-						});
-
-
-						it( "populates a bean many relationship with an empty array when the stored procedure relationship query has no results", function(){
-							beanmap.relationships.test.joinType = "one-to-many";
-
-							testClass.populateSprocData( data={ "test"=querySim("") }, resultkeys=["test"] );
-
-							expect( testClass.$once("getBeanMap") ).toBeTrue();
-							expect( testClass.$never("populateBean") ).toBeTrue();
-							expect( dataFactory.$never("getBeans") ).toBeTrue();
-							expect( dataFactory.$never("get") ).toBeTrue();
+							expect( testClass.$once("getSprocRelationship") ).toBeTrue();
 							expect( beanFactory.$once("injectProperties") ).toBeTrue();
 						});
 
