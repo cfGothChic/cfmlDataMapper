@@ -16,7 +16,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 		departmentBean.$( "getPropertyValue" ).$args( item="id" ).$results( 3 );
 		departmentBean.$( "getPropertyValue" ).$args( item="isDeleted" ).$results( 1 );
 
-		beanFactory = createEmptyMock("cfmlDataMapper.samples.framework.ioc");
+		beanFactory = createEmptyMock("framework.ioc");
 		testClass.$property( propertyName="beanFactory", mock=beanFactory );
 
 		dataFactory = createEmptyMock("cfmlDataMapper.model.factory.data");

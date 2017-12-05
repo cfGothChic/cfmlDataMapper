@@ -9,9 +9,8 @@ before_install:
 
 install:
 - sudo apt-get update && sudo apt-get --assume-yes install commandbox
-- cd tests
 - box install
-- box server start
+- box server start port=8080 openbrowser=false
 
 script:
 - box testbox run

@@ -1,5 +1,0 @@
-component {
-
-	this.name = "cfmlDataMapperSamples";
-
-}
