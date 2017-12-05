@@ -7,11 +7,11 @@ component accessors="true" {
 	/**
 	* @bean Required to access the calling beans data
 	*/
-	public array function validateBean(beanmap,bean){
+	public array function validateBean( required struct beanmap, required component bean ){
 		var errors = [];
 
-		for(var name in beanMap.properties ){
-			var beanProperty = beanMap.properties[name];
+		for(var name in arguments.beanMap.properties ){
+			var beanProperty = arguments.beanMap.properties[name];
 
 			if( !beanProperty.insert || beanProperty.isidentity){
 				continue;
@@ -74,7 +74,7 @@ component accessors="true" {
 		return errors;
 	}
 
-	private string function validateByDataType( datatype, value, displayname ){
+	private string function validateByDataType( required string datatype, required string value, required string displayname ){
 		var returnString = "";
 
 		switch(arguments.datatype){
@@ -120,7 +120,7 @@ component accessors="true" {
 		return returnString;
 	}
 
-	private string function validateLength( minlength, maxlength, value, displayname ){
+	private string function validateLength( required string minlength, required string maxlength, required string value, required string displayname ){
 		var returnString = "";
 
 		if(
@@ -176,7 +176,7 @@ component accessors="true" {
 		return returnString;
 	}
 
-	private boolean function validateZipCode( string value ){
+	private boolean function validateZipCode( required string value ){
 		var valid = true;
 
 		if ( !isValid("zipcode",arguments.value)
