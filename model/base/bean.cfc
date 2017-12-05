@@ -294,12 +294,12 @@
 		setPrimaryKey(arguments.id);
 	}
 
-	private function populateRelationship( relationshipName ) {
+	private void function populateRelationship( required string relationshipName ) {
 		if ( isNull( evaluate("get" & arguments.relationshipName & "()") ) ) {
 			var beanmap = getBeanMap();
 
 			if ( !structKeyExists(beanmap,"relationships") || !structKeyExists(beanmap.relationships,arguments.relationshipName) ) {
-				throw ("A " & arguments.relationshipName & " relationship is not defined in the " & bean & " bean map.");
+				throw ("A " & arguments.relationshipName & " relationship is not defined in the " & beanmap.name & " bean map.");
 			}
 
 			var relationship = beanmap.relationships[ arguments.relationshipName ];

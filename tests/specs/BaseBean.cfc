@@ -3,6 +3,8 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 	function beforeAll(){
 		testClass = createMock("cfmlDataMapper.model.base.bean");
 
+		userBean = createMock("model.beans.user");
+
 		beanFactory = createEmptyMock("framework.ioc");
 		testClass.$property( propertyName="beanFactory", mock=beanFactory );
 
@@ -34,10 +36,21 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					makePublic( testClass, "getBeanMetaDataName" );
 					makePublic( testClass, "getBeanName" );
 					makePublic( testClass, "populate" );
+					makePublic( testClass, "populateRelationship" );
 					makePublic( testClass, "setBeanName" );
 
 					qRecords = querySim("id
 						1");
+
+					beanmap = {
+						name = "test",
+						primarykey = "id",
+						relationships = {
+							test = {
+								joinType = "one"
+							}
+						}
+					};
 				});
 
 
@@ -94,27 +107,6 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 				// populateBySproc()
 				it( "calls a stored procedure representing the bean data and populates its data and relationships", function(){
-
-				});
-
-
-				// populateRelationship()
-				it( "populates a one-to-one or many-to-one relationship", function(){
-
-				});
-
-
-				it( "populates a one-to-many relationship", function(){
-
-				});
-
-
-				it( "populates a many-to-many relationship", function(){
-
-				});
-
-
-				it( "errors if the relationship isn't defined in the bean map", function(){
 
 				});
 
@@ -197,6 +189,63 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						testClass.populateBean( qRecord=qRecords );
 
 						expect( beanFactory.$once("injectProperties") ).toBeTrue();
+					});
+
+
+					// populateRelationship()
+					describe("calls populateRelationship() and", function(){
+
+						beforeEach(function( currentSpec ){
+							testClass.$( "getBeanMap", beanmap )
+								.$( "getManyToManyValue", [] )
+								.$( "getOneToManyValue", [] )
+								.$( "getSingularValue", userBean )
+								.$( "getNext" )
+								.$( "getTest" );
+						});
+
+
+						it( "populates a one-to-one or many-to-one relationship", function(){
+							testClass.populateRelationship( relationshipName="test" );
+
+							expect( testClass.$once("getBeanMap") ).toBeTrue();
+							expect( testClass.$once("getSingularValue") ).toBeTrue();
+							expect( testClass.$never("getOneToManyValue") ).toBeTrue();
+							expect( testClass.$never("getManyToManyValue") ).toBeTrue();
+							expect( beanFactory.$once("injectProperties") ).toBeTrue();
+						});
+
+
+						it( "populates a one-to-many relationship", function(){
+							beanmap.relationships.test.joinType = "one-to-many";
+
+							testClass.populateRelationship( relationshipName="test" );
+
+							expect( testClass.$once("getBeanMap") ).toBeTrue();
+							expect( testClass.$never("getSingularValue") ).toBeTrue();
+							expect( testClass.$once("getOneToManyValue") ).toBeTrue();
+							expect( testClass.$never("getManyToManyValue") ).toBeTrue();
+							expect( beanFactory.$once("injectProperties") ).toBeTrue();
+						});
+
+
+						it( "populates a many-to-many relationship", function(){
+							beanmap.relationships.test.joinType = "many-to-many";
+
+							testClass.populateRelationship( relationshipName="test" );
+
+							expect( testClass.$once("getBeanMap") ).toBeTrue();
+							expect( testClass.$never("getSingularValue") ).toBeTrue();
+							expect( testClass.$never("getOneToManyValue") ).toBeTrue();
+							expect( testClass.$once("getManyToManyValue") ).toBeTrue();
+							expect( beanFactory.$once("injectProperties") ).toBeTrue();
+						});
+
+
+						it( "errors if the relationship isn't defined in the bean map", function(){
+							expect( function(){ testClass.populateRelationship( relationshipName="next" ); } ).toThrow(type="application", regex="(relationship)");
+						});
+
 					});
 
 				});
