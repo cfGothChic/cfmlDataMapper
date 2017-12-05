@@ -7,7 +7,7 @@ component{
 	this.name = "A TestBox Runner Suite " & hash( getCurrentTemplatePath() );
 	this.sessionManagement = true;
 
-	this.mappings[ "/testbox" ] = getDirectoryFromPath( getCurrentTemplatePath() );;
+	this.mappings[ "/testbox" ] = expandPath("../tests/testbox");
 	this.mappings[ "/cfmlDataMapper" ] = expandPath("../");
 	this.mappings[ "/model" ] = expandPath("../samples/model");
 

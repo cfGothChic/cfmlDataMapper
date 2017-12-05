@@ -144,7 +144,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					});
 
 
-					it( "returns a json string if the passed in params match the bean's cacheparam wildcard", function(){
+					xit( "returns a json string if the passed in params match the bean's cacheparam wildcard", function(){
 						beanmap.cacheparams = [{},{ userTypeID="*" }];
 
 						utilityService.$( "structCompare", false );
@@ -158,7 +158,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 
 					// getParamBeanIds()
-					it( "returns an array of bean ids for the params", function(){
+					xit( "returns an array of bean ids for the params", function(){
 						var result = testClass.getParamBeanIds( bean="user", params=params );
 
 						expect( result ).toBeTypeOf( "array" );
@@ -216,7 +216,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 
 					// getFullOrderBy()
-					it( "returns a full order by string for the bean", function(){
+					xit( "returns a full order by string for the bean", function(){
 						var result = testClass.getFullOrderBy( beanmap=beanmap, orderby="email desc" );
 
 						expect( result ).toBe( "emailaddress desc" );
@@ -596,7 +596,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					});
 
 
-					it( "returns a bean from the cache by params", function(){
+					xit( "returns a bean from the cache by params", function(){
 						testClass.$( "getCachedBean", userTypeBean );
 
 						var result = testClass.get( bean="user", id=0, params=params );
