@@ -29,7 +29,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 					var result = testClass._get_framework_one();
 
-					expect( result ).toBeInstanceOf( "cfmlDataMapper.samples.framework.one" );
+					expect( result ).toBeInstanceOf( "framework.one" );
 				});
 
 
@@ -74,14 +74,14 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				describe("calls fw1 and", function(){
 
 					beforeEach(function( currentSpec ){
-						frameworkone = createEmptyMock("cfmlDataMapper.samples.framework.one");
+						frameworkone = createEmptyMock("framework.one");
 						frameworkone.$( "onRequestStart", true );
 					});
 
 
 					// getFactory()
 					it( "returns the model factory object", function(){
-						var beanFactory = createEmptyMock("cfmlDataMapper.samples.framework.ioc");
+						var beanFactory = createEmptyMock("framework.ioc");
 						var dataFactory = createEmptyMock("cfmlDataMapper.model.factory.data");
 
 						frameworkone.$( "getDefaultBeanFactory", beanFactory )
