@@ -218,13 +218,22 @@
 		}
 	}
 
-	private function getRelationshipKeys( context="" ) {
+	private numeric function getPrimaryKeyFromSprocData( required struct sprocData ) {
+		if ( arguments.sprocData._bean.recordCount ) {
+			var beanmap = getBeanMap();
+			return variables[ beanmap.primarykey ];
+		} else {
+			return 0;
+		}
+	}
+
+	private array function getRelationshipKeys( string context="" ) {
 		var relationshipkeys = [];
 		arrayAppend(relationshipkeys,"_bean");
 
 		var beanmap = getBeanMap();
 
-		if ( len(arguments.context) && arguments.context != "_bean" && structKeyExists(beanmap,"relationships") ) {
+		if ( len(arguments.context) && arguments.context != "_bean" && structCount(beanmap.relationships) ) {
 			for ( var key in beanmap.relationships ) {
 				var contexts = beanmap.relationships[key].contexts;
 				if ( !arrayLen(contexts) || arrayFindNoCase(contexts,arguments.context) ) {
@@ -242,6 +251,18 @@
 			bean = arguments.relationship.bean,
 			id = getForeignKeyId(arguments.relationship.fkName)
 		);
+	}
+
+	private string function getSprocContext() {
+		if ( structKeyExists(arguments, "context") && !len(arguments.context) ) {
+			return "_bean";
+		}
+		else if ( !structKeyExists(arguments, "context") ) {
+			return "";
+		}
+		else {
+			return arguments.context;
+		}
 	}
 
 	private void function populate( numeric id=0, string bean="" ) {
@@ -263,15 +284,17 @@
 		// todo: setPrimaryKey(arguments.id);
 	}
 
-	private void function populateBySproc( id=0, bean="", sproc="", params=[], resultkeys=[], context ) {
+	private void function populateBySproc(
+		required string sproc,
+		string id="",
+		string bean="",
+		array params=[],
+		array resultkeys=[]
+	) {
 		if ( !isNumeric(arguments.id) ) {
 			arguments.id = 0;
 		}
-		if ( !isNull(arguments.context) && !len(arguments.context) ) {
-			arguments.context = "_bean";
-		} else if ( isNull(arguments.context) ) {
-			arguments.context = "";
-		}
+		arguments.context = getSprocContext( argumentCollection=arguments );
 		setBeanName(arguments.bean);
 
 		if ( arguments.id || arrayLen(arguments.params) ) {
@@ -290,12 +313,7 @@
 			var sprocData = variables.dataGateway.readSproc(arguments.sproc, arguments.params, arguments.resultkeys);
 			populateSprocData(sprocData, arguments.resultkeys);
 
-			if ( sprocData._bean.recordCount ) {
-				var beanmap = getBeanMap();
-				arguments.id = variables[ beanmap.primarykey ];
-			} else {
-				arguments.id = 0;
-			}
+			arguments.id = getPrimaryKeyFromSprocData( sprocData=sprocData );
 		}
 
 		setPrimaryKey(arguments.id);
@@ -330,7 +348,7 @@
 		}
 	}
 
-	private function populateSprocData( data, resultkeys ) {
+	private void function populateSprocData( required struct data, required array resultkeys ) {
 		var beanmap = getBeanMap();
 		var properties = {};
 		for ( var relationship in arguments.resultkeys ) {
@@ -363,7 +381,7 @@
 		variables.beanname = ( len(arguments.bean) ? arguments.bean : getBeanMetaDataName() );
 	}
 
-	private function setPrimaryKey(primarykey) {
+	private void function setPrimaryKey( required string primarykey ) {
 		if ( isNull(variables.dataFactory) ) {
 			// todo: make this dynamic so that the primary key does not have to be id for the pk to default to 0
 			variables.id = arguments.primarykey;

@@ -11,9 +11,6 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 		cacheService = createEmptyMock("cfmlDataMapper.model.services.cache");
 		testClass.$property( propertyName="cacheService", mock=cacheService );
 
-		dataFactory = createEmptyMock("cfmlDataMapper.model.factory.data");
-		testClass.$property( propertyName="dataFactory", mock=dataFactory );
-
 		dataGateway = createEmptyMock("cfmlDataMapper.model.gateways.data");
 		testClass.$property( propertyName="dataGateway", mock=dataGateway );
 
@@ -27,36 +24,45 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 			beforeEach(function( currentSpec ){
 
+				beanmap = {
+					name = "test",
+					primarykey = "id",
+					relationships = {
+						test = {
+							bean = "user",
+							joinType = "one",
+							fkName = "testid",
+							contexts = []
+						}
+					}
+				};
+
 			});
 
 
 			describe("exposes private methods and", function(){
 
 				beforeEach(function( currentSpec ){
+					makePublic( testClass, "clearCache" );
 					makePublic( testClass, "getBeanMetaDataName" );
 					makePublic( testClass, "getBeanName" );
+					makePublic( testClass, "getDerivedFields" );
 					makePublic( testClass, "getForeignKeyId" );
 					makePublic( testClass, "getOneToManyValue" );
 					makePublic( testClass, "getManyToManyValue" );
+					makePublic( testClass, "getPrimaryKeyFromSprocData" );
+					makePublic( testClass, "getRelationshipKeys" );
 					makePublic( testClass, "getSingularValue" );
+					makePublic( testClass, "getSprocContext" );
 					makePublic( testClass, "populate" );
+					makePublic( testClass, "populateBySproc" );
 					makePublic( testClass, "populateRelationship" );
+					makePublic( testClass, "populateSprocData" );
 					makePublic( testClass, "setBeanName" );
+					makePublic( testClass, "setPrimaryKey" );
 
 					qRecords = querySim("id
 						1");
-
-					beanmap = {
-						name = "test",
-						primarykey = "id",
-						relationships = {
-							test = {
-								bean = "user",
-								joinType = "one",
-								fkName = "testid"
-							}
-						}
-					};
 				});
 
 
@@ -72,37 +78,28 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				});
 
 
-				// getRelationshipKeys()
-				it( "returns an array of the bean key and relationship keys for the stored procedure context", function(){
+				// getSprocContext()
+				it( "returns the context that was passed into it", function(){
+					var result = testClass.getSprocContext( context="test" );
 
+					expect( result ).toBeTypeOf( "string" );
+					expect( result ).toBe( "test" );
 				});
 
 
-				it( "returns an array of with the bean key for the stored procedure when there isn't a context", function(){
+				it( "returns the root bean context if the context was passed in but doesn't have a length", function(){
+					var result = testClass.getSprocContext( context="" );
 
+					expect( result ).toBeTypeOf( "string" );
+					expect( result ).toBe( "_bean" );
 				});
 
 
-				// populateBySproc()
-				it( "calls a stored procedure representing the bean data and populates its data and relationships", function(){
+				it( "returns and empty string if the context doesn't exist", function(){
+					var result = testClass.getSprocContext();
 
-				});
-
-
-				// populateSprocData()
-				it( "loops around resulting sproc data and populates the bean and its relationships", function(){
-
-				});
-
-
-				// setPrimaryKey()
-				it( "set's the bean's primary key when the dataFactory doesn't exist", function(){
-
-				});
-
-
-				it( "set's the bean's primary key from the bean map data", function(){
-
+					expect( result ).toBeTypeOf( "string" );
+					expect( result ).toBeEmpty();
 				});
 
 
@@ -186,10 +183,13 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				describe("uses the dataFactory and", function(){
 
 					beforeEach(function( currentSpec ){
+						dataFactory = createEmptyMock("cfmlDataMapper.model.factory.data");
+
 						dataFactory.$( "get", userBean )
 							.$( "getBeanMap", beanmap )
 							.$( "getBeans", [userBean] )
 							.$( "list", [userBean] );
+						testClass.$property( propertyName="dataFactory", mock=dataFactory );
 
 						dataGateway.$( "readByJoinTable", querySim("") );
 
@@ -276,6 +276,89 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				});
 
 
+				describe("uses the beanmap and", function(){
+
+					beforeEach(function( currentSpec ){
+						testClass.$property( propertyName="id", mock=1 );
+
+						testClass.$( "getBeanMap", beanmap );
+					});
+
+
+					// getPrimaryKeyFromSprocData()
+					it( "returns the bean's id from the populated primary key", function(){
+						var result = testClass.getPrimaryKeyFromSprocData( sprocData={ "_bean"=qRecords } );
+
+						expect( testClass.$once("getBeanMap") ).toBeTrue();
+
+						expect( result ).toBeTypeOf( "numeric" );
+						expect( result ).toBe( 1 );
+					});
+
+
+					it( "returns 0 for the bean's id if the stored procedure had no bean data", function(){
+						var result = testClass.getPrimaryKeyFromSprocData( sprocData={ "_bean"=querySim("") } );
+
+						expect( testClass.$never("getBeanMap") ).toBeTrue();
+
+						expect( result ).toBeTypeOf( "numeric" );
+						expect( result ).toBe( 0 );
+					});
+
+
+					// getRelationshipKeys()
+					it( "returns an array of the bean key and relationship keys for the stored procedure context", function(){
+						var result = testClass.getRelationshipKeys( context="test" );
+
+						expect( testClass.$once("getBeanMap") ).toBeTrue();
+
+						expect( result ).toBeTypeOf( "array" );
+						expect( result ).toHaveLength( 2 );
+					});
+
+
+					it( "returns an array with the bean key for the stored procedure when there isn't a context", function(){
+						var result = testClass.getRelationshipKeys( context="" );
+
+						expect( testClass.$once("getBeanMap") ).toBeTrue();
+
+						expect( result ).toBeTypeOf( "array" );
+						expect( result ).toHaveLength( 1 );
+					});
+
+
+					it( "returns an array with the bean key for the stored procedure when the context is '_bean'", function(){
+						var result = testClass.getRelationshipKeys( context="_bean" );
+
+						expect( testClass.$once("getBeanMap") ).toBeTrue();
+
+						expect( result ).toBeTypeOf( "array" );
+						expect( result ).toHaveLength( 1 );
+					});
+
+
+					it( "returns an array with the bean key for the stored procedure when there are no relationships", function(){
+						beanmap.relationships = {};
+
+						var result = testClass.getRelationshipKeys( context="test" );
+
+						expect( testClass.$once("getBeanMap") ).toBeTrue();
+
+						expect( result ).toBeTypeOf( "array" );
+						expect( result ).toHaveLength( 1 );
+					});
+
+
+					// setPrimaryKey()
+					it( "set's the bean's primary key from the bean map data", function(){
+						testClass.setPrimaryKey( primarykey=1 );
+
+						expect( testClass.$once("getBeanMap") ).toBeTrue();
+					});
+
+				});
+
+
 				describe("uses the beanFactory and", function(){
 
 					beforeEach(function( currentSpec ){
@@ -284,7 +367,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 
 					// populateBean()
-					it( "processes a query and injects it into the bean", function(){qRecords
+					it( "processes a query and injects it into the bean", function(){
 						testClass.populateBean( qRecord=qRecords );
 
 						expect( beanFactory.$once("injectProperties") ).toBeTrue();
@@ -347,9 +430,94 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 					});
 
+
+					// populateSprocData()
+					describe("calls populateSprocData() and", function(){
+
+						beforeEach(function( currentSpec ){
+							dataFactory.$( "get", userBean )
+								.$( "getBeans", [userBean] );
+
+							testClass.$( "getBeanMap", beanmap )
+								.$( "populateBean" );
+						});
+
+
+						it( "populates the bean properties from stored procedure data", function(){
+							testClass.populateSprocData( data={ "_bean"=qRecords }, resultkeys=["_bean"] );
+
+							expect( testClass.$once("getBeanMap") ).toBeTrue();
+							expect( testClass.$once("populateBean") ).toBeTrue();
+							expect( dataFactory.$never("getBeans") ).toBeTrue();
+							expect( dataFactory.$never("get") ).toBeTrue();
+							expect( beanFactory.$never("injectProperties") ).toBeTrue();
+						});
+
+
+						it( "doesn't populate the bean properties when the stored procedure bean query has no results", function(){
+							testClass.populateSprocData( data={ "_bean"=querySim("") }, resultkeys=["_bean"] );
+
+							expect( testClass.$once("getBeanMap") ).toBeTrue();
+							expect( testClass.$never("populateBean") ).toBeTrue();
+							expect( dataFactory.$never("getBeans") ).toBeTrue();
+							expect( dataFactory.$never("get") ).toBeTrue();
+							expect( beanFactory.$never("injectProperties") ).toBeTrue();
+						});
+
+
+						it( "populates a bean one relationship from stored procedure data", function(){
+							testClass.populateSprocData( data={ "test"=qRecords }, resultkeys=["test"] );
+
+							expect( testClass.$once("getBeanMap") ).toBeTrue();
+							expect( testClass.$never("populateBean") ).toBeTrue();
+							expect( dataFactory.$once("getBeans") ).toBeTrue();
+							expect( dataFactory.$never("get") ).toBeTrue();
+							expect( beanFactory.$once("injectProperties") ).toBeTrue();
+						});
+
+
+						it( "populates a bean one relationship with an empty bean when the stored procedure relationship query has no results", function(){
+							testClass.populateSprocData( data={ "test"=querySim("") }, resultkeys=["test"] );
+
+							expect( testClass.$once("getBeanMap") ).toBeTrue();
+							expect( testClass.$never("populateBean") ).toBeTrue();
+							expect( dataFactory.$never("getBeans") ).toBeTrue();
+							expect( dataFactory.$once("get") ).toBeTrue();
+							expect( beanFactory.$once("injectProperties") ).toBeTrue();
+						});
+
+
+						it( "populates a bean many relationship from stored procedure data", function(){
+							beanmap.relationships.test.joinType = "one-to-many";
+
+							testClass.populateSprocData( data={ "test"=qRecords }, resultkeys=["test"] );
+
+							expect( testClass.$once("getBeanMap") ).toBeTrue();
+							expect( testClass.$never("populateBean") ).toBeTrue();
+							expect( dataFactory.$once("getBeans") ).toBeTrue();
+							expect( dataFactory.$never("get") ).toBeTrue();
+							expect( beanFactory.$once("injectProperties") ).toBeTrue();
+						});
+
+
+						it( "populates a bean many relationship with an empty array when the stored procedure relationship query has no results", function(){
+							beanmap.relationships.test.joinType = "one-to-many";
+
+							testClass.populateSprocData( data={ "test"=querySim("") }, resultkeys=["test"] );
+
+							expect( testClass.$once("getBeanMap") ).toBeTrue();
+							expect( testClass.$never("populateBean") ).toBeTrue();
+							expect( dataFactory.$never("getBeans") ).toBeTrue();
+							expect( dataFactory.$never("get") ).toBeTrue();
+							expect( beanFactory.$once("injectProperties") ).toBeTrue();
+						});
+
+					});
+
 				});
 
 
+				// populate()
 				describe("calls populate() and", function(){
 
 					beforeEach(function( currentSpec ){
@@ -362,7 +530,6 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					});
 
 
-					// populate()
 					it( "gets the bean record from the database and populates the data", function(){
 						testClass.populate( id=1, bean="test" );
 
@@ -392,6 +559,91 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						expect( testClass.$never("populateBean") ).toBeTrue();
 					});
 
+				});
+
+
+				// populateBySproc()
+				describe("calls populateBySproc() and", function(){
+
+					beforeEach(function( currentSpec ){
+						sprocData = {
+							_bean = qRecords
+						};
+
+						dataGateway.$( "readSproc", sprocData );
+
+						testClass.$( "getPrimaryKeyFromSprocData", 0 )
+							.$( "getRelationshipKeys", [] )
+							.$( "getSprocContext", "" )
+							.$( "populateSprocData" )
+							.$( "setBeanName" )
+							.$( "setPrimaryKey" );
+					});
+
+
+					it( "doesn't populate from a stored procedure if the primary key is 0 and there are no params", function(){
+						testClass.populateBySproc( sproc="getTest", id=0, bean="test", params=[], resultkeys=[] );
+
+						expect( testClass.$once("getSprocContext") ).toBeTrue();
+						expect( testClass.$once("setBeanName") ).toBeTrue();
+						expect( testClass.$never("getRelationshipKeys") ).toBeTrue();
+						expect( dataGateway.$never("readSproc") ).toBeTrue();
+						expect( testClass.$never("populateSprocData") ).toBeTrue();
+						expect( testClass.$never("getPrimaryKeyFromSprocData") ).toBeTrue();
+						expect( testClass.$once("setPrimaryKey") ).toBeTrue();
+					});
+
+
+					it( "doesn't populate from a stored procedure if the primary key is blank", function(){
+						testClass.populateBySproc( sproc="getTest", id="", bean="test", params=[], resultkeys=[] );
+
+						expect( testClass.$once("getSprocContext") ).toBeTrue();
+						expect( testClass.$once("setBeanName") ).toBeTrue();
+						expect( testClass.$never("getRelationshipKeys") ).toBeTrue();
+						expect( dataGateway.$never("readSproc") ).toBeTrue();
+						expect( testClass.$never("populateSprocData") ).toBeTrue();
+						expect( testClass.$never("getPrimaryKeyFromSprocData") ).toBeTrue();
+						expect( testClass.$once("setPrimaryKey") ).toBeTrue();
+					});
+
+
+					it( "populates the data and relationships from a stored procedure", function(){
+						testClass.populateBySproc( sproc="getTest", id=1, bean="test", params=[], resultkeys=[] );
+
+						expect( testClass.$once("getSprocContext") ).toBeTrue();
+						expect( testClass.$once("setBeanName") ).toBeTrue();
+						expect( testClass.$once("getRelationshipKeys") ).toBeTrue();
+						expect( dataGateway.$once("readSproc") ).toBeTrue();
+						expect( testClass.$once("populateSprocData") ).toBeTrue();
+						expect( testClass.$once("getPrimaryKeyFromSprocData") ).toBeTrue();
+						expect( testClass.$once("setPrimaryKey") ).toBeTrue();
+					});
+
+
+					it( "populates the data and relationships from a stored procedure using params", function(){
+						testClass.populateBySproc( sproc="getTest", id=0, bean="test", params=[{ name="Test" }], resultkeys=[] );
+
+						expect( testClass.$once("getSprocContext") ).toBeTrue();
+						expect( testClass.$once("setBeanName") ).toBeTrue();
+						expect( testClass.$once("getRelationshipKeys") ).toBeTrue();
+						expect( dataGateway.$once("readSproc") ).toBeTrue();
+						expect( testClass.$once("populateSprocData") ).toBeTrue();
+						expect( testClass.$once("getPrimaryKeyFromSprocData") ).toBeTrue();
+						expect( testClass.$once("setPrimaryKey") ).toBeTrue();
+					});
+
+
+					it( "populates the data and relationships from a stored procedure using resultkeys", function(){
+						testClass.populateBySproc( sproc="getTest", id=1, bean="test", params=[], resultkeys=["test"] );
+
+						expect( testClass.$once("getSprocContext") ).toBeTrue();
+						expect( testClass.$once("setBeanName") ).toBeTrue();
+						expect( testClass.$never("getRelationshipKeys") ).toBeTrue();
+						expect( dataGateway.$once("readSproc") ).toBeTrue();
+						expect( testClass.$once("populateSprocData") ).toBeTrue();
+						expect( testClass.$once("getPrimaryKeyFromSprocData") ).toBeTrue();
+						expect( testClass.$once("setPrimaryKey") ).toBeTrue();
+					});
 
 				});
 
@@ -501,9 +753,22 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 			});
 
 
-			// init()
 			describe("on initialization", function(){
 
+				beforeEach(function( currentSpec ){
+					testClass.$( "getBeanMap", beanmap );
+				});
+
+
+				// setPrimaryKey()
+				it( "set's the bean's primary key when the dataFactory doesn't exist", function(){
+					testClass.setPrimaryKey( primarykey=1 );
+
+					expect( testClass.$never("getBeanMap") ).toBeTrue();
+				});
+
+
+				// init()
 				it( "populates the bean", function(){
 
 				});
