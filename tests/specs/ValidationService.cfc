@@ -183,58 +183,6 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				});
 
 
-				// validateRange()
-				it( "returns an empty string if the value is within the minimum and maximum range", function(){
-					var result = testClass.validateRange( minvalue=21, maxvalue=50, value=30, displayname="Age" );
-
-					expect( result ).toBeTypeOf( "string" );
-					expect( result ).toBeEmpty();
-				});
-
-
-				it( "returns an error message if the value is not within the minimum and maximum range", function(){
-					var result = testClass.validateRange( minvalue=21, maxvalue=50, value=15, displayname="Age" );
-
-					expect( result ).toBeTypeOf( "string" );
-					expect( result ).toMatch( "(Age)" );
-					expect( result ).toMatch( "(between)" );
-				});
-
-
-				it( "returns an empty string if the value is above the minimum value", function(){
-					var result = testClass.validateRange( minvalue=21, maxvalue="", value=30, displayname="Age" );
-
-					expect( result ).toBeTypeOf( "string" );
-					expect( result ).toBeEmpty();
-				});
-
-
-				it( "returns an error message if the value is below the minimum value", function(){
-					var result = testClass.validateRange( minvalue=21, maxvalue="", value=15, displayname="Age" );
-
-					expect( result ).toBeTypeOf( "string" );
-					expect( result ).toMatch( "(Age)" );
-					expect( result ).toMatch( "(greater)" );
-				});
-
-
-				it( "returns an empty string if the value is below the maximum value", function(){
-					var result = testClass.validateRange( minvalue="", maxvalue=50, value=30, displayname="Age" );
-
-					expect( result ).toBeTypeOf( "string" );
-					expect( result ).toBeEmpty();
-				});
-
-
-				it( "returns an error message if the value is above the maximum value", function(){
-					var result = testClass.validateRange( minvalue="", maxvalue=50, value=75, displayname="Age" );
-
-					expect( result ).toBeTypeOf( "string" );
-					expect( result ).toMatch( "(Age)" );
-					expect( result ).toMatch( "(less)" );
-				});
-
-
 				// validateRegex()
 				it( "returns an empty string if the value matches the regex string", function(){
 					var result = testClass.validateRegex( regex="(sentence)", regexlabel="sentence", value="This is a sentence.", displayname="Word" );
@@ -275,6 +223,77 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 					expect( result ).toBeTypeOf( "boolean" );
 					expect( result ).toBeFalse();
+				});
+
+				describe("checks validateByDataType() and", function(){
+
+					beforeEach(function( currentSpec ){
+						testClass.$( "validateByDataType", "" );
+					});
+
+					// validateRange()
+					it( "returns an empty string if the value is within the minimum and maximum range", function(){
+						var result = testClass.validateRange( minvalue=21, maxvalue=50, value=30, displayname="Age" );
+
+						expect( testClass.$once("validateByDataType") ).toBeTrue();
+
+						expect( result ).toBeTypeOf( "string" );
+						expect( result ).toBeEmpty();
+					});
+
+
+					it( "returns an error message if the value is not within the minimum and maximum range", function(){
+						var result = testClass.validateRange( minvalue=21, maxvalue=50, value=15, displayname="Age" );
+
+						expect( testClass.$once("validateByDataType") ).toBeTrue();
+
+						expect( result ).toBeTypeOf( "string" );
+						expect( result ).toMatch( "(Age)" );
+						expect( result ).toMatch( "(between)" );
+					});
+
+
+					it( "returns an empty string if the value is above the minimum value", function(){
+						var result = testClass.validateRange( minvalue=21, maxvalue="", value=30, displayname="Age" );
+
+						expect( testClass.$once("validateByDataType") ).toBeTrue();
+
+						expect( result ).toBeTypeOf( "string" );
+						expect( result ).toBeEmpty();
+					});
+
+
+					it( "returns an error message if the value is below the minimum value", function(){
+						var result = testClass.validateRange( minvalue=21, maxvalue="", value=15, displayname="Age" );
+
+						expect( testClass.$once("validateByDataType") ).toBeTrue();
+
+						expect( result ).toBeTypeOf( "string" );
+						expect( result ).toMatch( "(Age)" );
+						expect( result ).toMatch( "(greater)" );
+					});
+
+
+					it( "returns an empty string if the value is below the maximum value", function(){
+						var result = testClass.validateRange( minvalue="", maxvalue=50, value=30, displayname="Age" );
+
+						expect( testClass.$once("validateByDataType") ).toBeTrue();
+
+						expect( result ).toBeTypeOf( "string" );
+						expect( result ).toBeEmpty();
+					});
+
+
+					it( "returns an error message if the value is above the maximum value", function(){
+						var result = testClass.validateRange( minvalue="", maxvalue=50, value=75, displayname="Age" );
+
+						expect( testClass.$once("validateByDataType") ).toBeTrue();
+
+						expect( result ).toBeTypeOf( "string" );
+						expect( result ).toMatch( "(Age)" );
+						expect( result ).toMatch( "(less)" );
+					});
+
 				});
 
 			});

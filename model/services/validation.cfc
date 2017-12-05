@@ -141,22 +141,26 @@ component accessors="true" {
 		return returnString;
 	}
 
-	private string function validateRange( minvalue, maxvalue, value, displayname ){
+	private string function validateRange( required string minvalue, required string maxvalue, required string value, required string displayname ){
 		var returnString = "";
 
-		if(
-			len(arguments.minvalue)
-			&& len(arguments.maxvalue)
-			&& (
-				arguments.minvalue > arguments.value
-				|| arguments.maxvalue < arguments.value
-			)
-		){
-			returnString = arguments.displayname & " must be a value between " & arguments.minvalue & " and " & arguments.maxvalue & ".";
-		} else if( len(arguments.minvalue) && arguments.minvalue > arguments.value){
-			returnString = arguments.displayname & " must be a value greater than " & arguments.minvalue & ".";
-		} else if( len(arguments.maxvalue) && arguments.maxvalue < arguments.value){
-			returnString = arguments.displayname & " must be a value less than " & arguments.maxvalue & ".";
+		returnString = validateByDataType( datatype="numeric", value=arguments.value, displayname=arguments.displayname );
+
+		if ( !len(returnString) ) {
+			if(
+				len(arguments.minvalue)
+				&& len(arguments.maxvalue)
+				&& (
+					arguments.minvalue > arguments.value
+					|| arguments.maxvalue < arguments.value
+				)
+			){
+				returnString = arguments.displayname & " must be a value between " & arguments.minvalue & " and " & arguments.maxvalue & ".";
+			} else if( len(arguments.minvalue) && arguments.minvalue > arguments.value){
+				returnString = arguments.displayname & " must be a value greater than " & arguments.minvalue & ".";
+			} else if( len(arguments.maxvalue) && arguments.maxvalue < arguments.value){
+				returnString = arguments.displayname & " must be a value less than " & arguments.maxvalue & ".";
+			}
 		}
 
 		return returnString;
