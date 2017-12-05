@@ -13,7 +13,7 @@ component accessors="true" {
 		for(var name in arguments.beanMap.properties ){
 			var beanProperty = arguments.beanMap.properties[name];
 
-			if( !beanProperty.insert || beanProperty.isidentity){
+			if( !beanProperty.insert || beanProperty.isidentity ){
 				continue;
 			}
 
@@ -21,17 +21,23 @@ component accessors="true" {
 			var displayname = beanProperty.displayname;
 			var isRequired = !beanProperty.null;
 
-			/*if( isRequired && beanproperty.datatype == 'numeric' && value <= 0){
-				arrayAppend(errors, displayname & " must be greater than zero.");
-			} else*/
-			if( isRequired && !len(trim(value)) ){
-				arrayAppend(errors, displayname & " is required.");
-			} else if( !len(trim(value)) ){
+			var validationMessage = "";
+
+			if( isRequired ){
+				validationMessage = validateRequired( value=value, displayname=displayname );
+				if( len(trim(validationMessage)) ){
+					arrayAppend(errors, validationMessage);
+				}
+			}
+
+			if( !len(trim(value)) ){
 				continue;
-			} else {
+			}
+
+			if( !isRequired || !len(validationMessage) ) {
 
 				// Handle datatype rules
-				var validationMessage = validateByDataType( datatype=beanproperty.datatype, value=value, displayname=displayname );
+				validationMessage = validateByDataType( datatype=beanproperty.datatype, value=value, displayname=displayname );
 				if( len(trim(validationMessage)) ){
 					arrayAppend(errors, validationMessage);
 				}
@@ -123,6 +129,9 @@ component accessors="true" {
 	private string function validateLength( required string minlength, required string maxlength, required string value, required string displayname ){
 		var returnString = "";
 
+		// todo: add throw if arguments.minlength has a length but is not a number
+		// todo: add throw if arguments.maxlength has a length but is not a number
+
 		if(
 			len(arguments.minlength)
 			&& len(arguments.maxlength)
@@ -143,6 +152,9 @@ component accessors="true" {
 
 	private string function validateRange( required string minvalue, required string maxvalue, required string value, required string displayname ){
 		var returnString = "";
+
+		// todo: add throw if arguments.minvalue has a length but is not a number
+		// todo: add throw if arguments.maxvalue has a length but is not a number
 
 		returnString = validateByDataType( datatype="numeric", value=arguments.value, displayname=arguments.displayname );
 
@@ -169,8 +181,25 @@ component accessors="true" {
 	private string function validateRegex( required string regex, required string regexlabel, required string value, required string displayname ){
 		var returnString = "";
 
+		// todo: add throw if arguments.regex is not a regex string
+
 		if( len(trim(arguments.regex)) && !arrayLen(REMatch( arguments.regex, arguments.value)) ){
 			returnString = arguments.displayname & " must be a valid " & arguments.regexlabel & ".";
+		}
+
+		return returnString;
+	}
+
+	private string function validateRequired( required string value, required string displayname ){
+		var returnString = "";
+
+		// todo: add validation for a fkColumn related to a relationship join
+		/*if( arguments.datatype == 'numeric' && arguments.value <= 0){
+			returnString = arguments.displayname & " is required.";
+		} else*/
+
+		if( !len(trim(arguments.value)) ){
+			returnString = arguments.displayname & " is required.";
 		}
 
 		return returnString;

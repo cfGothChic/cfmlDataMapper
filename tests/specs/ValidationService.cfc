@@ -16,6 +16,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					makePublic( testClass, "validateLength" );
 					makePublic( testClass, "validateRange" );
 					makePublic( testClass, "validateRegex" );
+					makePublic( testClass, "validateRequired" );
 					makePublic( testClass, "validateZipCode" );
 				});
 
@@ -198,6 +199,24 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					expect( result ).toBeTypeOf( "string" );
 					expect( result ).toMatch( "(Word)" );
 					expect( result ).toMatch( "(sentence)" );
+				});
+
+
+				// validateRequired()
+				it( "returns an empty string if the value is required and has a length", function(){
+					var result = testClass.validateRequired( value="This is a sentence.", displayname="Word" );
+
+					expect( result ).toBeTypeOf( "string" );
+					expect( result ).toBeEmpty();
+				});
+
+
+				it( "returns an error message if the value is required and does not have a length", function(){
+					var result = testClass.validateRequired( value="", displayname="Word" );
+
+					expect( result ).toBeTypeOf( "string" );
+					expect( result ).toMatch( "(Word)" );
+					expect( result ).toMatch( "(required)" );
 				});
 
 
