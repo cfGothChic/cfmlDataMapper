@@ -30,11 +30,9 @@ component accessors="true" {
 				continue;
 			} else {
 
-				if( beanproperty.datatype != "any" ){
-					var validationMessage = validateByDataType( datatype=beanproperty.datatype, value=value, displayname=displayname );
-					if( len(trim(validationMessage)) ){
-						arrayAppend(errors, validationMessage);
-					}
+				var validationMessage = validateByDataType( datatype=beanproperty.datatype, value=value, displayname=displayname );
+				if( len(trim(validationMessage)) ){
+					arrayAppend(errors, validationMessage);
 				}
 
 				if( len(trim(beanProperty.regex)) && !arrayLen(REMatch( beanProperty.regex, value)) ){

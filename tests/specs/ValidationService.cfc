@@ -9,7 +9,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 		describe("The Validation Service", function(){
 
-			describe("exposes the private functions and", function(){
+			describe("reads a beanmap property and", function(){
 
 				beforeEach(function( currentSpec ){
 					makePublic( testClass, "validateByDataType" );
@@ -119,6 +119,14 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					expect( result ).toBeTypeOf( "string" );
 					expect( result ).toMatch( "(Age)" );
 					expect( result ).toMatch( "(zipcode)" );
+				});
+
+
+				it( "returns an empty string if the datatype is any", function(){
+					var result = testClass.validateByDataType( datatype="any", value="test", displayname="Age" );
+
+					expect( result ).toBeTypeOf( "string" );
+					expect( result ).toBeEmpty();
 				});
 
 
