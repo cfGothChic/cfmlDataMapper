@@ -18,57 +18,73 @@ component accessors="true" {
 			}
 
 			var value = arguments.bean.getPropertyValue(propertyname=name);
-			var displayname = beanProperty.displayname;
-			var isRequired = !beanProperty.null;
 
-			var validationMessage = "";
+			errors = validateBeanProperty( value=value, beanProperty=beanProperty );
+		}
 
-			if( isRequired ){
-				validationMessage = validateRequired( value=value, displayname=displayname );
-				if( len(trim(validationMessage)) ){
-					arrayAppend(errors, validationMessage);
-				}
+		return errors;
+	}
+
+	private array function validateBeanProperty( required string value, required struct beanProperty ) {
+		var errors = [];
+		var validationMessage = "";
+
+		// todo: add throw if arguments.beanProperty.null is not a boolean
+
+		var displayname = arguments.beanProperty.displayname;
+		var isRequired = !(arguments.beanProperty.null);
+
+		if( isRequired ){
+			validationMessage = validateRequired( value=arguments.value, displayname=displayname );
+			if( len(trim(validationMessage)) ){
+				arrayAppend(errors, validationMessage);
+			}
+		}
+
+		if( len(trim(arguments.value)) && !arrayLen(errors) ) {
+
+			// Handle datatype rules
+			validationMessage = validateByDataType(
+				datatype=arguments.beanproperty.datatype,
+				value=arguments.value,
+				displayname=displayname
+			);
+			if( len(trim(validationMessage)) ){
+				arrayAppend(errors, validationMessage);
 			}
 
-			if( !len(trim(value)) ){
-				continue;
-			}
-
-			if( !isRequired || !len(validationMessage) ) {
-
-				// Handle datatype rules
-				validationMessage = validateByDataType( datatype=beanproperty.datatype, value=value, displayname=displayname );
-				if( len(trim(validationMessage)) ){
-					arrayAppend(errors, validationMessage);
-				}
-
-				// Handle regex rules
+			// Handle regex rules
+			if ( len(arguments.beanProperty.regex) || len(arguments.beanProperty.regexlabel) ) {
 				validationMessage = validateRegex(
-					regex=beanProperty.regex,
-					regexlabel=beanProperty.regexlabel,
-					value=value,
+					regex=arguments.beanProperty.regex,
+					regexlabel=arguments.beanProperty.regexlabel,
+					value=arguments.value,
 					displayname=displayname
 				);
 				if( len(trim(validationMessage)) ){
 					arrayAppend(errors, validationMessage);
 				}
+			}
 
-				// Handle range rules
+			// Handle range rules
+			if ( len(arguments.beanProperty.minvalue) || len(arguments.beanProperty.maxvalue) ) {
 				validationMessage = validateRange(
-					minvalue=beanProperty.minvalue,
-					maxvalue=beanProperty.maxvalue,
-					value=value,
+					minvalue=arguments.beanProperty.minvalue,
+					maxvalue=arguments.beanProperty.maxvalue,
+					value=arguments.value,
 					displayname=displayname
 				);
 				if( len(trim(validationMessage)) ){
 					arrayAppend(errors, validationMessage);
 				}
+			}
 
-				// Handle length rules
+			// Handle length rules
+			if ( len(arguments.beanProperty.minlength) || len(arguments.beanProperty.maxlength) ) {
 				validationMessage = validateLength(
-					minvalue=beanProperty.minlength,
-					maxvalue=beanProperty.maxlength,
-					value=value,
+					minvalue=arguments.beanProperty.minlength,
+					maxvalue=arguments.beanProperty.maxlength,
+					value=arguments.value,
 					displayname=displayname
 				);
 				if( len(trim(validationMessage)) ){
@@ -181,6 +197,8 @@ component accessors="true" {
 	private string function validateRegex( required string regex, required string regexlabel, required string value, required string displayname ){
 		var returnString = "";
 
+		// todo: add throw if arguments.regex has a length but arguments.regexlabel does not
+		// todo: add throw if arguments.regexlabel has a length but arguments.regex does not
 		// todo: add throw if arguments.regex is not a regex string
 
 		if( len(trim(arguments.regex)) && !arrayLen(REMatch( arguments.regex, arguments.value)) ){
