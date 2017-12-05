@@ -30,21 +30,29 @@ component accessors="true" {
 				continue;
 			} else {
 
+				// Handle datatype rules
 				var validationMessage = validateByDataType( datatype=beanproperty.datatype, value=value, displayname=displayname );
 				if( len(trim(validationMessage)) ){
 					arrayAppend(errors, validationMessage);
 				}
 
-				if( len(trim(beanProperty.regex)) && !arrayLen(REMatch( beanProperty.regex, value)) ){
-					arrayAppend(errors, displayname & " must be a valid zipcode or postal code.");
+				// Handle regex rules
+				validationMessage = validateRegex(
+					regex=beanProperty.regex,
+					regexlabel=beanProperty.regexlabel,
+					value=value,
+					displayname=displayname
+				);
+				if( len(trim(validationMessage)) ){
+					arrayAppend(errors, validationMessage);
 				}
 
 				// Handle range rules
 				validationMessage = validateRange(
-					minvalue = beanProperty.minvalue,
-					maxvalue = beanProperty.maxvalue,
-					value = value,
-					displayname = displayname
+					minvalue=beanProperty.minvalue,
+					maxvalue=beanProperty.maxvalue,
+					value=value,
+					displayname=displayname
 				);
 				if( len(trim(validationMessage)) ){
 					arrayAppend(errors, validationMessage);
@@ -52,10 +60,10 @@ component accessors="true" {
 
 				// Handle length rules
 				validationMessage = validateLength(
-					minvalue = beanProperty.minlength,
-					maxvalue = beanProperty.maxlength,
-					value = value,
-					displayname = displayname
+					minvalue=beanProperty.minlength,
+					maxvalue=beanProperty.maxlength,
+					value=value,
+					displayname=displayname
 				);
 				if( len(trim(validationMessage)) ){
 					arrayAppend(errors, validationMessage);
@@ -149,6 +157,16 @@ component accessors="true" {
 			returnString = arguments.displayname & " must be a value greater than " & arguments.minvalue & ".";
 		} else if( len(arguments.maxvalue) && arguments.maxvalue < arguments.value){
 			returnString = arguments.displayname & " must be a value less than " & arguments.maxvalue & ".";
+		}
+
+		return returnString;
+	}
+
+	private string function validateRegex( required string regex, required string regexlabel, required string value, required string displayname ){
+		var returnString = "";
+
+		if( len(trim(arguments.regex)) && !arrayLen(REMatch( arguments.regex, arguments.value)) ){
+			returnString = arguments.displayname & " must be a valid " & arguments.regexlabel & ".";
 		}
 
 		return returnString;

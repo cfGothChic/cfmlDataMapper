@@ -15,6 +15,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					makePublic( testClass, "validateByDataType" );
 					makePublic( testClass, "validateLength" );
 					makePublic( testClass, "validateRange" );
+					makePublic( testClass, "validateRegex" );
 					makePublic( testClass, "validateZipCode" );
 				});
 
@@ -231,6 +232,24 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					expect( result ).toBeTypeOf( "string" );
 					expect( result ).toMatch( "(Age)" );
 					expect( result ).toMatch( "(less)" );
+				});
+
+
+				// validateRegex()
+				it( "returns an empty string if the value matches the regex string", function(){
+					var result = testClass.validateRegex( regex="(sentence)", regexlabel="sentence", value="This is a sentence.", displayname="Word" );
+
+					expect( result ).toBeTypeOf( "string" );
+					expect( result ).toBeEmpty();
+				});
+
+
+				it( "returns an error message if the value does not match the regex string", function(){
+					var result = testClass.validateRegex( regex="(cat)", regexlabel="sentence", value="This is a sentence.", displayname="Word" );
+
+					expect( result ).toBeTypeOf( "string" );
+					expect( result ).toMatch( "(Word)" );
+					expect( result ).toMatch( "(sentence)" );
 				});
 
 
