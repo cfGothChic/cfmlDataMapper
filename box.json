@@ -1,0 +1,55 @@
+{
+    "name":"cfmlDataMapper",
+    "version":"1.0.0+buildID",
+    "author":"Daria Norris <daria@cfgothchic.com>",
+    "description":"CFML Data Mapper is a flexible transient bean factory that manages the relationship between an application's beans and the data layer, providing basic database functionality reducing the need for boilerplate code.",
+    "homepage":"https://github.com/cfGothChic/cfmlDataMapper",
+    "documentation":"https://github.com/cfGothChic/cfmlDataMapper/wiki",
+    "repository":{
+        "type":"Git",
+        "URL":"https://github.com/cfGothChic/cfmlDataMapper.git"
+    },
+    "bugs":"https://github.com/cfGothChic/cfmlDataMapper/issues",
+    "createPackageDirectory":"true",
+    "packageDirectory":"cfmlDataMapper",
+    "location":"https://github.com/cfGothChic/cfmlDataMapper/archive/master.zip",
+    "private":"false",
+    "license":[
+        {
+            "type":"GPL-3.0",
+            "URL":"http://opensource.org/licenses/GPL-3.0"
+        }
+    ],
+    "engines":[
+        {
+            "type":"railo",
+            "version":">=4.2.1"
+        },
+        {
+            "type":"lucee",
+            "version":">=4.5.x"
+        },
+        {
+            "type":"adobe",
+            "version":">=10.0.0"
+        }
+    ],
+    "devDependencies":{
+        "fw1":"x",
+        "testbox":"^2.5.0+107"
+    },
+    "installPaths":{
+        "fw1":"framework",
+        "testbox":"testbox"
+    },
+    "testbox":{
+        "runner":[
+            {
+                "default":"http://localhost:8080/tests/runner.cfm"
+            }
+        ],
+        "directory":"tests.specs",
+        "recurse":false,
+        "verbose":true
+    }
+}
