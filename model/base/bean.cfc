@@ -169,10 +169,14 @@
 		variables.cacheService.clearBean(bean);
 	}
 
-	private function getBeanName() {
+	private string function getBeanMetaDataName() {
+		var metadata = getMetaData(this);
+		return structKeyExists(metadata,"bean") ? metadata.bean : listLast(metadata.name, ".");
+	}
+
+	private string function getBeanName() {
 		if ( isNull(variables.beanname) ) {
-			var metadata = getMetaData(this);
-			variables.beanname = ( structKeyExists(metadata,"bean") ? metadata.bean : listLast(metadata.name, ".") );
+			variables.beanname = getBeanMetaDataName();
 		}
 		return variables.beanname;
 	}
@@ -348,8 +352,8 @@
 		}
 	}
 
-	private function setBeanName( bean ) {
-		variables.beanname = ( len(arguments.bean) ? arguments.bean : getBeanName() );
+	private void function setBeanName( string bean="" ) {
+		variables.beanname = ( len(arguments.bean) ? arguments.bean : getBeanMetaDataName() );
 	}
 
 	private function setPrimaryKey(primarykey) {

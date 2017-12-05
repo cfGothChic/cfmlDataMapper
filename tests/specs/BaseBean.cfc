@@ -31,7 +31,10 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 			describe("exposes private methods and", function(){
 
 				beforeEach(function( currentSpec ){
+					makePublic( testClass, "getBeanMetaDataName" );
+					makePublic( testClass, "getBeanName" );
 					makePublic( testClass, "populate" );
+					makePublic( testClass, "setBeanName" );
 
 					readQuery = querySim("id
 						1");
@@ -40,12 +43,6 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 				// clearCache()
 				it( "calls the cache service to clear the bean", function(){
-
-				});
-
-
-				// getBeanName()
-				it( "returns the bean's name from the metadata", function(){
 
 				});
 
@@ -128,12 +125,6 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				});
 
 
-				// setBeanName()
-				it( "updates the cached bean name", function(){
-
-				});
-
-
 				// setPrimaryKey()
 				it( "set's the bean's primary key when the dataFactory doesn't exist", function(){
 
@@ -141,6 +132,55 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 
 				it( "set's the bean's primary key from the bean map data", function(){
+
+				});
+
+
+				describe("uses bean metadata and", function(){
+
+					beforeEach(function( currentSpec ){
+
+					});
+
+
+					// getBeanMetaDataName()
+					it( "get's the bean's name from the metadata", function(){
+						var result = testClass.getBeanMetaDataName();
+
+						expect( result ).notToBeEmpty();
+					});
+
+
+					describe("has the bean metadata and", function(){
+
+						beforeEach(function( currentSpec ){
+							testClass.$( "getBeanMetaDataName", "test" );
+						});
+
+
+						// getBeanName()
+						it( "returns the bean's name from the metadata", function(){
+							testClass.getBeanName();
+
+							expect( testClass.$once("getBeanMetaDataName") ).toBeTrue();
+						});
+
+
+						// setBeanName()
+						it( "updates the cached bean name with the argument", function(){
+							testClass.setBeanName( bean="test" );
+
+							expect( testClass.$never("getBeanMetaDataName") ).toBeTrue();
+						});
+
+
+						it( "updates the cached bean name with the metadata", function(){
+							testClass.setBeanName( bean="" );
+
+							expect( testClass.$once("getBeanMetaDataName") ).toBeTrue();
+						});
+
+					});
 
 				});
 
