@@ -8,9 +8,6 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 		beanFactory = createEmptyMock("framework.ioc");
 		testClass.$property( propertyName="beanFactory", mock=beanFactory );
 
-		cacheService = createEmptyMock("cfmlDataMapper.model.services.cache");
-		testClass.$property( propertyName="cacheService", mock=cacheService );
-
 		dataGateway = createEmptyMock("cfmlDataMapper.model.gateways.data");
 		testClass.$property( propertyName="dataGateway", mock=dataGateway );
 
@@ -68,15 +65,12 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				});
 
 
-				// clearCache()
-				it( "calls the cache service to clear the bean", function(){
-
-				});
-
-
 				// getDerivedFields()
-				it( "returns an empty string", function(){
+				it( "returns an empty string of derived fields", function(){
+					var result = testClass.getDerivedFields();
 
+					expect( result ).toBeTypeOf( "string" );
+					expect( result ).toBeEmpty();
 				});
 
 
@@ -200,11 +194,22 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					});
 
 
+					// clearCache()
+					it( "calls the cache service to clear the bean", function(){
+						cacheService = createEmptyMock("cfmlDataMapper.model.services.cache");
+						cacheService.$( "clearBean" );
+						testClass.$property( propertyName="cacheService", mock=cacheService );
+
+						testClass.clearCache();
+
+						expect( testClass.$once("getBeanName") ).toBeTrue();
+						expect( cacheService.$once("clearBean") ).toBeTrue();
+					});
+
+
 					// getBeanMap()
 					it( "returns a structure with the bean's data factory beanmap", function(){
 						var result = testClass.getBeanMap();
-
-						expect( dataFactory.$once("getBeanMap") ).toBeTrue();
 
 						expect( testClass.$once("getBeanName") ).toBeTrue();
 						expect( dataFactory.$once("getBeanMap") ).toBeTrue();
