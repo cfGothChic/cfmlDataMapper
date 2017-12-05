@@ -8,7 +8,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 		userBean = createMock("model.beans.user");
 		userTypeBean = createMock("model.beans.userType");
 
-		beanFactory = createEmptyMock("cfmlDataMapper.samples.framework.ioc");
+		beanFactory = createEmptyMock("framework.ioc");
 		beanFactory.$( "getBean" ).$args( "departmentBean" ).$results( departmentBean )
 			.$( "getBean" ).$args( "userBean" ).$results( userBean )
 			.$( "getBean" ).$args( "userTypeBean" ).$results( userTypeBean );
@@ -30,7 +30,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 		describe("The Data Factory", function(){
 
 			beforeEach(function( currentSpec ){
-				frameworkone = createEmptyMock("cfmlDataMapper.samples.framework.one");
+				frameworkone = createEmptyMock("framework.one");
 			});
 
 

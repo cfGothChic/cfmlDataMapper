@@ -31,15 +31,15 @@
 						<span class="icon-bar"></span>
 						<span class="icon-bar"></span>
 					</button>
-					<a class="navbar-brand" href="/standalone">User Manager</a>
+					<a class="navbar-brand" href="index.cfm">User Manager</a>
 				</div>
 
 				<!-- Collect the nav links, forms, and other content for toggling -->
 				<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
 					<ul class="nav navbar-nav">
-						<li<cfif variables.activeItem is "index"> class="active"</cfif>><a href="/standalone">Home</a></li>
-						<li<cfif variables.activeItem is "userlist"> class="active"</cfif>><a href="/standalone/userlist.cfm" title="View the list of users">Users</a></li>
-						<li<cfif variables.activeItem is "useredit"> class="active"</cfif>><a href="/standalone/useredit.cfm" title="Fill out form to add new user">Add User</a></li>
+						<li<cfif variables.activeItem is "index"> class="active"</cfif>><a href="index.cfm">Home</a></li>
+						<li<cfif variables.activeItem is "userlist"> class="active"</cfif>><a href="userlist.cfm" title="View the list of users">Users</a></li>
+						<li<cfif variables.activeItem is "useredit"> class="active"</cfif>><a href="useredit.cfm" title="Fill out form to add new user">Add User</a></li>
 					</ul>
 				</div><!-- /.navbar-collapse -->
 			</div><!-- /.container-fluid -->
