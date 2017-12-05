@@ -12,6 +12,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 			describe("reads a beanmap property and", function(){
 
 				beforeEach(function( currentSpec ){
+					makePublic( testClass, "validateBeanProperty" );
 					makePublic( testClass, "validateByDataType" );
 					makePublic( testClass, "validateLength" );
 					makePublic( testClass, "validateRange" );
@@ -244,11 +245,13 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					expect( result ).toBeFalse();
 				});
 
+
 				describe("checks validateByDataType() and", function(){
 
 					beforeEach(function( currentSpec ){
 						testClass.$( "validateByDataType", "" );
 					});
+
 
 					// validateRange()
 					it( "returns an empty string if the value is within the minimum and maximum range", function(){
@@ -311,6 +314,155 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						expect( result ).toBeTypeOf( "string" );
 						expect( result ).toMatch( "(Age)" );
 						expect( result ).toMatch( "(less)" );
+					});
+
+				});
+
+				// validateBeanProperty()
+				describe("calls validateBeanProperty() and", function(){
+
+					beforeEach(function( currentSpec ){
+						testClass.$( "validateByDataType", "error" )
+							.$( "validateLength", "error" )
+							.$( "validateRange", "error" )
+							.$( "validateRegex", "error" )
+							.$( "validateRequired", "error" );
+
+						beanProperty = {
+							displayname = "Test",
+							"null" = true,
+							datatype = "any",
+							regex = "",
+							regexlabel = "",
+							minvalue = "",
+							maxvalue = "",
+							minlength = "",
+							maxlength = ""
+						};
+					});
+
+
+					it( "returns an empty array if the value is not required and doesn't exist", function(){
+						var result = testClass.validateBeanProperty( value="", beanProperty=beanProperty );
+
+						expect( testClass.$never("validateRequired") ).toBeTrue();
+						expect( testClass.$never("validateByDataType") ).toBeTrue();
+						expect( testClass.$never("validateRegex") ).toBeTrue();
+						expect( testClass.$never("validateRange") ).toBeTrue();
+						expect( testClass.$never("validateLength") ).toBeTrue();
+
+						expect( result ).toBeTypeOf( "array" );
+						expect( result ).toBeEmpty();
+					});
+
+
+					it( "returns an array with a message if the value does not exist and is required", function(){
+						beanProperty["null"] = false;
+
+						var result = testClass.validateBeanProperty( value="", beanProperty=beanProperty );
+
+						expect( testClass.$once("validateRequired") ).toBeTrue();
+						expect( testClass.$never("validateByDataType") ).toBeTrue();
+						expect( testClass.$never("validateRegex") ).toBeTrue();
+						expect( testClass.$never("validateRange") ).toBeTrue();
+						expect( testClass.$never("validateLength") ).toBeTrue();
+
+						expect( result ).toBeTypeOf( "array" );
+						expect( result ).toHaveLength( 1 );
+					});
+
+
+					it( "returns an array with a message if the value does not match the datatype", function(){
+						var result = testClass.validateBeanProperty( value="test string", beanProperty=beanProperty );
+
+						expect( testClass.$never("validateRequired") ).toBeTrue();
+						expect( testClass.$once("validateByDataType") ).toBeTrue();
+						expect( testClass.$never("validateRegex") ).toBeTrue();
+						expect( testClass.$never("validateRange") ).toBeTrue();
+						expect( testClass.$never("validateLength") ).toBeTrue();
+
+						expect( result ).toBeTypeOf( "array" );
+						expect( result ).toHaveLength( 1 );
+					});
+
+
+					it( "returns an array with a message if the value does not match the regex string", function(){
+						beanProperty.regex = "test";
+
+						var result = testClass.validateBeanProperty( value="test string", beanProperty=beanProperty );
+
+						expect( testClass.$never("validateRequired") ).toBeTrue();
+						expect( testClass.$once("validateByDataType") ).toBeTrue();
+						expect( testClass.$once("validateRegex") ).toBeTrue();
+						expect( testClass.$never("validateRange") ).toBeTrue();
+						expect( testClass.$never("validateLength") ).toBeTrue();
+
+						expect( result ).toBeTypeOf( "array" );
+						expect( result ).toHaveLength( 2 );
+					});
+
+
+					it( "returns an array with a message if the value does not match the minvalue", function(){
+						beanProperty.minvalue = "test";
+
+						var result = testClass.validateBeanProperty( value="test string", beanProperty=beanProperty );
+
+						expect( testClass.$never("validateRequired") ).toBeTrue();
+						expect( testClass.$once("validateByDataType") ).toBeTrue();
+						expect( testClass.$never("validateRegex") ).toBeTrue();
+						expect( testClass.$once("validateRange") ).toBeTrue();
+						expect( testClass.$never("validateLength") ).toBeTrue();
+
+						expect( result ).toBeTypeOf( "array" );
+						expect( result ).toHaveLength( 2 );
+					});
+
+
+					it( "returns an array with a message if the value does not match the maxvalue", function(){
+						beanProperty.maxvalue = "test";
+
+						var result = testClass.validateBeanProperty( value="test string", beanProperty=beanProperty );
+
+						expect( testClass.$never("validateRequired") ).toBeTrue();
+						expect( testClass.$once("validateByDataType") ).toBeTrue();
+						expect( testClass.$never("validateRegex") ).toBeTrue();
+						expect( testClass.$once("validateRange") ).toBeTrue();
+						expect( testClass.$never("validateLength") ).toBeTrue();
+
+						expect( result ).toBeTypeOf( "array" );
+						expect( result ).toHaveLength( 2 );
+					});
+
+
+					it( "returns an array with a message if the value's length does not match the minlength", function(){
+						beanProperty.minlength = "test";
+
+						var result = testClass.validateBeanProperty( value="test string", beanProperty=beanProperty );
+
+						expect( testClass.$never("validateRequired") ).toBeTrue();
+						expect( testClass.$once("validateByDataType") ).toBeTrue();
+						expect( testClass.$never("validateRegex") ).toBeTrue();
+						expect( testClass.$never("validateRange") ).toBeTrue();
+						expect( testClass.$once("validateLength") ).toBeTrue();
+
+						expect( result ).toBeTypeOf( "array" );
+						expect( result ).toHaveLength( 2 );
+					});
+
+
+					it( "returns an array with a message if the value's length does not match the maxlength", function(){
+						beanProperty.maxlength = "test";
+
+						var result = testClass.validateBeanProperty( value="test string", beanProperty=beanProperty );
+
+						expect( testClass.$never("validateRequired") ).toBeTrue();
+						expect( testClass.$once("validateByDataType") ).toBeTrue();
+						expect( testClass.$never("validateRegex") ).toBeTrue();
+						expect( testClass.$never("validateRange") ).toBeTrue();
+						expect( testClass.$once("validateLength") ).toBeTrue();
+
+						expect( result ).toBeTypeOf( "array" );
+						expect( result ).toHaveLength( 2 );
 					});
 
 				});
