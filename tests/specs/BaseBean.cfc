@@ -31,7 +31,10 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 			describe("exposes private methods and", function(){
 
 				beforeEach(function( currentSpec ){
+					makePublic( testClass, "populate" );
 
+					readQuery = querySim("id
+						1");
 				});
 
 
@@ -92,12 +95,6 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				});
 
 
-				// populate()
-				it( "gets the bean record from the database and populates the data", function(){
-
-				});
-
-
 				// populateBySproc()
 				it( "calls a stored procedure representing the bean data and populates its data and relationships", function(){
 
@@ -147,7 +144,54 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 				});
 
+
+				describe("calls populate() and", function(){
+
+					beforeEach(function( currentSpec ){
+						dataGateway.$( "read" ).$args( bean="test", params={ id = 1 } ).$results( readQuery );
+						dataGateway.$( "read" ).$args( bean="test", params={ id = 2 } ).$results( querySim("id") );
+
+						testClass.$( "getBeanName", "test" )
+							.$( "populateBean" )
+							.$( "setBeanName" );
+					});
+
+
+					// populate()
+					it( "gets the bean record from the database and populates the data", function(){
+						testClass.populate( id=1, bean="test" );
+
+						expect( testClass.$once("setBeanName") ).toBeTrue();
+						expect( dataGateway.$once("read") ).toBeTrue();
+						expect( testClass.$once("getBeanName") ).toBeTrue();
+						expect( testClass.$once("populateBean") ).toBeTrue();
+					});
+
+
+					it( "doesn't get the bean record if the id is 0", function(){
+						testClass.populate( id=0, bean="test" );
+
+						expect( testClass.$once("setBeanName") ).toBeTrue();
+						expect( dataGateway.$never("read") ).toBeTrue();
+						expect( testClass.$never("getBeanName") ).toBeTrue();
+						expect( testClass.$never("populateBean") ).toBeTrue();
+					});
+
+
+					it( "doesn't populate the bean data if the there isn't a record", function(){
+						testClass.populate( id=2, bean="test" );
+
+						expect( testClass.$once("setBeanName") ).toBeTrue();
+						expect( dataGateway.$once("read") ).toBeTrue();
+						expect( testClass.$once("getBeanName") ).toBeTrue();
+						expect( testClass.$never("populateBean") ).toBeTrue();
+					});
+
+
+				});
+
 			});
+
 
 			describe("initializes and", function(){
 

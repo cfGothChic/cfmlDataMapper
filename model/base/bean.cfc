@@ -233,14 +233,14 @@
 		);
 	}
 
-	private function populate( id=0, bean="" ) {
+	private void function populate( numeric id=0, string bean="" ) {
 		if ( !isNumeric(arguments.id) ) {
 			arguments.id = 0;
 		}
 		setBeanName(arguments.bean);
 
 		if ( arguments.id ) {
-			var qRecord = variables.dataGateway.read(getBeanName(), { id = arguments.id });
+			var qRecord = variables.dataGateway.read( bean=getBeanName(), params={ id = arguments.id } );
 			if ( qRecord.recordCount ) {
 				populateBean(qRecord);
 			} else {
