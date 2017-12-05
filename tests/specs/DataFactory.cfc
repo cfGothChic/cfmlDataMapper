@@ -457,7 +457,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					var result = testClass.getPropertyMetadata( prop=metadata.properties[1] );
 
 					expect( result ).toBeTypeOf( "struct" );
-					expect( structCount(result) ).toBe( 15 );
+					expect( structCount(result) ).toBe( 16 );
 					expect( result ).toHaveKey( "name" );
 					expect( result ).toHaveKey( "defaultvalue" );
 					expect( result ).toHaveKey( "displayname" );
@@ -468,6 +468,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					expect( result ).toHaveKey( "sqltype" );
 					expect( result ).toHaveKey( "valtype" );
 					expect( result ).toHaveKey( "regex" );
+					expect( result ).toHaveKey( "regexlabel" );
 					expect( result ).toHaveKey( "minvalue" );
 					expect( result ).toHaveKey( "maxvalue" );
 					expect( result ).toHaveKey( "minlength" );
