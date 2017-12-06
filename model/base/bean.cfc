@@ -11,7 +11,7 @@
 	property dataGateway;
 	property validationService;
 
-	public function init( id=0 ) {
+	public component function init( string id=0 ) {
 		populate(arguments.id);
 		return this;
 	}
@@ -31,11 +31,7 @@
 	}
 
 	public boolean function exists() {
-		if ( isNull( getIsDeleted() ) ) {
-			return ( getId() ? true : false );
-		} else {
-			return ( getId() && !getIsDeleted() );
-		}
+		return ( getId() && !getIsDeleted() );
 	}
 
 	public struct function getBeanMap() {

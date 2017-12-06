@@ -21,6 +21,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				beanmap = {
 					name = "test",
 					primarykey = "id",
+					cached = false,
 					properties = {
 						test = {
 							defaultvalue = "test"
@@ -39,7 +40,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 			});
 
 
-			describe("exposes private methods and", function(){
+			describe("initializes and", function(){
 
 				beforeEach(function( currentSpec ){
 					makePublic( testClass, "getDerivedFields" );
@@ -144,6 +145,44 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					});
 
 
+					// getId()
+					it( "returns 0 if the id property doesn't exist", function(){
+						var result = testClass.getId();
+
+						expect( result ).toBeTypeOf( "numeric" );
+						expect( result ).toBe( 0 );
+					});
+
+
+					it( "returns a number representing the bean's id property", function(){
+						testClass.$property( propertyName="id", mock=1 );
+
+						var result = testClass.getId();
+
+						expect( result ).toBeTypeOf( "numeric" );
+						expect( result ).toBe( 1 );
+					});
+
+
+					// getIsDeleted()
+					it( "returns false if the bean doesn't have a soft delete property defined", function(){
+						var result = testClass.getIsDeleted();
+
+						expect( result ).toBeTypeOf( "boolean" );
+						expect( result ).toBeFalse();
+					});
+
+
+					it( "returns a boolean representing the bean soft delete status", function(){
+						testClass.$property( propertyName="isDeleted", mock=1 );
+
+						var result = testClass.getIsDeleted();
+
+						expect( result ).toBeTypeOf( "boolean" );
+						expect( result ).toBeTrue();
+					});
+
+
 					// getForeignKeyId()
 					it( "returns 0 for the relationship foreign key id from the bean's properties if it doesn't exist", function(){
 						var result = testClass.getForeignKeyId( fkName="testid" );
@@ -164,154 +203,206 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 
 					// getBeanPropertyValue()
-					it( "returns an array value of a property", function(){
-						testClass.$property( propertyName="test", mock=[] );
+					describe("calls getBeanPropertyValue() and", function(){
 
-						var result = testClass.getBeanPropertyValue( propertyname="test" );
+						it( "returns an array value of a property", function(){
+							testClass.$property( propertyName="test", mock=[] );
 
-						expect( result ).toBeTypeOf( "array" );
-						expect( result ).toBeEmpty();
+							var result = testClass.getBeanPropertyValue( propertyname="test" );
+
+							expect( result ).toBeTypeOf( "array" );
+							expect( result ).toBeEmpty();
+						});
+
+
+						it( "returns a binary value of a property", function(){
+							var test = toBinary("dGVzdA==");
+							testClass.$property( propertyName="test", mock=test );
+
+							var result = testClass.getBeanPropertyValue( propertyname="test" );
+
+							expect( result ).toBeTypeOf( "binary" );
+							expect( result ).toBe( test );
+						});
+
+
+						it( "returns a boolean value of a property", function(){
+							testClass.$property( propertyName="test", mock="yes" );
+
+							var result = testClass.getBeanPropertyValue( propertyname="test" );
+
+							expect( result ).toBeTypeOf( "boolean" );
+							expect( result ).toBeTrue();
+						});
+
+
+						it( "returns a component value of a property", function(){
+							testClass.$property( propertyName="test", mock=userBean );
+
+							var result = testClass.getBeanPropertyValue( propertyname="test" );
+
+							expect( result ).toBeTypeOf( "component" );
+							expect( result ).toBeInstanceOf( "model.beans.user" );
+						});
+
+
+						it( "returns a date value of a property", function(){
+							testClass.$property( propertyName="test", mock=now() );
+
+							var result = testClass.getBeanPropertyValue( propertyname="test" );
+
+							expect( result ).toBeTypeOf( "date" );
+							expect( result ).notToBeEmpty();
+						});
+
+
+						it( "returns a float value of a property", function(){
+							testClass.$property( propertyName="test", mock=1.1 );
+
+							var result = testClass.getBeanPropertyValue( propertyname="test" );
+
+							expect( result ).toBeTypeOf( "float" );
+							expect( result ).toBe( 1.1 );
+						});
+
+
+						it( "returns a integer value of a property", function(){
+							testClass.$property( propertyName="test", mock=1 );
+
+							var result = testClass.getBeanPropertyValue( propertyname="test" );
+
+							expect( result ).toBeTypeOf( "integer" );
+							expect( result ).toBe( 1 );
+						});
+
+
+						it( "returns a numeric value of a property", function(){
+							testClass.$property( propertyName="test", mock=1 );
+
+							var result = testClass.getBeanPropertyValue( propertyname="test" );
+
+							expect( result ).toBeTypeOf( "numeric" );
+							expect( result ).toBe( 1 );
+						});
+
+
+						it( "returns a query value of a property", function(){
+							testClass.$property( propertyName="test", mock=querySim("") );
+
+							var result = testClass.getBeanPropertyValue( propertyname="test" );
+
+							expect( result ).toBeTypeOf( "query" );
+							expect( result ).toBeEmpty();
+						});
+
+
+						it( "returns a string value of a property", function(){
+							testClass.$property( propertyName="test", mock="test" );
+
+							var result = testClass.getBeanPropertyValue( propertyname="test" );
+
+							expect( result ).toBeTypeOf( "string" );
+							expect( result ).toBe( "test" );
+						});
+
+
+						it( "returns a struct value of a property", function(){
+							testClass.$property( propertyName="test", mock={} );
+
+							var result = testClass.getBeanPropertyValue( propertyname="test" );
+
+							expect( result ).toBeTypeOf( "struct" );
+							expect( result ).toBeEmpty();
+						});
+
+
+						it( "returns a time value of a property", function(){
+							testClass.$property( propertyName="test", mock=createTime(1, 0, 0) );
+
+							var result = testClass.getBeanPropertyValue( propertyname="test" );
+
+							expect( result ).toBeTypeOf( "time" );
+							expect( result ).notToBeEmpty();
+						});
+
+
+						it( "returns a url value of a property", function(){
+							testClass.$property( propertyName="test", mock="http://12.0.0.1" );
+
+							var result = testClass.getBeanPropertyValue( propertyname="test" );
+
+							expect( result ).toBeTypeOf( "url" );
+							expect( result ).notToBeEmpty();
+						});
+
+
+						it( "returns a uuid value of a property", function(){
+							testClass.$property( propertyName="test", mock=createUUID() );
+
+							var result = testClass.getBeanPropertyValue( propertyname="test" );
+
+							expect( result ).toBeTypeOf( "uuid" );
+							expect( result ).notToBeEmpty();
+						});
+
+
+						it( "returns a xml value of a property", function(){
+							testClass.$property( propertyName="test", mock="<root><test>1</test></root>" );
+
+							var result = testClass.getBeanPropertyValue( propertyname="test" );
+
+							expect( result ).toBeTypeOf( "xml" );
+							expect( result ).notToBeEmpty();
+						});
+
 					});
 
 
-					it( "returns a binary value of a property", function(){
-						var test = toBinary("dGVzdA==");
-						testClass.$property( propertyName="test", mock=test );
+					// exists()
+					describe("calls exists() and", function(){
 
-						var result = testClass.getBeanPropertyValue( propertyname="test" );
-
-						expect( result ).toBeTypeOf( "binary" );
-						expect( result ).toBe( test );
-					});
+						beforeEach(function( currentSpec ){
+							testClass.$( "getId", 1 )
+								.$( "getIsDeleted", 0 );
+						});
 
 
-					it( "returns a boolean value of a property", function(){
-						testClass.$property( propertyName="test", mock="yes" );
+						it( "returns true if the bean has an id and isn't soft deleted", function(){
+							var result = testClass.exists();
 
-						var result = testClass.getBeanPropertyValue( propertyname="test" );
+							expect( testClass.$once("getId") ).toBeTrue();
+							expect( testClass.$once("getIsDeleted") ).toBeTrue();
 
-						expect( result ).toBeTypeOf( "boolean" );
-						expect( result ).toBeTrue();
-					});
-
-
-					it( "returns a component value of a property", function(){
-						testClass.$property( propertyName="test", mock=userBean );
-
-						var result = testClass.getBeanPropertyValue( propertyname="test" );
-
-						expect( result ).toBeTypeOf( "component" );
-						expect( result ).toBeInstanceOf( "model.beans.user" );
-					});
+							expect( result ).toBeTypeOf( "boolean" );
+							expect( result ).toBeTrue();
+						});
 
 
-					it( "returns a date value of a property", function(){
-						testClass.$property( propertyName="test", mock=now() );
+						it( "returns false if the bean's id is 0", function(){
+							testClass.$( "getId", 0 );
 
-						var result = testClass.getBeanPropertyValue( propertyname="test" );
+							var result = testClass.exists();
 
-						expect( result ).toBeTypeOf( "date" );
-						expect( result ).notToBeEmpty();
-					});
+							expect( testClass.$once("getId") ).toBeTrue();
+							expect( testClass.$never("getIsDeleted") ).toBeTrue();
 
-
-					it( "returns a float value of a property", function(){
-						testClass.$property( propertyName="test", mock=1.1 );
-
-						var result = testClass.getBeanPropertyValue( propertyname="test" );
-
-						expect( result ).toBeTypeOf( "float" );
-						expect( result ).toBe( 1.1 );
-					});
+							expect( result ).toBeTypeOf( "boolean" );
+							expect( result ).toBeFalse();
+						});
 
 
-					it( "returns a integer value of a property", function(){
-						testClass.$property( propertyName="test", mock=1 );
+						it( "returns false if the bean has been soft deleted", function(){
+							testClass.$( "getIsDeleted", 1 );
 
-						var result = testClass.getBeanPropertyValue( propertyname="test" );
+							var result = testClass.exists();
 
-						expect( result ).toBeTypeOf( "integer" );
-						expect( result ).toBe( 1 );
-					});
+							expect( testClass.$once("getId") ).toBeTrue();
+							expect( testClass.$once("getIsDeleted") ).toBeTrue();
 
+							expect( result ).toBeTypeOf( "boolean" );
+							expect( result ).toBeFalse();
+						});
 
-					it( "returns a numeric value of a property", function(){
-						testClass.$property( propertyName="test", mock=1 );
-
-						var result = testClass.getBeanPropertyValue( propertyname="test" );
-
-						expect( result ).toBeTypeOf( "numeric" );
-						expect( result ).toBe( 1 );
-					});
-
-
-					it( "returns a query value of a property", function(){
-						testClass.$property( propertyName="test", mock=querySim("") );
-
-						var result = testClass.getBeanPropertyValue( propertyname="test" );
-
-						expect( result ).toBeTypeOf( "query" );
-						expect( result ).toBeEmpty();
-					});
-
-
-					it( "returns a string value of a property", function(){
-						testClass.$property( propertyName="test", mock="test" );
-
-						var result = testClass.getBeanPropertyValue( propertyname="test" );
-
-						expect( result ).toBeTypeOf( "string" );
-						expect( result ).toBe( "test" );
-					});
-
-
-					it( "returns a struct value of a property", function(){
-						testClass.$property( propertyName="test", mock={} );
-
-						var result = testClass.getBeanPropertyValue( propertyname="test" );
-
-						expect( result ).toBeTypeOf( "struct" );
-						expect( result ).toBeEmpty();
-					});
-
-
-					it( "returns a time value of a property", function(){
-						testClass.$property( propertyName="test", mock=createTime(1, 0, 0) );
-
-						var result = testClass.getBeanPropertyValue( propertyname="test" );
-
-						expect( result ).toBeTypeOf( "time" );
-						expect( result ).notToBeEmpty();
-					});
-
-
-					it( "returns a url value of a property", function(){
-						testClass.$property( propertyName="test", mock="http://12.0.0.1" );
-
-						var result = testClass.getBeanPropertyValue( propertyname="test" );
-
-						expect( result ).toBeTypeOf( "url" );
-						expect( result ).notToBeEmpty();
-					});
-
-
-					it( "returns a uuid value of a property", function(){
-						testClass.$property( propertyName="test", mock=createUUID() );
-
-						var result = testClass.getBeanPropertyValue( propertyname="test" );
-
-						expect( result ).toBeTypeOf( "uuid" );
-						expect( result ).notToBeEmpty();
-					});
-
-
-					it( "returns a xml value of a property", function(){
-						testClass.$property( propertyName="test", mock="<root><test>1</test></root>" );
-
-						var result = testClass.getBeanPropertyValue( propertyname="test" );
-
-						expect( result ).toBeTypeOf( "xml" );
-						expect( result ).notToBeEmpty();
 					});
 
 				});
@@ -361,6 +452,9 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 						expect( testClass.$once("getBeanName") ).toBeTrue();
 						expect( dataFactory.$once("getBeanMap") ).toBeTrue();
+
+						expect( result ).toBeTypeOf( "struct" );
+						expect( result ).notToBeEmpty();
 					});
 
 
@@ -507,6 +601,67 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 							expect( result ).toBeTypeOf( "array" );
 							expect( result ).toHaveLength( 1 );
 							expect( result[1] ).toBeInstanceOf( "model.beans.user" );
+						});
+
+					});
+
+					// delete()
+					describe("calls delete() and", function(){
+
+						beforeEach(function( currentSpec ){
+							dataGateway.$( "delete" );
+
+							testClass.$( "getBeanMap", beanmap )
+								.$( "getBeanName", "test" );
+						});
+
+
+						it( "deletes the record from the database", function(){
+							var result = testClass.delete();
+
+							expect( testClass.$once("getBeanMap") ).toBeTrue();
+							expect( dataGateway.$once("delete") ).toBeTrue();
+							expect( testClass.$once("getBeanName") ).toBeTrue();
+
+							expect( result ).toBeTypeOf( "struct" );
+							expect( result ).toHaveKey( "success" );
+							expect( result.success ).toBeTypeOf( "boolean" );
+							expect( result.success ).toBeTrue();
+
+							expect( result ).toHaveKey( "code" );
+							expect( result.code ).toBeTypeOf( "numeric" );
+							expect( result.code ).toBe( 001 );
+
+							expect( result ).toHaveKey( "messages" );
+							expect( result.messages ).toBeTypeOf( "array" );
+							expect( result.messages ).toBeEmpty();
+						});
+
+
+						it( "returns an error if there was an issue deleting the record from the database", function(){
+							testClass.$( "getBeanMap" ).$throws( type="application" );
+
+							var result = testClass.delete();
+
+							expect( testClass.$once("getBeanMap") ).toBeTrue();
+							expect( dataGateway.$never("delete") ).toBeTrue();
+							expect( testClass.$once("getBeanName") ).toBeTrue();
+
+							expect( result ).toBeTypeOf( "struct" );
+							expect( result ).toHaveKey( "success" );
+							expect( result.success ).toBeTypeOf( "boolean" );
+							expect( result.success ).toBeFalse();
+
+							expect( result ).toHaveKey( "code" );
+							expect( result.code ).toBeTypeOf( "numeric" );
+							expect( result.code ).toBe( 500 );
+
+							expect( result ).toHaveKey( "messages" );
+							expect( result.messages ).toBeTypeOf( "array" );
+							expect( result.messages ).notToBeEmpty();
+
+							expect( result ).toHaveKey( "error" );
+							expect( result.error ).toBeTypeOf( "struct" );
 						});
 
 					});
@@ -846,6 +1001,192 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				});
 
 
+				// save()
+				describe("calls save() and", function(){
+
+					beforeEach(function( currentSpec ){
+						dataGateway.$( "create", 1 )
+							.$( "update" );
+
+						testClass.$( "clearCache" )
+							.$( "getBeanMap", beanmap )
+							.$( "getBeanName", "test" )
+							.$( "setPrimaryKey" )
+							.$( "validate", [] );
+
+						testClass.$property( propertyName="id", mock=1 );
+					});
+
+
+					it( "successfully creates a bean", function(){
+						testClass.$property( propertyName="id", mock=0 );
+
+						var result = testClass.save( validate=true );
+
+						expect( testClass.$once("getBeanName") ).toBeTrue();
+						expect( testClass.$once("getBeanMap") ).toBeTrue();
+						expect( testClass.$once("validate") ).toBeTrue();
+						expect( dataGateway.$never("update") ).toBeTrue();
+						expect( dataGateway.$once("create") ).toBeTrue();
+						expect( testClass.$once("setPrimaryKey") ).toBeTrue();
+						expect( testClass.$never("clearCache") ).toBeTrue();
+
+						expect( result ).toBeTypeOf( "struct" );
+						expect( result ).toHaveKey( "success" );
+						expect( result.success ).toBeTypeOf( "boolean" );
+						expect( result.success ).toBeTrue();
+
+						expect( result ).toHaveKey( "code" );
+						expect( result.code ).toBeTypeOf( "numeric" );
+						expect( result.code ).toBe( 001 );
+
+						expect( result ).toHaveKey( "message" );
+						expect( result.message ).toBeTypeOf( "array" );
+						expect( result.message ).toBeEmpty();
+					});
+
+
+					it( "successfully updates a bean", function(){
+						var result = testClass.save( validate=true );
+
+						expect( testClass.$once("getBeanName") ).toBeTrue();
+						expect( testClass.$once("getBeanMap") ).toBeTrue();
+						expect( testClass.$once("validate") ).toBeTrue();
+						expect( dataGateway.$once("update") ).toBeTrue();
+						expect( dataGateway.$never("create") ).toBeTrue();
+						expect( testClass.$never("setPrimaryKey") ).toBeTrue();
+						expect( testClass.$never("clearCache") ).toBeTrue();
+
+						expect( result ).toBeTypeOf( "struct" );
+						expect( result ).toHaveKey( "success" );
+						expect( result.success ).toBeTypeOf( "boolean" );
+						expect( result.success ).toBeTrue();
+
+						expect( result ).toHaveKey( "code" );
+						expect( result.code ).toBeTypeOf( "numeric" );
+						expect( result.code ).toBe( 001 );
+
+						expect( result ).toHaveKey( "message" );
+						expect( result.message ).toBeTypeOf( "array" );
+						expect( result.message ).toBeEmpty();
+					});
+
+
+					it( "successfully updates a bean without validating it", function(){
+						var result = testClass.save( validate=false );
+
+						expect( testClass.$once("getBeanName") ).toBeTrue();
+						expect( testClass.$once("getBeanMap") ).toBeTrue();
+						expect( testClass.$never("validate") ).toBeTrue();
+						expect( dataGateway.$once("update") ).toBeTrue();
+						expect( dataGateway.$never("create") ).toBeTrue();
+						expect( testClass.$never("setPrimaryKey") ).toBeTrue();
+						expect( testClass.$never("clearCache") ).toBeTrue();
+
+						expect( result ).toBeTypeOf( "struct" );
+						expect( result ).toHaveKey( "success" );
+						expect( result.success ).toBeTypeOf( "boolean" );
+						expect( result.success ).toBeTrue();
+
+						expect( result ).toHaveKey( "code" );
+						expect( result.code ).toBeTypeOf( "numeric" );
+						expect( result.code ).toBe( 001 );
+
+						expect( result ).toHaveKey( "message" );
+						expect( result.message ).toBeTypeOf( "array" );
+						expect( result.message ).toBeEmpty();
+					});
+
+
+					it( "is unsuccessful if the bean validation process errors", function(){
+						testClass.$( "validate", ["error"] );
+
+						var result = testClass.save( validate=true );
+
+						expect( testClass.$once("getBeanName") ).toBeTrue();
+						expect( testClass.$once("getBeanMap") ).toBeTrue();
+						expect( testClass.$once("validate") ).toBeTrue();
+						expect( dataGateway.$never("update") ).toBeTrue();
+						expect( dataGateway.$never("create") ).toBeTrue();
+						expect( testClass.$never("setPrimaryKey") ).toBeTrue();
+						expect( testClass.$never("clearCache") ).toBeTrue();
+
+						expect( result ).toBeTypeOf( "struct" );
+						expect( result ).toHaveKey( "success" );
+						expect( result.success ).toBeTypeOf( "boolean" );
+						expect( result.success ).toBeFalse();
+
+						expect( result ).toHaveKey( "code" );
+						expect( result.code ).toBeTypeOf( "numeric" );
+						expect( result.code ).toBe( 900 );
+
+						expect( result ).toHaveKey( "message" );
+						expect( result.message ).toBeTypeOf( "array" );
+						expect( result.message ).notToBeEmpty();
+					});
+
+
+					it( "is unsuccessful if the save process errors", function(){
+						testClass.$( "getBeanMap" ).$throws( type="application" );
+
+						var result = testClass.save( validate=true );
+
+						expect( testClass.$count("getBeanName") ).toBe( 2 );
+						expect( testClass.$once("getBeanMap") ).toBeTrue();
+						expect( testClass.$never("validate") ).toBeTrue();
+						expect( dataGateway.$never("update") ).toBeTrue();
+						expect( dataGateway.$never("create") ).toBeTrue();
+						expect( testClass.$never("setPrimaryKey") ).toBeTrue();
+						expect( testClass.$never("clearCache") ).toBeTrue();
+
+						expect( result ).toBeTypeOf( "struct" );
+						expect( result ).toHaveKey( "success" );
+						expect( result.success ).toBeTypeOf( "boolean" );
+						expect( result.success ).toBeFalse();
+
+						expect( result ).toHaveKey( "code" );
+						expect( result.code ).toBeTypeOf( "numeric" );
+						expect( result.code ).toBe( 500 );
+
+						expect( result ).toHaveKey( "message" );
+						expect( result.message ).toBeTypeOf( "array" );
+						expect( result.message ).notToBeEmpty();
+
+						expect( result ).toHaveKey( "error" );
+						expect( result.error ).toBeTypeOf( "struct" );
+					});
+
+
+					it( "clears the bean from the cache service if it is defined as cached", function(){
+						beanmap.cached = true;
+
+						var result = testClass.save( validate=true );
+
+						expect( testClass.$once("getBeanName") ).toBeTrue();
+						expect( testClass.$once("getBeanMap") ).toBeTrue();
+						expect( testClass.$once("validate") ).toBeTrue();
+						expect( dataGateway.$once("update") ).toBeTrue();
+						expect( dataGateway.$never("create") ).toBeTrue();
+						expect( testClass.$never("setPrimaryKey") ).toBeTrue();
+						expect( testClass.$once("clearCache") ).toBeTrue();
+
+						expect( result ).toBeTypeOf( "struct" );
+						expect( result ).toHaveKey( "success" );
+						expect( result.success ).toBeTypeOf( "boolean" );
+						expect( result.success ).toBeTrue();
+
+						expect( result ).toHaveKey( "code" );
+						expect( result.code ).toBeTypeOf( "numeric" );
+						expect( result.code ).toBe( 001 );
+
+						expect( result ).toHaveKey( "message" );
+						expect( result.message ).toBeTypeOf( "array" );
+						expect( result.message ).toBeEmpty();
+					});
+
+				});
+
+
 				// populate()
 				describe("calls populate() and", function(){
 
@@ -983,70 +1324,10 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 			});
 
 
-			describe("initializes and", function(){
+			describe("on initialization", function(){
 
 				beforeEach(function( currentSpec ){
-
-				});
-
-
-				// delete()
-				it( "deletes the record from the database", function(){
-
-				});
-
-
-				it( "returns an error if there was an issue deleting the record from the database", function(){
-
-				});
-
-
-				// exists()
-				it( "returns true if the bean has an id", function(){
-
-				});
-
-
-				it( "returns false if the bean's id is 0", function(){
-
-				});
-
-
-				it( "returns false if the bean has been soft deleted", function(){
-
-				});
-
-
-				// getId()
-				it( "returns a number representing the bean's primary key", function(){
-
-				});
-
-
-				// getIsDeleted()
-				it( "returns a boolean representing the bean soft delete status", function(){
-
-				});
-
-
-				// save()
-				it( "successfully creates a bean", function(){
-
-				});
-
-
-				it( "successfully updates a bean", function(){
-
-				});
-
-
-				it( "is unsuccessful if the bean validation process errors", function(){
-
-				});
-
-
-				it( "is unsuccessful if the save process errors", function(){
-
+					testClass.$( "getBeanMap", beanmap );
 				});
 
 
@@ -1060,15 +1341,6 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					expect( function(){ testClass.onMissingMethod( missingMethodName="getLastName", missingMethodArguments={} ); } ).toThrow(type="application", regex="(getLastName)");
 				});
 
-			});
-
-
-			describe("on initialization", function(){
-
-				beforeEach(function( currentSpec ){
-					testClass.$( "getBeanMap", beanmap );
-				});
-
 
 				// setPrimaryKey()
 				it( "set's the bean's primary key when the dataFactory doesn't exist", function(){
@@ -1080,7 +1352,14 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 				// init()
 				it( "populates the bean", function(){
+					testClass.$( "populate" );
 
+					var result = testClass.init( id=0 );
+
+					expect( testClass.$once("populate") ).toBeTrue();
+
+					expect( result ).toBeTypeOf( "component" );
+					expect( result ).toBeInstanceOf( "cfmlDataMapper.model.base.bean" );
 				});
 
 			});
