@@ -238,7 +238,7 @@ component accessors="true" {
 			}
 
 			if ( !structIsEmpty(prop) ) {
-				fullorderby &= ( len(fullorderby) ? ", " : "" ) & len(prop.columnname) ? prop.columnname : prop.name & " " & direction;
+				fullorderby &= ( ( len(fullorderby) ? ", " : "" ) & len(prop.columnname) ? prop.columnname : prop.name ) & " " & direction;
 			}
 		}
 

@@ -217,7 +217,7 @@
 			for ( var i=1; i lte proplen; i++ ) {
 				prop = arguments.metadata.properties[i];
 
-				beanmap.properties[ prop.name ] = getPropertyMetadata(prop);
+				beanmap.properties[ prop.name ] = getPropertyMetadata( prop=prop, beanname=beanmap.bean );
 				if ( !structCount( beanmap.properties[ prop.name ] ) ) {
 					structDelete(beanmap.properties,prop.name);
 				}
@@ -333,16 +333,16 @@
 		}
 	}
 
-	private struct function getPropertyMetadata( prop ) {
+	private struct function getPropertyMetadata( required struct prop, required string beanname ) {
 		var metadata = {};
 		if ( structKeyExists(prop,"cfsqltype") ) {
 			metadata.name = prop.name;
 			metadata.defaultvalue = ( structKeyExists(prop,"default") ? prop.default : "" );
 			metadata.displayname = ( structKeyExists(prop,"displayname") ? prop.displayname : variables.utilityService.upperFirst(prop.name) );
 			metadata.columnName = ( structKeyExists(prop,"columnName") ? prop.columnName : "" );
-			metadata.insert = ( structKeyExists(prop,"insert") && isBoolean(prop.insert) ? prop.insert : true );
-			metadata.isidentity = ( structKeyExists(prop,"isidentity") && isBoolean(prop.isidentity) ? prop.isidentity : false );
-			metadata.null = ( structKeyExists(prop,"null") && isBoolean(prop.null) ? prop.null : false );
+			metadata.insert = ( structKeyExists(prop,"insert") ? prop.insert : true );
+			metadata.isidentity = ( structKeyExists(prop,"isidentity") ? prop.isidentity : false );
+			metadata.null = ( structKeyExists(prop,"null") ? prop.null : false );
 			metadata.sqltype = getCfSqlType(prop.cfsqltype);
 			metadata.valtype = ( structKeyExists(prop,"valtype") ? prop.valtype : "" );
 			metadata.regex = ( structKeyExists(prop,"regex") ? prop.regex : "" );
@@ -352,6 +352,8 @@
 			metadata.minlength = ( structKeyExists(prop,"minlength") ? prop.minlength : "" );
 			metadata.maxlength = ( structKeyExists(prop,"maxlength") ? prop.maxlength : "" );
 			metadata.datatype = getDatatype(metadata.valtype,metadata.sqltype);
+
+			validatePropertyMetadata( metadata=metadata, beanname=arguments.beanname );
 		}
 		return metadata;
 	}
@@ -394,6 +396,40 @@
 				}
 			}
 		}
+	}
+
+	private void function validatePropertyMetadata( required struct metadata, required string beanname ) {
+		var message = " for the " & arguments.metadata.name & " property in the " & arguments.beanname & " bean.";
+
+		if ( !isBoolean(arguments.metadata.insert) ) {
+			throw("The 'insert' attribute must be a boolean" & message);
+		}
+		if ( !isBoolean(arguments.metadata.isidentity) ) {
+			throw("The 'isidentity' attribute must be a boolean" & message);
+		}
+		if ( !isBoolean(arguments.metadata.null) ) {
+			throw("The 'null' attribute must be a boolean" & message);
+		}
+
+		if ( len(arguments.metadata.minvalue) && !isNumeric(arguments.metadata.minvalue) ) {
+			throw("The 'minvalue' attribute must be numeric" & message);
+		}
+		if ( len(arguments.metadata.maxvalue) && !isNumeric(arguments.metadata.maxvalue) ) {
+			throw("The 'maxvalue' attribute must be numeric" & message);
+		}
+		if ( len(arguments.metadata.minlength) && !isNumeric(arguments.metadata.minlength) ) {
+			throw("The 'minlength' attribute must be numeric" & message);
+		}
+		if ( len(arguments.metadata.maxlength) && !isNumeric(arguments.metadata.maxlength) ) {
+			throw("The 'maxlength' attribute must be numeric" & message);
+		}
+
+		if ( len(arguments.metadata.regex) && !len(arguments.metadata.regexlabel) ) {
+			throw("The 'regexlabel' attribute is required with the 'regex' attribute" & message);
+		} else if ( len(arguments.metadata.regexlabel) && !len(arguments.metadata.regex) ) {
+			throw("The 'regex' attribute is required with the 'regexlabel' attribute" & message);
+		}
+
 	}
 
 }
