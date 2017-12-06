@@ -11,7 +11,7 @@
 	property dataGateway;
 	property validationService;
 
-	public function init( id=0 ) {
+	public component function init( string id=0 ) {
 		populate(arguments.id);
 		return this;
 	}
@@ -31,11 +31,7 @@
 	}
 
 	public boolean function exists() {
-		if ( isNull( getIsDeleted() ) ) {
-			return ( getId() ? true : false );
-		} else {
-			return ( getId() && !getIsDeleted() );
-		}
+		return ( getId() && !getIsDeleted() );
 	}
 
 	public struct function getBeanMap() {
@@ -54,55 +50,40 @@
 		return isNull(variables.isDeleted) || !isBoolean(variables.isDeleted) ? false : variables.isDeleted;
 	}
 
-	public any function getPropertyValue(propertyname){
-		var value = "";
-
-		if(structKeyExists(variables,propertyname)){
-			try {
-				var getter = variables["get" & propertyname];
-				value = getter();
-			} catch (any e) {
-				value = variables[arguments.propertyname];
-			}
-			if( isNull(value) ){
-				value = "";
-			}
-		}
+	public any function getPropertyValue( required string propertyname ){
+		var value = getBeanPropertyValue( propertyname=arguments.propertyname );
 
 		if( !len(value) ){
-			var beanmap = getBeanMap();
-			if( structKeyExists(beanmap.properties,propertyname) ){
-				value = beanmap.properties[propertyname].defaultvalue;
-			}
+			value = getPropertyDefault( propertyname=arguments.propertyname );
 		}
 
-		return trim(value);
+		return value;
 	}
 
 	public struct function getSessionData( struct data={} ) {
 		var beanmap = getBeanMap();
 
 		for ( var prop IN beanmap.properties ) {
-			arguments.data[ prop ] = getPropertyValue(prop);
+			arguments.data[ prop ] = getPropertyValue(propertyname=prop);
 		}
 
 		if ( len(getDerivedFields()) ) {
 			var derivedfields = listToArray(getDerivedFields());
 			for ( var field in derivedfields ) {
-				arguments.data[ field ] = getPropertyValue(field);
+				arguments.data[ field ] = getPropertyValue(propertyname=field);
 			}
 		}
 
 		return arguments.data;
 	}
 
-	public void function onMissingMethod(missingMethodName,missingMethodArguments){
+	public void function onMissingMethod( required string missingMethodName, required struct missingMethodArguments ){
 		if ( left(arguments.missingMethodName,3) != "set" ) {
 			throw(message="Method '" & arguments.missingMethodName & "' not defined in bean " & getBeanName() );
 		}
 	}
 
-	public void function populateBean( qRecord ) {
+	public void function populateBean( required query qRecord ) {
 		var columns = listToArray(qRecord.columnList);
 
 		var properties = {};
@@ -161,7 +142,7 @@
 	 */
 	public array function validate() {
 		var beanMap = getBeanMap();
-		return variables.validationService.validateBean(beanmap=beanmap,bean=this);
+		return variables.validationService.validateBean( beanmap=beanmap, bean=this );
 	}
 
 	private void function clearCache() {
@@ -169,19 +150,51 @@
 		variables.cacheService.clearBean(bean);
 	}
 
-	private function getBeanName() {
+	private string function getBeanMetaDataName() {
+		var metadata = getMetaData(this);
+		return structKeyExists(metadata,"bean") ? metadata.bean : listLast(metadata.name, ".");
+	}
+
+	private string function getBeanName() {
 		if ( isNull(variables.beanname) ) {
-			var metadata = getMetaData(this);
-			variables.beanname = ( structKeyExists(metadata,"bean") ? metadata.bean : listLast(metadata.name, ".") );
+			variables.beanname = getBeanMetaDataName();
 		}
 		return variables.beanname;
+	}
+
+	private any function getBeanPropertyValue( required string propertyname ) {
+		var value = "";
+
+		if( structKeyExists(variables, propertyname) ){
+			try {
+				var getter = variables["get" & propertyname];
+				value = getter();
+			} catch (any e) {
+				value = variables[arguments.propertyname];
+			}
+			if( isNull(value) ){
+				value = "";
+			}
+		}
+
+		return isSimpleValue(value) ? trim(value) : value;
 	}
 
 	private string function getDerivedFields() {
 		return "";
 	}
 
-	private function getManyToManyValue( primarykey, relationship ) {
+	private numeric function getForeignKeyId( required string fkName ) {
+		return (
+			(
+				structKeyExists(variables,arguments.fkName)
+				&& isValid("integer", variables[ arguments.fkName ])
+			)
+			? variables[ arguments.fkName ] : 0
+		);
+	}
+
+	private array function getManyToManyValue( required string primarykey, required struct relationship ) {
 		if ( variables[ arguments.primarykey ] ) {
 			var qRecords = variables.dataGateway.readByJoinTable(
 				beanid = variables[ arguments.primarykey ],
@@ -193,7 +206,7 @@
 		}
 	}
 
-	private function getOneToManyValue( primarykey, relationship ) {
+	private array function getOneToManyValue( required string primarykey, required struct relationship ) {
 		if ( variables[ arguments.primarykey ] ) {
 			return variables.dataFactory.list(
 				bean = arguments.relationship.bean,
@@ -204,13 +217,31 @@
 		}
 	}
 
-	private function getRelationshipKeys( context="" ) {
+	private numeric function getPrimaryKeyFromSprocData( required struct sprocData ) {
+		if ( arguments.sprocData._bean.recordCount ) {
+			var beanmap = getBeanMap();
+			return variables[ beanmap.primarykey ];
+		} else {
+			return 0;
+		}
+	}
+
+	private any function getPropertyDefault( required string propertyname ) {
+		var value = "";
+		var beanmap = getBeanMap();
+		if( structKeyExists(beanmap.properties, arguments.propertyname) ){
+			value = beanmap.properties[ arguments.propertyname ].defaultvalue;
+		}
+		return value;
+	}
+
+	private array function getRelationshipKeys( string context="" ) {
 		var relationshipkeys = [];
 		arrayAppend(relationshipkeys,"_bean");
 
 		var beanmap = getBeanMap();
 
-		if ( len(arguments.context) && arguments.context != "_bean" && structKeyExists(beanmap,"relationships") ) {
+		if ( len(arguments.context) && arguments.context != "_bean" && structCount(beanmap.relationships) ) {
 			for ( var key in beanmap.relationships ) {
 				var contexts = beanmap.relationships[key].contexts;
 				if ( !arrayLen(contexts) || arrayFindNoCase(contexts,arguments.context) ) {
@@ -223,24 +254,51 @@
 		return relationshipkeys;
 	}
 
-	private function getSingularValue( primarykey, relationship ) {
+	private component function getSingularBean( required string primarykey, required struct relationship ) {
 		return variables.dataFactory.get(
 			bean = arguments.relationship.bean,
-			id = (
-				structKeyExists(variables,arguments.relationship.fkName)
-				&& isValid("integer", variables[ arguments.relationship.fkName ])
-			) ? variables[ arguments.relationship.fkName ] : 0
+			id = getForeignKeyId(arguments.relationship.fkName)
 		);
 	}
 
-	private function populate( id=0, bean="" ) {
+	private component function getSingularSprocBean( required string bean, required query qRecords ) {
+		var beans = variables.dataFactory.getBeans( bean=arguments.bean, qRecords=arguments.qRecords );
+		if ( arrayLen(beans) ) {
+			return beans[1];
+		} else {
+			return variables.dataFactory.get( bean=arguments.bean );
+		}
+	}
+
+	private string function getSprocContext() {
+		if ( structKeyExists(arguments, "context") && !len(arguments.context) ) {
+			return "_bean";
+		}
+		else if ( !structKeyExists(arguments, "context") ) {
+			return "";
+		}
+		else {
+			return arguments.context;
+		}
+	}
+
+	private any function getSprocRelationship( required string bean, required string joinType, required query qRecords ) {
+		var isSingular = ( arguments.joinType == "one" );
+		if ( isSingular ) {
+			return getSingularSprocBean( bean=arguments.bean, qRecords=arguments.qRecords );
+		} else {
+			return variables.dataFactory.getBeans( bean=arguments.bean, qRecords=arguments.qRecords );
+		}
+	}
+
+	private void function populate( numeric id=0, string bean="" ) {
 		if ( !isNumeric(arguments.id) ) {
 			arguments.id = 0;
 		}
 		setBeanName(arguments.bean);
 
 		if ( arguments.id ) {
-			var qRecord = variables.dataGateway.read(getBeanName(), { id = arguments.id });
+			var qRecord = variables.dataGateway.read( bean=getBeanName(), params={ id = arguments.id } );
 			if ( qRecord.recordCount ) {
 				populateBean(qRecord);
 			} else {
@@ -252,15 +310,17 @@
 		// todo: setPrimaryKey(arguments.id);
 	}
 
-	private void function populateBySproc( id=0, bean="", sproc="", params=[], resultkeys=[], context ) {
+	private void function populateBySproc(
+		required string sproc,
+		string id="",
+		string bean="",
+		array params=[],
+		array resultkeys=[]
+	) {
 		if ( !isNumeric(arguments.id) ) {
 			arguments.id = 0;
 		}
-		if ( !isNull(arguments.context) && !len(arguments.context) ) {
-			arguments.context = "_bean";
-		} else if ( isNull(arguments.context) ) {
-			arguments.context = "";
-		}
+		arguments.context = getSprocContext( argumentCollection=arguments );
 		setBeanName(arguments.bean);
 
 		if ( arguments.id || arrayLen(arguments.params) ) {
@@ -279,23 +339,18 @@
 			var sprocData = variables.dataGateway.readSproc(arguments.sproc, arguments.params, arguments.resultkeys);
 			populateSprocData(sprocData, arguments.resultkeys);
 
-			if ( sprocData._bean.recordCount ) {
-				var beanmap = getBeanMap();
-				arguments.id = variables[ beanmap.primarykey ];
-			} else {
-				arguments.id = 0;
-			}
+			arguments.id = getPrimaryKeyFromSprocData( sprocData=sprocData );
 		}
 
 		setPrimaryKey(arguments.id);
 	}
 
-	private function populateRelationship( relationshipName ) {
+	private void function populateRelationship( required string relationshipName ) {
 		if ( isNull( evaluate("get" & arguments.relationshipName & "()") ) ) {
 			var beanmap = getBeanMap();
 
 			if ( !structKeyExists(beanmap,"relationships") || !structKeyExists(beanmap.relationships,arguments.relationshipName) ) {
-				throw ("A " & arguments.relationshipName & " relationship is not defined in the " & bean & " bean map.");
+				throw ("A " & arguments.relationshipName & " relationship is not defined in the " & beanmap.name & " bean map.");
 			}
 
 			var relationship = beanmap.relationships[ arguments.relationshipName ];
@@ -303,7 +358,7 @@
 			var value = "";
 			switch ( relationship.joinType ) {
 				case "one":
-					value = getSingularValue(beanmap.primarykey, relationship);
+					value = getSingularBean(beanmap.primarykey, relationship);
 					break;
 				case "one-to-many":
 					value = getOneToManyValue(beanmap.primarykey, relationship);
@@ -319,27 +374,23 @@
 		}
 	}
 
-	private function populateSprocData( data, resultkeys ) {
+	private void function populateSprocData( required struct data, required array resultkeys ) {
 		var beanmap = getBeanMap();
 		var properties = {};
 		for ( var relationship in arguments.resultkeys ) {
-			var isSingular = ( relationship != "_bean" && beanmap.relationships[relationship].joinType == "one" );
+
 			if ( relationship == "_bean" ) {
 				if ( arguments.data._bean.recordCount ) {
 					populateBean(arguments.data._bean);
 				}
+			}
 
-			} else if ( arguments.data[relationship].recordCount ) {
-				var beans = variables.dataFactory.getBeans( beanmap.relationships[relationship].bean, arguments.data[relationship] );
-				if ( isSingular ) {
-					properties[relationship] = beans[1];
-				} else {
-					properties[relationship] = beans;
-				}
-			} else if ( isSingular ) {
-				properties[relationship] = variables.dataFactory.get( beanmap.relationships[relationship].bean );
-			} else {
-				properties[relationship] = [];
+			else {
+				properties[relationship] = getSprocRelationship(
+					bean=beanmap.relationships[relationship].bean,
+					joinType=beanmap.relationships[relationship].joinType,
+					qRecords=arguments.data[relationship]
+				);
 			}
 		}
 
@@ -348,11 +399,11 @@
 		}
 	}
 
-	private function setBeanName( bean ) {
-		variables.beanname = ( len(arguments.bean) ? arguments.bean : getBeanName() );
+	private void function setBeanName( string bean="" ) {
+		variables.beanname = ( len(arguments.bean) ? arguments.bean : getBeanMetaDataName() );
 	}
 
-	private function setPrimaryKey(primarykey) {
+	private void function setPrimaryKey( required string primarykey ) {
 		if ( isNull(variables.dataFactory) ) {
 			// todo: make this dynamic so that the primary key does not have to be id for the pk to default to 0
 			variables.id = arguments.primarykey;
