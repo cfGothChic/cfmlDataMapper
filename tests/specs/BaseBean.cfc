@@ -10,9 +10,6 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 		dataGateway = createEmptyMock("cfmlDataMapper.model.gateways.data");
 		testClass.$property( propertyName="dataGateway", mock=dataGateway );
-
-		validationService = createEmptyMock("cfmlDataMapper.model.services.validation");
-		testClass.$property( propertyName="validationService", mock=validationService );
 	}
 
 	function run() {
@@ -24,6 +21,11 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				beanmap = {
 					name = "test",
 					primarykey = "id",
+					properties = {
+						test = {
+							defaultvalue = "test"
+						}
+					},
 					relationships = {
 						test = {
 							bean = "user",
@@ -40,25 +42,8 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 			describe("exposes private methods and", function(){
 
 				beforeEach(function( currentSpec ){
-					makePublic( testClass, "clearCache" );
-					makePublic( testClass, "getBeanMetaDataName" );
-					makePublic( testClass, "getBeanName" );
 					makePublic( testClass, "getDerivedFields" );
-					makePublic( testClass, "getForeignKeyId" );
-					makePublic( testClass, "getOneToManyValue" );
-					makePublic( testClass, "getManyToManyValue" );
-					makePublic( testClass, "getPrimaryKeyFromSprocData" );
-					makePublic( testClass, "getRelationshipKeys" );
-					makePublic( testClass, "getSingularBean" );
-					makePublic( testClass, "getSingularSprocBean" );
 					makePublic( testClass, "getSprocContext" );
-					makePublic( testClass, "getSprocRelationship" );
-					makePublic( testClass, "populate" );
-					makePublic( testClass, "populateBySproc" );
-					makePublic( testClass, "populateRelationship" );
-					makePublic( testClass, "populateSprocData" );
-					makePublic( testClass, "setBeanName" );
-					makePublic( testClass, "setPrimaryKey" );
 
 					qRecords = querySim("id
 						1");
@@ -102,7 +87,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				describe("uses bean metadata and", function(){
 
 					beforeEach(function( currentSpec ){
-
+						makePublic( testClass, "getBeanMetaDataName" );
 					});
 
 
@@ -117,6 +102,9 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					describe("has the bean metadata and", function(){
 
 						beforeEach(function( currentSpec ){
+							makePublic( testClass, "getBeanName" );
+							makePublic( testClass, "setBeanName" );
+
 							testClass.$( "getBeanMetaDataName", "test" );
 						});
 
@@ -151,7 +139,8 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				describe("uses bean properties and", function(){
 
 					beforeEach(function( currentSpec ){
-
+						makePublic( testClass, "getBeanPropertyValue" );
+						makePublic( testClass, "getForeignKeyId" );
 					});
 
 
@@ -173,12 +162,171 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						expect( result ).toBe( 1 );
 					});
 
+
+					// getBeanPropertyValue()
+					it( "returns an array value of a property", function(){
+						testClass.$property( propertyName="test", mock=[] );
+
+						var result = testClass.getBeanPropertyValue( propertyname="test" );
+
+						expect( result ).toBeTypeOf( "array" );
+						expect( result ).toBeEmpty();
+					});
+
+
+					it( "returns a binary value of a property", function(){
+						var test = toBinary("dGVzdA==");
+						testClass.$property( propertyName="test", mock=test );
+
+						var result = testClass.getBeanPropertyValue( propertyname="test" );
+
+						expect( result ).toBeTypeOf( "binary" );
+						expect( result ).toBe( test );
+					});
+
+
+					it( "returns a boolean value of a property", function(){
+						testClass.$property( propertyName="test", mock="yes" );
+
+						var result = testClass.getBeanPropertyValue( propertyname="test" );
+
+						expect( result ).toBeTypeOf( "boolean" );
+						expect( result ).toBeTrue();
+					});
+
+
+					it( "returns a component value of a property", function(){
+						testClass.$property( propertyName="test", mock=userBean );
+
+						var result = testClass.getBeanPropertyValue( propertyname="test" );
+
+						expect( result ).toBeTypeOf( "component" );
+						expect( result ).toBeInstanceOf( "model.beans.user" );
+					});
+
+
+					it( "returns a date value of a property", function(){
+						testClass.$property( propertyName="test", mock=now() );
+
+						var result = testClass.getBeanPropertyValue( propertyname="test" );
+
+						expect( result ).toBeTypeOf( "date" );
+						expect( result ).notToBeEmpty();
+					});
+
+
+					it( "returns a float value of a property", function(){
+						testClass.$property( propertyName="test", mock=1.1 );
+
+						var result = testClass.getBeanPropertyValue( propertyname="test" );
+
+						expect( result ).toBeTypeOf( "float" );
+						expect( result ).toBe( 1.1 );
+					});
+
+
+					it( "returns a integer value of a property", function(){
+						testClass.$property( propertyName="test", mock=1 );
+
+						var result = testClass.getBeanPropertyValue( propertyname="test" );
+
+						expect( result ).toBeTypeOf( "integer" );
+						expect( result ).toBe( 1 );
+					});
+
+
+					it( "returns a numeric value of a property", function(){
+						testClass.$property( propertyName="test", mock=1 );
+
+						var result = testClass.getBeanPropertyValue( propertyname="test" );
+
+						expect( result ).toBeTypeOf( "numeric" );
+						expect( result ).toBe( 1 );
+					});
+
+
+					it( "returns a query value of a property", function(){
+						testClass.$property( propertyName="test", mock=querySim("") );
+
+						var result = testClass.getBeanPropertyValue( propertyname="test" );
+
+						expect( result ).toBeTypeOf( "query" );
+						expect( result ).toBeEmpty();
+					});
+
+
+					it( "returns a string value of a property", function(){
+						testClass.$property( propertyName="test", mock="test" );
+
+						var result = testClass.getBeanPropertyValue( propertyname="test" );
+
+						expect( result ).toBeTypeOf( "string" );
+						expect( result ).toBe( "test" );
+					});
+
+
+					it( "returns a struct value of a property", function(){
+						testClass.$property( propertyName="test", mock={} );
+
+						var result = testClass.getBeanPropertyValue( propertyname="test" );
+
+						expect( result ).toBeTypeOf( "struct" );
+						expect( result ).toBeEmpty();
+					});
+
+
+					it( "returns a time value of a property", function(){
+						testClass.$property( propertyName="test", mock=createTime(1, 0, 0) );
+
+						var result = testClass.getBeanPropertyValue( propertyname="test" );
+
+						expect( result ).toBeTypeOf( "time" );
+						expect( result ).notToBeEmpty();
+					});
+
+
+					it( "returns a url value of a property", function(){
+						testClass.$property( propertyName="test", mock="http://12.0.0.1" );
+
+						var result = testClass.getBeanPropertyValue( propertyname="test" );
+
+						expect( result ).toBeTypeOf( "url" );
+						expect( result ).notToBeEmpty();
+					});
+
+
+					it( "returns a uuid value of a property", function(){
+						testClass.$property( propertyName="test", mock=createUUID() );
+
+						var result = testClass.getBeanPropertyValue( propertyname="test" );
+
+						expect( result ).toBeTypeOf( "uuid" );
+						expect( result ).notToBeEmpty();
+					});
+
+
+					it( "returns a xml value of a property", function(){
+						testClass.$property( propertyName="test", mock="<root><test>1</test></root>" );
+
+						var result = testClass.getBeanPropertyValue( propertyname="test" );
+
+						expect( result ).toBeTypeOf( "xml" );
+						expect( result ).notToBeEmpty();
+					});
+
 				});
 
 
 				describe("uses the dataFactory and", function(){
 
 					beforeEach(function( currentSpec ){
+						makePublic( testClass, "clearCache" );
+						makePublic( testClass, "getOneToManyValue" );
+						makePublic( testClass, "getManyToManyValue" );
+						makePublic( testClass, "getSingularBean" );
+						makePublic( testClass, "getSingularSprocBean" );
+						makePublic( testClass, "getSprocRelationship" );
+
 						dataFactory = createEmptyMock("cfmlDataMapper.model.factory.data");
 
 						dataFactory.$( "get", userBean )
@@ -196,7 +344,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 					// clearCache()
 					it( "calls the cache service to clear the bean", function(){
-						cacheService = createEmptyMock("cfmlDataMapper.model.services.cache");
+						var cacheService = createEmptyMock("cfmlDataMapper.model.services.cache");
 						cacheService.$( "clearBean" );
 						testClass.$property( propertyName="cacheService", mock=cacheService );
 
@@ -369,6 +517,11 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				describe("uses the beanmap and", function(){
 
 					beforeEach(function( currentSpec ){
+						makePublic( testClass, "getPrimaryKeyFromSprocData" );
+						makePublic( testClass, "getPropertyDefault" );
+						makePublic( testClass, "getRelationshipKeys" );
+						makePublic( testClass, "setPrimaryKey" );
+
 						testClass.$property( propertyName="id", mock=1 );
 
 						testClass.$( "getBeanMap", beanmap );
@@ -393,6 +546,29 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 						expect( result ).toBeTypeOf( "numeric" );
 						expect( result ).toBe( 0 );
+					});
+
+
+					// getPropertyDefault()
+					it( "returns the property default defined in the beanmap", function(){
+						var result = testClass.getPropertyDefault( propertyname="test" );
+
+						expect( testClass.$once("getBeanMap") ).toBeTrue();
+
+						expect( result ).toBeTypeOf( "string" );
+						expect( result ).toBe( "test" );
+					});
+
+
+					it( "returns an empty string if the property doesn't have a default defined in the beanmap", function(){
+						beanmap.properties.test.defaultvalue = "";
+
+						var result = testClass.getPropertyDefault( propertyname="test" );
+
+						expect( testClass.$once("getBeanMap") ).toBeTrue();
+
+						expect( result ).toBeTypeOf( "string" );
+						expect( result ).toBeEmpty();
 					});
 
 
@@ -446,6 +622,107 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						expect( testClass.$once("getBeanMap") ).toBeTrue();
 					});
 
+
+					// validate()
+					it( "returns an array from the validation service", function(){
+						var validationService = createEmptyMock("cfmlDataMapper.model.services.validation");
+						validationService.$( "validateBean", [] );
+						testClass.$property( propertyName="validationService", mock=validationService );
+
+						var result = testClass.validate();
+
+						expect( testClass.$once("getBeanMap") ).toBeTrue();
+						expect( validationService.$once("validateBean") ).toBeTrue();
+
+						expect( result ).toBeTypeOf( "array" );
+						expect( result ).toBeEmpty();
+					});
+
+					// getPropertyValue()
+					describe("calls getPropertyValue() and", function(){
+
+						beforeEach(function( currentSpec ){
+							testClass.$( "getBeanPropertyValue", "test" )
+								.$( "getPropertyDefault", "user" );
+						});
+
+
+						it( "returns the value of the property", function(){
+							var result = testClass.getPropertyValue( propertyname="test" );
+
+							expect( testClass.$once("getBeanPropertyValue") ).toBeTrue();
+							expect( testClass.$never("getPropertyDefault") ).toBeTrue();
+
+							expect( result ).toBeTypeOf( "string" );
+							expect( result ).toBe( "test" );
+						});
+
+
+						it( "returns the default value of the property if the bean property is empty", function(){
+							testClass.$( "getBeanPropertyValue", "" );
+
+							var result = testClass.getPropertyValue( propertyname="test" );
+
+							expect( testClass.$once("getBeanPropertyValue") ).toBeTrue();
+							expect( testClass.$once("getPropertyDefault") ).toBeTrue();
+
+							expect( result ).toBeTypeOf( "string" );
+							expect( result ).toBe( "user" );
+						});
+
+					});
+
+
+					// getSessionData()
+					describe("calls getSessionData() and", function(){
+
+						beforeEach(function( currentSpec ){
+							testClass.$( "getDerivedFields", "" );
+
+							testClass.$( "getPropertyValue" ).$args( propertyname="test" ).$results( "test" );
+							testClass.$( "getPropertyValue" ).$args( propertyname="user" ).$results( userBean );
+						});
+
+
+						it( "returns a structure of the bean's property values", function(){
+							var result = testClass.getSessionData( data={} );
+
+							expect( testClass.$once("getBeanMap") ).toBeTrue();
+							expect( testClass.$once("getPropertyValue") ).toBeTrue();
+							expect( testClass.$once("getDerivedFields") ).toBeTrue();
+
+							expect( result ).toBeTypeOf( "struct" );
+							expect( result ).toHaveLength( 1 );
+						});
+
+
+						it( "returns a structure of the bean's property values and derived fields", function(){
+							testClass.$( "getDerivedFields", "user" );
+
+							var result = testClass.getSessionData( data={} );
+
+							expect( testClass.$once("getBeanMap") ).toBeTrue();
+							expect( testClass.$count("getPropertyValue") ).toBe( 2 );
+							expect( testClass.$count("getDerivedFields") ).toBe( 2 );
+
+							expect( result ).toBeTypeOf( "struct" );
+							expect( result ).toHaveLength( 2 );
+						});
+
+
+						it( "returns a structure of the bean's property values appended to the data structure", function(){
+							var result = testClass.getSessionData( data={ "foo"="bar" } );
+
+							expect( testClass.$once("getBeanMap") ).toBeTrue();
+							expect( testClass.$once("getPropertyValue") ).toBeTrue();
+							expect( testClass.$once("getDerivedFields") ).toBeTrue();
+
+							expect( result ).toBeTypeOf( "struct" );
+							expect( result ).toHaveLength( 2 );
+						});
+
+					});
+
 				});
 
 
@@ -468,6 +745,8 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					describe("calls populateRelationship() and", function(){
 
 						beforeEach(function( currentSpec ){
+							makePublic( testClass, "populateRelationship" );
+
 							testClass.$( "getBeanMap", beanmap )
 								.$( "getManyToManyValue", [] )
 								.$( "getOneToManyValue", [] )
@@ -525,6 +804,8 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					describe("calls populateSprocData() and", function(){
 
 						beforeEach(function( currentSpec ){
+							makePublic( testClass, "populateSprocData" );
+
 							testClass.$( "getBeanMap", beanmap )
 								.$( "getSprocRelationship", [] )
 								.$( "populateBean" );
@@ -569,6 +850,8 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				describe("calls populate() and", function(){
 
 					beforeEach(function( currentSpec ){
+						makePublic( testClass, "populate" );
+
 						dataGateway.$( "read" ).$args( bean="test", params={ id = 1 } ).$results( qRecords );
 						dataGateway.$( "read" ).$args( bean="test", params={ id = 2 } ).$results( querySim("id") );
 
@@ -614,6 +897,8 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				describe("calls populateBySproc() and", function(){
 
 					beforeEach(function( currentSpec ){
+						makePublic( testClass, "populateBySproc" );
+
 						sprocData = {
 							_bean = qRecords
 						};
@@ -744,34 +1029,6 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				});
 
 
-				// getPropertyValue()
-				it( "returns a string with the value of the property", function(){
-
-				});
-
-
-				it( "returns a string with the default value of the property", function(){
-
-				});
-
-
-				// getSessionData()
-				it( "returns a structure of the bean's property values and derived fields", function(){
-
-				});
-
-
-				// onMissingMethod()
-				it( "ignores function names starting with 'set'", function(){
-
-				});
-
-
-				it( "errors if the function name does not start with 'set'", function(){
-
-				});
-
-
 				// save()
 				it( "successfully creates a bean", function(){
 
@@ -793,9 +1050,14 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				});
 
 
-				// validate()
-				it( "returns an array from the validation service", function(){
+				// onMissingMethod()
+				it( "ignores function names starting with 'set' if the method doesn't exist", function(){
+					testClass.onMissingMethod( missingMethodName="setLastName", missingMethodArguments={} );
+				});
 
+
+				it( "errors if the function doesn't exist and it's name does not start with 'set'", function(){
+					expect( function(){ testClass.onMissingMethod( missingMethodName="getLastName", missingMethodArguments={} ); } ).toThrow(type="application", regex="(getLastName)");
 				});
 
 			});

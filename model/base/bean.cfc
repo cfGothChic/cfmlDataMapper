@@ -54,49 +54,34 @@
 		return isNull(variables.isDeleted) || !isBoolean(variables.isDeleted) ? false : variables.isDeleted;
 	}
 
-	public any function getPropertyValue(propertyname){
-		var value = "";
-
-		if(structKeyExists(variables,propertyname)){
-			try {
-				var getter = variables["get" & propertyname];
-				value = getter();
-			} catch (any e) {
-				value = variables[arguments.propertyname];
-			}
-			if( isNull(value) ){
-				value = "";
-			}
-		}
+	public any function getPropertyValue( required string propertyname ){
+		var value = getBeanPropertyValue( propertyname=arguments.propertyname );
 
 		if( !len(value) ){
-			var beanmap = getBeanMap();
-			if( structKeyExists(beanmap.properties,propertyname) ){
-				value = beanmap.properties[propertyname].defaultvalue;
-			}
+			value = getPropertyDefault( propertyname=arguments.propertyname );
 		}
 
-		return trim(value);
+		return value;
 	}
 
 	public struct function getSessionData( struct data={} ) {
 		var beanmap = getBeanMap();
 
 		for ( var prop IN beanmap.properties ) {
-			arguments.data[ prop ] = getPropertyValue(prop);
+			arguments.data[ prop ] = getPropertyValue(propertyname=prop);
 		}
 
 		if ( len(getDerivedFields()) ) {
 			var derivedfields = listToArray(getDerivedFields());
 			for ( var field in derivedfields ) {
-				arguments.data[ field ] = getPropertyValue(field);
+				arguments.data[ field ] = getPropertyValue(propertyname=field);
 			}
 		}
 
 		return arguments.data;
 	}
 
-	public void function onMissingMethod(missingMethodName,missingMethodArguments){
+	public void function onMissingMethod( required string missingMethodName, required struct missingMethodArguments ){
 		if ( left(arguments.missingMethodName,3) != "set" ) {
 			throw(message="Method '" & arguments.missingMethodName & "' not defined in bean " & getBeanName() );
 		}
@@ -161,7 +146,7 @@
 	 */
 	public array function validate() {
 		var beanMap = getBeanMap();
-		return variables.validationService.validateBean(beanmap=beanmap,bean=this);
+		return variables.validationService.validateBean( beanmap=beanmap, bean=this );
 	}
 
 	private void function clearCache() {
@@ -179,6 +164,24 @@
 			variables.beanname = getBeanMetaDataName();
 		}
 		return variables.beanname;
+	}
+
+	private any function getBeanPropertyValue( required string propertyname ) {
+		var value = "";
+
+		if( structKeyExists(variables, propertyname) ){
+			try {
+				var getter = variables["get" & propertyname];
+				value = getter();
+			} catch (any e) {
+				value = variables[arguments.propertyname];
+			}
+			if( isNull(value) ){
+				value = "";
+			}
+		}
+
+		return isSimpleValue(value) ? trim(value) : value;
 	}
 
 	private string function getDerivedFields() {
@@ -225,6 +228,15 @@
 		} else {
 			return 0;
 		}
+	}
+
+	private any function getPropertyDefault( required string propertyname ) {
+		var value = "";
+		var beanmap = getBeanMap();
+		if( structKeyExists(beanmap.properties, arguments.propertyname) ){
+			value = beanmap.properties[ arguments.propertyname ].defaultvalue;
+		}
+		return value;
 	}
 
 	private array function getRelationshipKeys( string context="" ) {
