@@ -15,18 +15,6 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 		departmentBean = createMock("model.beans.department");
 		departmentBean.$( "getPropertyValue" ).$args( item="id" ).$results( 3 );
 		departmentBean.$( "getPropertyValue" ).$args( item="isDeleted" ).$results( 1 );
-
-		beanFactory = createEmptyMock("framework.ioc");
-		testClass.$property( propertyName="beanFactory", mock=beanFactory );
-
-		dataFactory = createEmptyMock("cfmlDataMapper.model.factory.data");
-		testClass.$property( propertyName="dataFactory", mock=dataFactory );
-
-		dataGateway = createEmptyMock("cfmlDataMapper.model.gateways.data");
-		testClass.$property( propertyName="dataGateway", mock=dataGateway );
-
-		utilityService = createEmptyMock("cfmlDataMapper.model.services.utility");
-		testClass.$property( propertyName="utilityService", mock=utilityService );
 	}
 
 	function run() {
@@ -45,7 +33,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					properties = {
 						email = {
 							name = "email",
-							columnname = "emailaddress"
+							columnname = ""
 						}
 					}
 				};
@@ -58,9 +46,13 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 			describe("populates the service cache and", function(){
 
 				beforeEach(function( currentSpec ){
+					dataFactory = createEmptyMock("cfmlDataMapper.model.factory.data");
+					testClass.$property( propertyName="dataFactory", mock=dataFactory );
 
+					dataGateway = createEmptyMock("cfmlDataMapper.model.gateways.data");
 					dataGateway.$( "read", querySim("id
 						1") );
+					testClass.$property( propertyName="dataGateway", mock=dataGateway );
 				});
 
 
@@ -85,9 +77,11 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 					beforeEach(function( currentSpec ){
 						makePublic( testClass, "cacheParamString" );
-						makePublic( testClass, "getParamBeanIds" );
 						makePublic( testClass, "getParamJson" );
 						makePublic( testClass, "paramsAreNotCached" );
+
+						utilityService = createEmptyMock("cfmlDataMapper.model.services.utility");
+						testClass.$property( propertyName="utilityService", mock=utilityService );
 					});
 
 
@@ -144,26 +138,17 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					});
 
 
-					xit( "returns a json string if the passed in params match the bean's cacheparam wildcard", function(){
+					it( "returns a json string if the passed in params match the bean's cacheparam wildcard", function(){
 						beanmap.cacheparams = [{},{ userTypeID="*" }];
+						beanmap.cacheparamwild = ["userTypeID"];
 
 						utilityService.$( "structCompare", false );
 
 						var result = testClass.getParamJson( beanmap=beanmap, params={ userTypeID=1 } );
 
 						expect( result ).notToBeEmpty();
-						expect( isJSON(result) ).toBeTrue();
+						expect( result ).toBeJSON();
 						expect( utilityService.$atleast(2, "structCompare") ).toBeTrue();
-					});
-
-
-					// getParamBeanIds()
-					xit( "returns an array of bean ids for the params", function(){
-						var result = testClass.getParamBeanIds( bean="user", params=params );
-
-						expect( result ).toBeTypeOf( "array" );
-						expect( result ).toHaveLength( 1 );
-						expect( result[1] ).toBeInstanceOf( "model.beans.userType" );
 					});
 
 
@@ -216,7 +201,16 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 
 					// getFullOrderBy()
-					xit( "returns a full order by string for the bean", function(){
+					it( "returns a full order by string for the bean", function(){
+						var result = testClass.getFullOrderBy( beanmap=beanmap, orderby="email desc" );
+
+						expect( result ).toBe( "email desc" );
+					});
+
+
+					it( "returns a full order by string for the bean with different columnname than property name", function(){
+						beanmap.properties.email.columnname = "emailaddress";
+
 						var result = testClass.getFullOrderBy( beanmap=beanmap, orderby="email desc" );
 
 						expect( result ).toBe( "emailaddress desc" );
@@ -394,6 +388,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					makePublic( testClass, "beanParamsAreInCache" );
 					makePublic( testClass, "getCachedBean" );
 					makePublic( testClass, "getBeansByParams" );
+					makePublic( testClass, "getParamBeanIds" );
 
 					testClass.$( "getParamJson", "" )
 						.$( "cacheBeans" );
@@ -422,9 +417,24 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				});
 
 
+				// getParamBeanIds()
+				it( "returns an array of bean ids for the params", function(){
+					var result = testClass.getParamBeanIds( bean="user", params=params );
+
+					expect( result ).toBeTypeOf( "array" );
+					expect( result ).toHaveLength( 1 );
+				});
+
+
 				describe("caches the user bean and", function(){
 
 					beforeEach(function( currentSpec ){
+						beanFactory = createEmptyMock("framework.ioc");
+						beanFactory.$( "injectProperties" );
+						testClass.$property( propertyName="beanFactory", mock=beanFactory );
+
+						dataFactory.$( "get", userBean );
+
 						testClass.$property( propertyName="beanCache", mock=beanCache );
 					});
 
@@ -554,6 +564,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						testClass.$( "beanCacheCheck", true )
 							.$( "beanParamsAreInCache", true )
 							.$( "getCachedBean", userBean );
+
 						testClass.$property( propertyName="beanCache", mock=beanCache );
 					});
 
@@ -596,8 +607,13 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					});
 
 
-					xit( "returns a bean from the cache by params", function(){
-						testClass.$( "getCachedBean", userTypeBean );
+					it( "returns a bean from the cache by params", function(){
+						testClass.$( "getCachedBean", userTypeBean )
+							.$( "getParamJson", paramjson );
+
+						beanCache.user.params = {
+							"#paramjson#" = [2]
+						};
 
 						var result = testClass.get( bean="user", id=0, params=params );
 

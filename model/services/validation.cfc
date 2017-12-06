@@ -29,8 +29,6 @@ component accessors="true" {
 		var errors = [];
 		var validationMessage = "";
 
-		// todo: add throw if arguments.beanProperty.null is not a boolean
-
 		var displayname = arguments.beanProperty.displayname;
 		var isRequired = !(arguments.beanProperty.null);
 
@@ -145,9 +143,6 @@ component accessors="true" {
 	private string function validateLength( required string minlength, required string maxlength, required string value, required string displayname ){
 		var returnString = "";
 
-		// todo: add throw if arguments.minlength has a length but is not a number
-		// todo: add throw if arguments.maxlength has a length but is not a number
-
 		if(
 			len(arguments.minlength)
 			&& len(arguments.maxlength)
@@ -168,9 +163,6 @@ component accessors="true" {
 
 	private string function validateRange( required string minvalue, required string maxvalue, required string value, required string displayname ){
 		var returnString = "";
-
-		// todo: add throw if arguments.minvalue has a length but is not a number
-		// todo: add throw if arguments.maxvalue has a length but is not a number
 
 		returnString = validateByDataType( datatype="numeric", value=arguments.value, displayname=arguments.displayname );
 
@@ -196,10 +188,6 @@ component accessors="true" {
 
 	private string function validateRegex( required string regex, required string regexlabel, required string value, required string displayname ){
 		var returnString = "";
-
-		// todo: add throw if arguments.regex has a length but arguments.regexlabel does not
-		// todo: add throw if arguments.regexlabel has a length but arguments.regex does not
-		// todo: add throw if arguments.regex is not a regex string
 
 		if( len(trim(arguments.regex)) && !arrayLen(REMatch( arguments.regex, arguments.value)) ){
 			returnString = arguments.displayname & " must be a valid " & arguments.regexlabel & ".";
