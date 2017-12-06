@@ -947,7 +947,8 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 
 						it( "errors if the relationship isn't defined in the bean map", function(){
-							expect( function(){ testClass.populateRelationship( relationshipName="next" ); } ).toThrow(type="application", regex="(relationship)");
+							expect( function(){ testClass.populateRelationship( relationshipName="next" ); } )
+								.toThrow(type="application", regex="(relationship)");
 						});
 
 					});
@@ -1336,7 +1337,8 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 
 				it( "errors if the function doesn't exist and it's name does not start with 'set'", function(){
-					expect( function(){ testClass.onMissingMethod( missingMethodName="getLastName", missingMethodArguments={} ); } ).toThrow(type="application", regex="(getLastName)");
+					expect( function(){ testClass.onMissingMethod( missingMethodName="getLastName", missingMethodArguments={} ); } )
+						.toThrow(type="application", regex="(getLastName)");
 				});
 
 

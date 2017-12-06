@@ -301,7 +301,8 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 
 					it( "errors if the singular argument is passed in", function(){
-						expect( function(){ testClass.list( bean="userType", singular=true ); } ).toThrow(type="application", regex="(singular)");
+						expect( function(){ testClass.list( bean="userType", singular=true ); } )
+							.toThrow(type="application", regex="(singular)");
 					});
 
 
@@ -381,6 +382,19 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						}]
 					};
 
+					propertyMetadata = {
+						name = "user",
+						insert = true,
+						isidentity = true,
+						null = true,
+						minvalue = 0,
+						maxvalue = 0,
+						minlength = 0,
+						maxlength = 0,
+						regex = "",
+						regexlabel = ""
+					};
+
 					makePublic( testClass, "createBeanMap" );
 					makePublic( testClass, "getBeanMapMetadata" );
 					makePublic( testClass, "getCfSqlType" );
@@ -388,6 +402,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					makePublic( testClass, "getInheritanceMetadata" );
 					makePublic( testClass, "getPropertyMetadata" );
 					makePublic( testClass, "getRelationshipMetadata" );
+					makePublic( testClass, "validatePropertyMetadata" );
 				});
 
 
@@ -444,9 +459,79 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				});
 
 
+				// validatePropertyMetadata()
+				it( "errors if the insert attribute of a property is not a boolean", function(){
+					propertyMetadata.insert = "test";
+
+					expect( function(){ testClass.validatePropertyMetadata( metadata=propertyMetadata, beanname="test" ); } )
+						.toThrow(type="application", regex="(insert)");
+				});
+
+				it( "errors if the isidentity attribute of a property is not a boolean", function(){
+					propertyMetadata.isidentity = "test";
+
+					expect( function(){ testClass.validatePropertyMetadata( metadata=propertyMetadata, beanname="test" ); } )
+						.toThrow(type="application", regex="(isidentity)");
+				});
+
+				it( "errors if the null attribute of a property is not a boolean", function(){
+					propertyMetadata.null = "test";
+
+					expect( function(){ testClass.validatePropertyMetadata( metadata=propertyMetadata, beanname="test" ); } )
+						.toThrow(type="application", regex="(null)");
+				});
+
+				it( "errors if the minvalue attribute of a property is not numeric", function(){
+					propertyMetadata.minvalue = "test";
+
+					expect( function(){ testClass.validatePropertyMetadata( metadata=propertyMetadata, beanname="test" ); } )
+						.toThrow(type="application", regex="(minvalue)");
+				});
+
+				it( "errors if the maxvalue attribute of a property is not numeric", function(){
+					propertyMetadata.maxvalue = "test";
+
+					expect( function(){ testClass.validatePropertyMetadata( metadata=propertyMetadata, beanname="test" ); } )
+						.toThrow(type="application", regex="(maxvalue)");
+				});
+
+				it( "errors if the minlength attribute of a property is not numeric", function(){
+					propertyMetadata.minlength = "test";
+
+					expect( function(){ testClass.validatePropertyMetadata( metadata=propertyMetadata, beanname="test" ); } )
+						.toThrow(type="application", regex="(minlength)");
+				});
+
+				it( "errors if the maxlength attribute of a property is not numeric", function(){
+					propertyMetadata.maxlength = "test";
+
+					expect( function(){ testClass.validatePropertyMetadata( metadata=propertyMetadata, beanname="test" ); } )
+						.toThrow(type="application", regex="(maxlength)");
+				});
+
+				it( "errors if a property has a regex attribute but not a regexlabel attribute", function(){
+					propertyMetadata.regex = "(test)";
+
+					expect( function(){ testClass.validatePropertyMetadata( metadata=propertyMetadata, beanname="test" ); } )
+						.toThrow(type="application", regex="(required)");
+				});
+
+				it( "errors if a property has a regexlabel attribute but not a regex attribute", function(){
+					propertyMetadata.regexlabel = "test";
+
+					expect( function(){ testClass.validatePropertyMetadata( metadata=propertyMetadata, beanname="test" ); } )
+						.toThrow(type="application", regex="(required)");
+				});
+
+				it( "validates a property successfully if all fields are correct", function(){
+					testClass.validatePropertyMetadata( metadata=propertyMetadata, beanname="test" );
+				});
+
 				// getPropertyMetadata()
 				it( "returns an empty structure if the property is not a data factory column definition", function(){
-					var result = testClass.getPropertyMetadata( prop={} );
+					testClass.$( "validatePropertyMetadata" );
+
+					var result = testClass.getPropertyMetadata( prop={}, beanname="test" );
 
 					expect( result ).toBeTypeOf( "struct" );
 					expect( structCount(result) ).toBe( 0 );
@@ -454,7 +539,9 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 
 				it( "returns a structure of a bean column property's metadata", function(){
-					var result = testClass.getPropertyMetadata( prop=metadata.properties[1] );
+					testClass.$( "validatePropertyMetadata" );
+
+					var result = testClass.getPropertyMetadata( prop=metadata.properties[1], beanname="test" );
 
 					expect( result ).toBeTypeOf( "struct" );
 					expect( structCount(result) ).toBe( 16 );
@@ -616,7 +703,8 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					metadata.cached = true;
 					metadata.cacheparams = "[]";
 
-					expect( function(){ testClass.getBeanMapMetadata( metadata=metadata ); } ).toThrow(type="application", regex="(cacheparams)");
+					expect( function(){ testClass.getBeanMapMetadata( metadata=metadata ); } )
+						.toThrow(type="application", regex="(cacheparams)");
 				});
 
 
