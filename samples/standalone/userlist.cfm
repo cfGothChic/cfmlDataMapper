@@ -4,6 +4,7 @@
 	arrayAppend(request.jsScripts,"user/list.js");
 
 	variables.users = application.dataFactory.list(bean="user");
+	variables.admins = application.dataFactory.list( bean="adminuser", params={ userTypeId=1 } );
 </cfscript>
 
 <cfinclude template="common/header.cfm">
@@ -15,6 +16,19 @@
 	<div class="row">
 		<div class="col-md-12 text-right"><a href="useredit.cfm"><i class="fa fa-plus"></i> Add</a></div>
 	</div>
+
+	<cfif arrayLen(variables.admins)>
+		<div class="row">
+			<div class="col-md-12">
+				<p>Administrators:
+					<cfloop array="#variables.admins#" index="local.adminuser">
+						<cfif variables.admins[1].getId() is not local.adminuser.getId()>, </cfif>
+						#local.adminuser.getName()#
+					</cfloop>
+				</p>
+			</div>
+		</div>
+	</cfif>
 
 	<cfif !arrayLen(variables.users)>
 		<div class="row">

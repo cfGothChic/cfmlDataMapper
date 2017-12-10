@@ -48,7 +48,8 @@ component accessors="true" {
     }
 
 	function list(rc) {
-		rc.users = variables.dataFactory.list(bean="user");
+		rc.users = variables.dataFactory.list( bean="user" );
+		rc.admins = variables.dataFactory.list( bean="adminuser", params={ userTypeId=1 } );
 
 		rc.pageTitle = "User List";
 	}

@@ -41,6 +41,10 @@ component accessors="true" extends="cfmlDataMapper.model.base.bean"
 		return variables.departmentBean;
 	}
 
+  public string function getName() {
+		return getFirstName() & " " & getLastName();
+	}
+
   public array function getRoles(){
       super.populateRelationship("roleBeans");
       return variables.roleBeans;
