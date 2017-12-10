@@ -2,6 +2,18 @@ language: java
 sudo: required
 dist: trusty
 
+env:
+  matrix:
+    - ENGINE=lucee@4.5
+    - ENGINE=lucee@5
+    - ENGINE=adobe@2016
+    - ENGINE=adobe@11
+    - ENGINE=adobe@10
+
+cache:
+  directories:
+  - $HOME/.CommandBox
+
 before_install:
 - sudo apt-key adv --keyserver keys.gnupg.net --recv 6DA70622
 - sudo echo "deb http://downloads.ortussolutions.com/debs/noarch /" | sudo tee -a
@@ -12,5 +24,10 @@ install:
 - box install
 - box server start port=8080 openbrowser=false
 
-script:
-- box testbox run reporter=mintext
+before_script:
+  - box server start cfengine=$ENGINE port=8500 openbrowser=false
+
+script: >
+  testResults="echo $(box testbox run reporter=mintext)";
+  echo "$testResults";
+  if grep -i "\[Failures: [1-9][0-9]\?[0-9]\?\]\|\[Errors: [1-9][0-9]\?[0-9]\?\]\|<t[^>]*>\|<b[^>]*>" <<< $testResults;  then exit 1; fi
