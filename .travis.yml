@@ -2,15 +2,30 @@ language: java
 sudo: required
 dist: trusty
 
+env:
+  matrix:
+    - ENGINE=lucee@4.5
+    - ENGINE=lucee@5
+    - ENGINE=adobe@2016
+    - ENGINE=adobe@11
+    - ENGINE=adobe@10
+
+cache:
+  directories:
+  - $HOME/.CommandBox
+
 before_install:
-- sudo apt-key adv --keyserver keys.gnupg.net --recv 6DA70622
-- sudo echo "deb http://downloads.ortussolutions.com/debs/noarch /" | sudo tee -a
-  /etc/apt/sources.list.d/commandbox.list
+  - sudo apt-key adv --keyserver keys.gnupg.net --recv 6DA70622
+  - sudo echo "deb http://downloads.ortussolutions.com/debs/noarch /" | sudo tee -a
+    /etc/apt/sources.list.d/commandbox.list
 
 install:
-- sudo apt-get update && sudo apt-get --assume-yes install commandbox
-- box install
-- box server start port=8080 openbrowser=false
+  - sudo apt-get update && sudo apt-get --assume-yes install commandbox
+  - box install
+  - box server start port=8080 openbrowser=false
+
+before_script:
+  - box server start cfengine=$ENGINE port=8500 openbrowser=false --force
 
 script:
-- box testbox run reporter=mintext
+  - box testbox run reporter=mintext
