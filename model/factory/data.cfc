@@ -2,7 +2,7 @@
 
 	property beanFactory;
 	property cacheService;
-	property dataGateway;
+	property sqlService;
 	property utilityService;
 
 	variables.moduleCache = [];
@@ -166,7 +166,7 @@
 		var result = variables.cacheService.list(argumentCollection=arguments);
 
 		if ( !result.success ) {
-			var qRecords = variables.dataGateway.read(arguments.bean, arguments.params, arguments.orderby);
+			var qRecords = variables.sqlService.read(arguments.bean, arguments.params, arguments.orderby);
 			result.beans = getBeans(arguments.bean, qRecords);
 		}
 		return result.beans;
@@ -266,7 +266,7 @@
 
 	private function getByParams( beanname, params ) {
 		checkBeanExists(arguments.beanname);
-		var qRecord = variables.dataGateway.read(arguments.beanname, arguments.params);
+		var qRecord = variables.sqlService.read(arguments.beanname, arguments.params);
 		var bean = get(arguments.beanname);
 		if ( qRecord.recordCount ) {
 			bean.populateBean(qRecord);

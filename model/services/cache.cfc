@@ -2,7 +2,7 @@ component accessors="true" {
 
 	property beanFactory;
 	property dataFactory;
-	property dataGateway;
+	property sqlService;
 	property utilityService;
 
 	variables.beanCache = {};
@@ -123,7 +123,7 @@ component accessors="true" {
 
 	private void function cacheDefaultParams( required string bean, required struct beanmap ) {
 		lock timeout="60" scope="application" type="exclusive" {
-			var qRecords = variables.dataGateway.read(bean=arguments.bean, params=beanmap.cacheparams[1]);
+			var qRecords = variables.sqlService.read(bean=arguments.bean, params=beanmap.cacheparams[1]);
 			var beanStruct = variables.dataFactory.getBeanStruct(arguments.bean, qRecords);
 
 			// todo: figure out a better way to do this
@@ -147,12 +147,10 @@ component accessors="true" {
 	}
 
 	private void function cacheSortOrder( required struct beanmap, required string bean, required string orderby ) {
-		var fullorderby = getFullOrderBy(arguments.beanmap, arguments.orderby);
-
-		var qRecords = variables.dataGateway.read(
+		var qRecords = variables.sqlService.read(
 			bean = arguments.bean,
-			params = beanmap.cacheparams[1],
-			orderby = fullorderby,
+			params = arguments.beanmap.cacheparams[1],
+			orderby = arguments.orderby,
 			pkOnly = true
 		);
 
@@ -209,40 +207,6 @@ component accessors="true" {
 			variables.beanFactory.injectProperties(cachedbean, cachedStruct);
 		}
 		return cachedbean;
-	}
-
-	private string function getFullOrderBy( required struct beanmap, required string orderby ) {
-		var fullorderby = "";
-		var orderprops = listToArray(arguments.orderby);
-
-		for ( var orderprop in orderprops ) {
-			orderprop = trim(orderprop);
-
-			var propname = orderprop;
-			var direction = "ASC";
-			if ( listLen(orderprop," ") > 1 ) {
-				propname = ListFirst(orderprop," ");
-				direction = ListLast(orderprop," ");
-				direction =  arrayFindNoCase(["asc","desc"],direction) ? direction : "ASC";
-			}
-
-			var prop = structKeyExists(arguments.beanmap.properties,propname) ? arguments.beanmap.properties[propname] : {};
-
-			if ( structIsEmpty(prop) ) {
-				for ( var propname in arguments.beanmap.properties ) {
-					if ( arguments.beanmap.properties[propname].columnname == propname ) {
-						prop = arguments.beanmap.properties[propname];
-						break;
-					}
-				}
-			}
-
-			if ( !structIsEmpty(prop) ) {
-				fullorderby &= ( ( len(fullorderby) ? ", " : "" ) & len(prop.columnname) ? prop.columnname : prop.name ) & " " & direction;
-			}
-		}
-
-		return fullorderby;
 	}
 
 	private array function getParamBeanIds( required string bean, required struct params ) {

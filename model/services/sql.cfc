@@ -1,10 +1,84 @@
 ﻿component accessors="true" output="false" {
 
+	property dataGateway;
+	property dataFactory;
+
 	public component function init() {
 		return this;
 	}
 
-	public string function create( required struct beanmap ) {
+	public numeric function create( required string beanname, required component bean ) {
+		var beanmap = variables.dataFactory.getBeanMap( bean=arguments.beanname );
+		var sql = createString( beanmap=beanmap );
+		var params = getParams( bean=arguments.bean, beanmap=beanmap, includepk=0 );
+		var newid = variables.dataGateway.create( sql=sql, params=params );
+		return newid;
+	}
+
+	public void function delete( required string bean, required numeric id ) {
+		var beanmap = variables.dataFactory.getBeanMap( bean=arguments.bean );
+		var sql = deleteString( beanmap=beanmap );
+		variables.dataGateway.delete( sql=sql, primarykey=beanmap.primarykey, id=arguments.id );
+	}
+
+	public void function deleteByNotIn( required string bean, required string key, required string list ) {
+		var beanmap = variables.dataFactory.getBeanMap( bean=arguments.bean );
+		var pkproperty = beanmap.properties[ arguments.key ];
+		var sql = deleteByNotInString( beanmap=beanmap, pkproperty=pkproperty, key=arguments.key );
+		variables.dataGateway.deleteByNotIn( sql=sql, key=arguments.key, list=arguments.list, sqltype=pkproperty.sqltype );
+	}
+
+	public query function read(
+		required string bean,
+		struct params={},
+		string orderby="",
+		boolean pkOnly=false
+	) {
+		var beanmap = variables.dataFactory.getBeanMap( bean=arguments.bean );
+
+		var sql = readString(
+			beanmap=beanmap,
+			params=arguments.params,
+			orderby=arguments.orderby,
+			pkOnly=arguments.pkOnly
+		);
+
+		var qRecords = variables.dataGateway.read( sql=sql, params=params, beanmap=beanmap );
+		return qRecords;
+	}
+
+	public query function readByJoin( required numeric beanid, required struct relationship ) {
+		var beanmap = variables.dataFactory.getBeanMap( bean=arguments.relationship.bean );
+
+		if (
+			!len(arguments.relationship.fkColumn)
+			|| !len(arguments.relationship.fksqltype)
+			|| !len(arguments.relationship.joinColumn)
+			|| !len(arguments.relationship.joinTable)
+		) {
+			throw(beanmap.bean & " bean is missing required bean map variables for the " & arguments.relationship.name & " relationship join table: fkColumn, fksqltype, joinColumn, joinTable");
+		}
+
+		var sql = readByJoinString( beanmap=beanmap, relationship=arguments.relationship );
+
+		var qRecords = variables.dataGateway.readByJoin(
+			sql=sql,
+			beanid=arguments.beanid,
+			fkColumn=arguments.relationship.fkColumn,
+			fksqltype=arguments.relationship.fksqltype
+		);
+
+		return qRecords;
+	}
+
+	public void function update( required string beanname, required component bean ) {
+		var beanmap = variables.dataFactory.getBeanMap( arguments.beanname );
+		var sql = updateString( beanmap=beanmap );
+		var params = getParams( bean=arguments.bean, beanmap=beanmap );
+		variables.dataGateway.update( sql=sql, params=params );
+	}
+
+	private string function createString( required struct beanmap ) {
 		var sql = "";
 		var pkproperty = arguments.beanmap.properties[ arguments.beanmap.primarykey ];
 		var primarykeyfield = getPrimaryKeyField( beanmap=arguments.beanmap );
@@ -42,119 +116,17 @@
 		return sql;
 	}
 
-	public string function delete( required struct beanmap ) {
+	private string function deleteString( required struct beanmap ) {
 		var sql = "DELETE FROM " & getTableName( beanmap=arguments.beanmap );
 		sql &= " WHERE " & getPrimaryKeyField( beanmap=arguments.beanmap );
 		sql &= " = :" & arguments.beanmap.primarykey;
 		return sql;
 	}
 
-	public string function deleteByValueList( required string beanmap, required struct pkproperty, required string key ) {
+	private string function deleteByNotInString( required string beanmap, required struct pkproperty, required string key ) {
 		var sql = "DELETE FROM " & getTableName( beanmap=arguments.beanmap );
 		sql &= " WHERE " & ( len(arguments.pkproperty.columnName) ? arguments.pkproperty.columnName : arguments.key );
 		sql &= " NOT IN (:" & arguments.key & ")";
-		return sql;
-	}
-
-	public struct function getParams( required component bean, required struct beanmap, boolean includepk=true ) {
-		var params = {};
-
-		for ( var prop in arguments.beanmap.properties ) {
-			var isIncluded = isPropertyIncluded( prop=prop, beanmap=arguments.beanmap, includepk=includepk );
-
-			if ( isIncluded ) {
-				var valuestring = arguments.bean.getPropertyValue( propertyname=prop );
-				params[ prop ] = { value=valuestring, cfsqltype=arguments.beanmap.properties[ prop ].sqltype };
-				if (
-					arguments.beanmap.properties[ prop ].null
-					&& (
-						!len(valuestring)
-						|| findNoCase("integer",arguments.beanmap.properties[ prop ].sqltype)
-						&& isNumeric(valuestring) && !valuestring
-					)
-				) {
-					params[ prop ].value = "";
-					params[ prop ].null = true;
-				} else {
-					params[ prop ].null = false;
-				}
-			}
-		}
-		return params;
-	}
-
-	public string function read(
-		required struct beanmap,
-		required struct params={},
-		required string orderby="",
-		boolean pkOnly=false
-	) {
-		var tablename = getTableName( beanmap=arguments.beanmap );
-
-		var sql = "SELECT ";
-		sql &= getFields( type="select", beanmap=arguments.beanmap, pkOnly=arguments.pkOnly );
-		sql &= " FROM " & tablename;
-
-		if ( !structIsEmpty(arguments.params) ) {
-			var where = "";
-			for ( var field in arguments.params ) {
-				if ( structKeyExists(arguments.beanmap.properties,field) ) {
-					where &= ( len(where) ? " AND " : " WHERE " ) & tablename;
-
-					where &= ".[" & (
-						(
-							structKeyExists(arguments.beanmap.properties[ field ],"columnName")
-							&& len(arguments.beanmap.properties[ field ].columnName)
-						)
-						? arguments.beanmap.properties[ field ].columnName
-						: field
-					);
-
-					where &= "] = :" & field;
-				} else {
-					throw(message="The property '#field#' was not found in the '#arguments.bean#' bean definition");
-				}
-			}
-			sql &= where;
-		}
-
-		if ( len(arguments.orderby) || len(arguments.beanmap.orderby) ) {
-			sql &= " ORDER BY " & ( len(arguments.orderby) ? arguments.orderby : arguments.beanmap.orderby );
-		}
-
-		return sql;
-	}
-
-	public string function readByJoinTable( required struct beanmap, required struct relationship ) {
-		var tablename = getTableName( beanmap=arguments.beanmap );
-		var primarykey = getPrimaryKeyField( beanmap=arguments.beanmap );
-
-		var joinpath = ( len(arguments.relationship.joinSchema) ? "[" & arguments.relationship.joinSchema & "]." : "" );
-		joinpath &= "[" & arguments.relationship.joinTable & "]";
-
-		var sql = "SELECT ";
-		sql &= getFields( type="select", beanmap=arguments.beanmap );
-		sql &= " FROM " & tablename;
-
-		sql &= " JOIN " & joinpath;
-		sql &= " ON " & joinpath & ".[" & arguments.relationship.joinColumn & "] = " & tablename & "." & primarykey;
-
-		sql &= " WHERE " & joinpath & ".[" & arguments.relationship.fkColumn & "] = :" & arguments.relationship.fkColumn;
-
-		if ( len(arguments.beanmap.orderby) ) {
-			sql &= " ORDER BY " & arguments.beanmap.orderby;
-		}
-
-		return sql;
-	}
-
-	public string function update( required struct beanmap ) {
-		var tablename = getTableName( beanmap=arguments.beanmap );
-
-		var sql = "UPDATE " & tablename & " SET ";
-		sql &= getFields( type="update", beanmap=arguments.beanmap );
-		sql &= " WHERE " & tablename & "." & getPrimaryKeyField( beanmap=arguments.beanmap ) & " = :" & arguments.beanmap.primarykey;
-
 		return sql;
 	}
 
@@ -202,6 +174,69 @@
 		return fields;
 	}
 
+	private string function getFullOrderBy( required struct beanmap, string orderby="" ) {
+		arguments.orderby = ( len(arguments.orderby) ? arguments.orderby : arguments.beanmap.orderby );
+
+		var fullorderby = "";
+		var orderprops = listToArray(arguments.orderby);
+
+		for ( var orderprop in orderprops ) {
+			orderprop = trim(orderprop);
+
+			var propname = orderprop;
+			var direction = "ASC";
+			if ( listLen(orderprop," ") > 1 ) {
+				propname = ListFirst(orderprop," ");
+				direction = ListLast(orderprop," ");
+				direction =  arrayFindNoCase(["asc","desc"],direction) ? direction : "ASC";
+			}
+
+			var prop = structKeyExists(arguments.beanmap.properties,propname) ? arguments.beanmap.properties[propname] : {};
+
+			if ( structIsEmpty(prop) ) {
+				for ( var propname in arguments.beanmap.properties ) {
+					if ( arguments.beanmap.properties[propname].columnname == propname ) {
+						prop = arguments.beanmap.properties[propname];
+						break;
+					}
+				}
+			}
+
+			if ( !structIsEmpty(prop) ) {
+				fullorderby &= ( len(fullorderby) ? ", " : "" ) & ( len(prop.columnname) ? prop.columnname : prop.name ) & " " & direction;
+			}
+		}
+
+		return fullorderby;
+	}
+
+	private struct function getParams( required component bean, required struct beanmap, boolean includepk=true ) {
+		var params = {};
+
+		for ( var prop in arguments.beanmap.properties ) {
+			var isIncluded = isPropertyIncluded( prop=prop, beanmap=arguments.beanmap, includepk=includepk );
+
+			if ( isIncluded ) {
+				var valuestring = arguments.bean.getPropertyValue( propertyname=prop );
+				params[ prop ] = { value=valuestring, cfsqltype=arguments.beanmap.properties[ prop ].sqltype };
+				if (
+					arguments.beanmap.properties[ prop ].null
+					&& (
+						!len(valuestring)
+						|| findNoCase("integer",arguments.beanmap.properties[ prop ].sqltype)
+						&& isNumeric(valuestring) && !valuestring
+					)
+				) {
+					params[ prop ].value = "";
+					params[ prop ].null = true;
+				} else {
+					params[ prop ].null = false;
+				}
+			}
+		}
+		return params;
+	}
+
 	private string function getPrimaryKeyField( required struct beanmap ) {
 		var pkproperty = arguments.beanmap.properties[ arguments.beanmap.primarykey ];
 		return "[" & ( len(pkproperty.columnName) ? pkproperty.columnName : arguments.beanmap.primarykey ) & "]";
@@ -229,7 +264,72 @@
 		return ( len(arguments.beanmap.schema) ? "[" & arguments.beanmap.schema & "]." : "" ) & "[" & arguments.beanmap.table & "]";
 	}
 
-	public boolean function isPropertyIncluded(
+	private string function readByJoinString( required struct beanmap, required struct relationship ) {
+		var tablename = getTableName( beanmap=arguments.beanmap );
+		var primarykey = getPrimaryKeyField( beanmap=arguments.beanmap );
+
+		var joinpath = ( len(arguments.relationship.joinSchema) ? "[" & arguments.relationship.joinSchema & "]." : "" );
+		joinpath &= "[" & arguments.relationship.joinTable & "]";
+
+		var sql = "SELECT ";
+		sql &= getFields( type="select", beanmap=arguments.beanmap );
+		sql &= " FROM " & tablename;
+
+		sql &= " JOIN " & joinpath;
+		sql &= " ON " & joinpath & ".[" & arguments.relationship.joinColumn & "] = " & tablename & "." & primarykey;
+
+		sql &= " WHERE " & joinpath & ".[" & arguments.relationship.fkColumn & "] = :" & arguments.relationship.fkColumn;
+
+		if ( len(arguments.beanmap.orderby) ) {
+			sql &= " ORDER BY " & arguments.beanmap.orderby;
+		}
+
+		return sql;
+	}
+
+	private string function readString(
+		required struct beanmap,
+		required struct params={},
+		required string orderby="",
+		boolean pkOnly=false
+	) {
+		var tablename = getTableName( beanmap=arguments.beanmap );
+
+		var sql = "SELECT ";
+		sql &= getFields( type="select", beanmap=arguments.beanmap, pkOnly=arguments.pkOnly );
+		sql &= " FROM " & tablename;
+
+		if ( !structIsEmpty(arguments.params) ) {
+			var where = "";
+			for ( var field in arguments.params ) {
+				if ( structKeyExists(arguments.beanmap.properties,field) ) {
+					where &= ( len(where) ? " AND " : " WHERE " ) & tablename;
+
+					where &= ".[" & (
+						(
+							structKeyExists(arguments.beanmap.properties[ field ],"columnName")
+							&& len(arguments.beanmap.properties[ field ].columnName)
+						)
+						? arguments.beanmap.properties[ field ].columnName
+						: field
+					);
+
+					where &= "] = :" & field;
+				} else {
+					throw(message="The property '#field#' was not found in the '#arguments.bean#' bean definition");
+				}
+			}
+			sql &= where;
+		}
+
+		if ( len(arguments.orderby) || len(arguments.beanmap.orderby) ) {
+			sql &= " ORDER BY " & getFullOrderBy( beanmap=arguments.beanmap, orderby=arguments.orderby );
+		}
+
+		return sql;
+	}
+
+	private boolean function isPropertyIncluded(
 		required string prop,
 		required struct beanmap,
 		required boolean includepk,
@@ -250,6 +350,16 @@
 				)
 			);
 		}
+	}
+
+	private string function updateString( required struct beanmap ) {
+		var tablename = getTableName( beanmap=arguments.beanmap );
+
+		var sql = "UPDATE " & tablename & " SET ";
+		sql &= getFields( type="update", beanmap=arguments.beanmap );
+		sql &= " WHERE " & tablename & "." & getPrimaryKeyField( beanmap=arguments.beanmap ) & " = :" & arguments.beanmap.primarykey;
+
+		return sql;
 	}
 
 }

@@ -1,7 +1,6 @@
 component accessors=true {
 
 	property dataFactory;
-	property sqlService;
 	property storedprocTag;
 
 	public function init( dsn ) {
@@ -9,85 +8,52 @@ component accessors=true {
 		return this;
 	}
 
-	public numeric function create( required string beanname, required component bean ) {
-		var querycfc = new query( datasource=variables.dsn );
-		var beanmap = variables.dataFactory.getBeanMap( bean=arguments.beanname );
-		var sql = variables.sqlService.create( beanmap=beanmap );
+	public numeric function create( required string sql, required struct params ) {
+		var querycfc = new query( datasource=variables.dsn, sql=arguments.sql );
 
-		var params = variables.sqlService.getParams( bean=arguments.bean, beanmap=beanmap, includepk=0 );
-		for ( var field in params ) {
-			querycfc.addParam( name=field, value=params[ field ].value, null=params[ field ].null, cfsqltype=params[ field ].cfsqltype );
+		for ( var fieldkey in arguments.params ) {
+			var field = arguments.params[ fieldkey ];
+			querycfc.addParam( name=fieldkey, value=field.value, null=field.null, cfsqltype=field.cfsqltype );
 		}
 
-		querycfc.setSql(sql);
 		var qRecord = querycfc.execute().getResult();
 		return qRecord.newid;
 	}
 
-	public void function delete( required string bean, required numeric id ) {
-		var beanmap = variables.dataFactory.getBeanMap( bean=arguments.bean );
-		var sql = variables.sqlService.delete( beanmap=beanmap );
-		var querycfc = new query( datasource=variables.dsn, sql=sql );
-		querycfc.addParam( name=beanmap.primarykey, value=arguments.id, cfsqltype="cf_sql_integer" );
+	public void function delete( required string sql, required string primarykey, required numeric id ) {
+		var querycfc = new query( datasource=variables.dsn, sql=arguments.sql );
+		querycfc.addParam( name=arguments.primarykey, value=arguments.id, cfsqltype="cf_sql_integer" );
 		querycfc.execute();
 	}
 
-	public void function deleteByValueList( required string bean, required string key, required string list ) {
-		var beanmap = variables.dataFactory.getBeanMap( bean=arguments.bean );
-		var pkproperty = beanmap.properties[ arguments.key ];
-		var sql = variables.sqlService.deleteByValueList( beanmap=beanmap, pkproperty=pkproperty, key=arguments.key );
-
-		var querycfc = new query( sql=sql, datasource=variables.dsn );
-		querycfc.addParam( name=arguments.key, value=arguments.list, cfsqltype=pkproperty.sqltype, list=true );
+	public void function deleteByNotIn( required string sql, required string key, required string list, required string sqltype ) {
+		var querycfc = new query( datasource=variables.dsn, sql=arguments.sql );
+		querycfc.addParam( name=arguments.key, value=arguments.list, cfsqltype=arguments.sqltype, list=true );
 		querycfc.execute().getResult();
 	}
 
-	public query function read(
-		required string bean,
-		struct params={},
-		string orderby="",
-		boolean pkOnly=false
-	) {
-		var querycfc = new query( datasource=variables.dsn );
-		var beanmap = variables.dataFactory.getBeanMap( bean=arguments.bean );
+	public query function read( required string sql, required struct params, required struct beanmap ) {
+		var querycfc = new query( datasource=variables.dsn, sql=arguments.sql );
 
-		var sql = variables.sqlService.read(
-			beanmap=beanmap,
-			params=arguments.params,
-			orderby=arguments.orderby,
-			pkOnly=arguments.pkOnly
-		);
-
-		if ( !structIsEmpty(arguments.params) ) {
-			for ( var field in arguments.params ) {
-				if ( structKeyExists(beanmap.properties,field) ) {
-					querycfc.addParam( name=field, value=arguments.params[ field ], cfsqltype=beanmap.properties[ field ].sqltype );
+		if ( structCount(arguments.params) ) {
+			for ( var fieldkey in arguments.params ) {
+				if ( structKeyExists(arguments.beanmap.properties,fieldkey) ) {
+					querycfc.addParam( name=fieldkey, value=arguments.params[ fieldkey ], cfsqltype=arguments.beanmap.properties[ fieldkey ].sqltype );
 				}
 			}
 		}
 
-		querycfc.setSql(sql);
 		return querycfc.execute().getResult();
 	}
 
-	public query function readByJoinTable( required numeric beanid, required struct relationship ) {
-		var querycfc = new query( datasource=variables.dsn );
-		var beanmap = variables.dataFactory.getBeanMap( bean=arguments.relationship.bean );
-
-		if (
-			!len(arguments.relationship.fkColumn)
-			|| !len(arguments.relationship.fksqltype)
-			|| !len(arguments.relationship.joinColumn)
-			|| !len(arguments.relationship.joinTable)
-		) {
-			throw(beanmap.bean & " bean is missing required bean map variables for the " & arguments.relationship.name & " relationship join table: fkColumn, fksqltype, joinColumn, joinTable");
-		}
-
-		var sql = variables.sqlService.readByJoinTable( beanmap=beanmap, relationship=arguments.relationship );
-		querycfc.setSql(sql);
-
-		querycfc.addParam( name=arguments.relationship.fkColumn, value=arguments.beanid, cfsqltype=arguments.relationship.fksqltype );
-
+	public query function readByJoin(
+		required string sql,
+		required numeric beanid,
+		required string fkColumn,
+		required string fksqltype
+	) {
+		var querycfc = new query( datasource=variables.dsn, sql=arguments.sql );
+		querycfc.addParam( name=arguments.fkColumn, value=arguments.beanid, cfsqltype=arguments.fksqltype );
 		return querycfc.execute().getResult();
 	}
 
@@ -120,16 +86,12 @@ component accessors=true {
 		return result;
 	}
 
-	public void function update( required string beanname, required component bean ) {
-		var beanmap = variables.dataFactory.getBeanMap( arguments.beanname );
+	public void function update( required string sql, required struct params ) {
+		var querycfc = new query( datasource=variables.dsn, sql=arguments.sql );
 
-		var sql = variables.sqlService.update( beanmap=beanmap );
-
-		var querycfc = new query( datasource=variables.dsn, sql=sql );
-
-		var params = variables.sqlService.getParams( bean=arguments.bean, beanmap=beanmap );
-		for ( var field IN params ) {
-			querycfc.addParam( name=field, value=params[ field ].value, null=params[ field ].null, cfsqltype=params[ field ].cfsqltype );
+		for ( var fieldkey in arguments.params ) {
+			var field = arguments.params[ fieldkey ];
+			querycfc.addParam( name=fieldkey, value=field.value, null=field.null, cfsqltype=field.cfsqltype );
 		}
 
 		querycfc.execute();

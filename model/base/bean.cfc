@@ -9,6 +9,7 @@
 	property cacheService;
 	property dataFactory;
 	property dataGateway;
+	property sqlService;
 	property validationService;
 
 	public component function init( string id=0 ) {
@@ -20,7 +21,7 @@
 		var result = { "success"=true, "code"=001, "messages"=[] };
 		try {
 			var beanmap = getBeanMap();
-			variables.dataGateway.delete(getBeanName(), variables[ beanmap.primaryKey ]);
+			variables.sqlService.delete(getBeanName(), variables[ beanmap.primaryKey ]);
 		} catch (any e) {
 			arrayAppend(result.messages,"There was an issue deleting the " & getBeanName() & ".");
 			result.success = false;
@@ -31,7 +32,7 @@
 	}
 
 	public boolean function exists() {
-		return ( getId() && !getIsDeleted() );
+		return ( getId() && !getIsDeleted() ? true : false );
 	}
 
 	public struct function getBeanMap() {
@@ -113,9 +114,9 @@
 
 				if( result.success ){
 					if ( variables[ beanmap.primarykey ] ) {
-						variables.dataGateway.update(bean, this);
+						variables.sqlService.update(bean, this);
 					} else {
-						var newid = variables.dataGateway.create(bean, this);
+						var newid = variables.sqlService.create(bean, this);
 						setPrimaryKey(newid);
 					}
 
@@ -196,7 +197,7 @@
 
 	private array function getManyToManyValue( required string primarykey, required struct relationship ) {
 		if ( variables[ arguments.primarykey ] ) {
-			var qRecords = variables.dataGateway.readByJoinTable(
+			var qRecords = variables.sqlService.readByJoin(
 				beanid = variables[ arguments.primarykey ],
 				relationship = arguments.relationship
 			);
@@ -298,7 +299,7 @@
 		setBeanName(arguments.bean);
 
 		if ( arguments.id ) {
-			var qRecord = variables.dataGateway.read( bean=getBeanName(), params={ id = arguments.id } );
+			var qRecord = variables.sqlService.read( bean=getBeanName(), params={ id = arguments.id } );
 			if ( qRecord.recordCount ) {
 				populateBean(qRecord);
 			} else {
