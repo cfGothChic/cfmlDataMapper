@@ -61,7 +61,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					makePublic( testClass, "cacheDefaultParams" );
 
 					dataFactory.$( "getBeanStruct", {
-						1 = {
+						"1" = {
 							id = 1
 						}
 					});
@@ -370,19 +370,13 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 			describe("uses the service cache and", function(){
 
 				beforeEach(function( currentSpec ){
-					beanCache = {
-						user = {
-							beans = {
-								1 = userBean,
-								2 = userTypeBean,
-								3 = departmentBean
-							},
-							params = {},
-							sortorder = {
-								default = [1,2,3]
-							}
-						}
+					beanCache.user.params = {};
+					beanCache.user.beans = {
+						"1" = userBean,
+						"2" = userTypeBean,
+						"3" = departmentBean
 					};
+					beanCache.user.sortorder.default = [1,2,3];
 
 					makePublic( testClass, "beanCacheCheck" );
 					makePublic( testClass, "beanParamsAreInCache" );
