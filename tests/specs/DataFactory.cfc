@@ -8,21 +8,21 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 		userBean = createMock("model.beans.user");
 		userTypeBean = createMock("model.beans.userType");
 
-		beanFactory = createEmptyMock("framework.ioc");
-		beanFactory.$( "getBean" ).$args( "departmentBean" ).$results( departmentBean )
+		BeanFactory = createEmptyMock("framework.ioc");
+		BeanFactory.$( "getBean" ).$args( "departmentBean" ).$results( departmentBean )
 			.$( "getBean" ).$args( "userBean" ).$results( userBean )
 			.$( "getBean" ).$args( "userTypeBean" ).$results( userTypeBean );
-		testClass.$property( propertyName="beanFactory", mock=beanFactory );
+		testClass.$property( propertyName="BeanFactory", mock=BeanFactory );
 
-		cacheService = createEmptyMock("cfmlDataMapper.model.services.cache");
-		testClass.$property( propertyName="cacheService", mock=cacheService );
+		CacheService = createEmptyMock("cfmlDataMapper.model.services.cache");
+		testClass.$property( propertyName="CacheService", mock=CacheService );
 
-		dataGateway = createEmptyMock("cfmlDataMapper.model.gateways.data");
-		testClass.$property( propertyName="dataGateway", mock=dataGateway );
+		SQLService = createEmptyMock("cfmlDataMapper.model.gateways.data");
+		testClass.$property( propertyName="SQLService", mock=SQLService );
 
-		utilityService = createEmptyMock("cfmlDataMapper.model.services.utility");
-		utilityService.$( "upperFirst", "Test" );
-		testClass.$property( propertyName="utilityService", mock=utilityService );
+		UtilityService = createEmptyMock("cfmlDataMapper.model.services.utility");
+		UtilityService.$( "upperFirst", "Test" );
+		testClass.$property( propertyName="UtilityService", mock=UtilityService );
 	}
 
 	function run() {
@@ -37,7 +37,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 			describe("initializes and", function(){
 
 				beforeEach(function( currentSpec ){
-					testClass.init(frameworkone,utilityService);
+					testClass.init(frameworkone,UtilityService);
 				});
 
 
@@ -81,8 +81,8 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					beforeEach(function( currentSpec ){
 						makePublic( testClass, "getModuleBean" );
 
-						frameworkone.$( "getDefaultBeanFactory", beanFactory )
-							.$( "getSubsystemBeanFactory", beanFactory );
+						frameworkone.$( "getDefaultBeanFactory", BeanFactory )
+							.$( "getSubsystemBeanFactory", BeanFactory );
 
 						testClass.$property( propertyName="fw", mock=frameworkone );
 
@@ -119,7 +119,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				describe("takes", function(){
 
 					beforeEach(function( currentSpec ){
-						beanFactory.$( "injectProperties" );
+						BeanFactory.$( "injectProperties" );
 
 						userBean.$( "getId", 1 );
 						testClass.$( "getModuleBean", userBean );
@@ -139,7 +139,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 							var result = testClass.getBeans( bean="user", qRecords=qRecords );
 
 							expect( testClass.$once("getModuleBean") ).toBeTrue();
-							expect( beanFactory.$atLeast(1, "injectProperties") ).toBeTrue();
+							expect( BeanFactory.$atLeast(1, "injectProperties") ).toBeTrue();
 
 							expect( result ).toBeTypeOf( "array" );
 							expect( result ).toHaveLength( 1 );
@@ -152,7 +152,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 							var result = testClass.getBeanStruct( bean="user", qRecords=qRecords );
 
 							expect( testClass.$once("getModuleBean") ).toBeTrue();
-							expect( beanFactory.$atLeast(1, "injectProperties") ).toBeTrue();
+							expect( BeanFactory.$atLeast(1, "injectProperties") ).toBeTrue();
 
 							expect( result ).toBeTypeOf( "struct" );
 							expect( structCount(result) ).toBe( 1 );
@@ -174,7 +174,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 							var result = testClass.getBeansFromArray( bean="user", beansArray=beansArray );
 
 							expect( testClass.$once("getModuleBean") ).toBeTrue();
-							expect( beanFactory.$atLeast(1, "injectProperties") ).toBeTrue();
+							expect( BeanFactory.$atLeast(1, "injectProperties") ).toBeTrue();
 
 							expect( result ).toBeTypeOf( "array" );
 							expect( result ).toHaveLength( 1 );
@@ -192,19 +192,19 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					beforeEach(function( currentSpec ){
 						makePublic( testClass, "getByParams" );
 
-						cacheService.$( "get", { success = false });
+						CacheService.$( "get", { success = false });
 
 						testClass.$( "checkBeanExists", true );
 					});
 
 
 					it( "returns an empty bean when nothing matches the param criteria", function(){
-						dataGateway.$( "read", querySim("") );
+						SQLService.$( "read", querySim("") );
 
 						var result = testClass.getByParams( beanname="user", params={} );
 
 						expect( testClass.$once("checkBeanExists") ).toBeTrue();
-						expect( dataGateway.$once("read") ).toBeTrue();
+						expect( SQLService.$once("read") ).toBeTrue();
 
 						expect( result ).toBeTypeOf( "component" );
 						expect( result ).toBeInstanceOf( "model.beans.user" );
@@ -212,11 +212,11 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 
 					it( "returns a populated bean that meets the param criteria", function(){
-						dataGateway.$( "read", querySim("id
+						SQLService.$( "read", querySim("id
 							1") );
 
 						userTypeBean.$( "populateBean" );
-						cacheService.$( "get", {
+						CacheService.$( "get", {
 							success = true,
 							bean = userTypeBean
 						});
@@ -224,7 +224,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						var result = testClass.getByParams( beanname="userType", params={} );
 
 						expect( testClass.$once("checkBeanExists") ).toBeTrue();
-						expect( dataGateway.$once("read") ).toBeTrue();
+						expect( SQLService.$once("read") ).toBeTrue();
 						expect( userTypeBean.$once("populateBean") ).toBeTrue();
 
 						expect( result ).toBeTypeOf( "component" );
@@ -243,15 +243,15 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					});
 
 
-					it( "returns a bean from the cacheService", function(){
-						cacheService.$( "get", {
+					it( "returns a bean from the CacheService", function(){
+						CacheService.$( "get", {
 							success = true,
 							bean = userTypeBean
 						});
 
 						var result = testClass.get( bean="userType" );
 
-						expect( cacheService.$once("get") ).toBeTrue();
+						expect( CacheService.$once("get") ).toBeTrue();
 						expect( testClass.$once("getByParams") ).toBeFalse();
 						expect( testClass.$once("getModuleBean") ).toBeFalse();
 
@@ -261,11 +261,11 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 
 					it( "returns a bean filtered by params", function(){
-						cacheService.$( "get", { success = false });
+						CacheService.$( "get", { success = false });
 
 						var result = testClass.get( bean="userType", params={ foo="bar" } );
 
-						expect( cacheService.$once("get") ).toBeTrue();
+						expect( CacheService.$once("get") ).toBeTrue();
 						expect( testClass.$once("getByParams") ).toBeTrue();
 						expect( testClass.$once("getModuleBean") ).toBeFalse();
 
@@ -275,11 +275,11 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 
 					it( "returns a bean from the model", function(){
-						cacheService.$( "get", { success = false });
+						CacheService.$( "get", { success = false });
 
 						var result = testClass.get( bean="userType" );
 
-						expect( cacheService.$once("get") ).toBeTrue();
+						expect( CacheService.$once("get") ).toBeTrue();
 						expect( testClass.$once("getByParams") ).toBeFalse();
 						expect( testClass.$once("getModuleBean") ).toBeTrue();
 
@@ -294,7 +294,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				describe("calls list() and", function(){
 
 					beforeEach(function( currentSpec ){
-						dataGateway.$( "read", querySim("") );
+						SQLService.$( "read", querySim("") );
 
 						testClass.$( "getBeans", [userBean] );
 					});
@@ -306,15 +306,15 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					});
 
 
-					it( "returns an array of beans from the cacheService", function(){
-						cacheService.$( "list", {
+					it( "returns an array of beans from the CacheService", function(){
+						CacheService.$( "list", {
 							success = true,
 							beans = [userTypeBean]
 						});
 
 						var result = testClass.list( bean="userType" );
 
-						expect( cacheService.$once("list") ).toBeTrue();
+						expect( CacheService.$once("list") ).toBeTrue();
 						expect( testClass.$once("getBeans") ).toBeFalse();
 
 						expect( result ).toBeTypeOf( "array" );
@@ -324,11 +324,11 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 
 					it( "returns an array of beans from the model", function(){
-						cacheService.$( "list", { success = false });
+						CacheService.$( "list", { success = false });
 
 						var result = testClass.list( bean="userType" );
 
-						expect( cacheService.$once("list") ).toBeTrue();
+						expect( CacheService.$once("list") ).toBeTrue();
 						expect( testClass.$once("getBeans") ).toBeTrue();
 
 						expect( result ).toBeTypeOf( "array" );
@@ -363,7 +363,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 			describe("uses bean metadata and", function(){
 
 				beforeEach(function( currentSpec ){
-					testClass.init(frameworkone,utilityService);
+					testClass.init(frameworkone,UtilityService);
 
 					metadata = {
 						table = "users",
@@ -740,7 +740,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 			describe("interacts with the file system and", function(){
 
 				beforeEach(function( currentSpec ){
-					testClass.init(frameworkone,utilityService);
+					testClass.init(frameworkone,UtilityService);
 
 					makePublic( testClass, "cacheBeanMetadata" );
 					makePublic( testClass, "readBeanDirectory" );
@@ -775,7 +775,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				it( "should cache the model's bean metadata", function(){
 					testClass.$( "cacheBeanMetadata" );
 
-					var result = testClass.init(frameworkone,utilityService);
+					var result = testClass.init(frameworkone,UtilityService);
 
 					expect( testClass.$once("cacheBeanMetadata") ).toBeTrue();
 					expect( result ).toBeInstanceOf( "cfmlDataMapper.model.factory.data" );
