@@ -44,7 +44,7 @@
 		var columns = listToArray(arguments.qRecords.columnList);
 
 		if ( arguments.qRecords.recordCount ) {
-			if ( structKeyExists(server, "railo") || structKeyExists(server, "lucee") ) {
+			if ( structKeyExists(server, "lucee") ) {
 				var recordbeantemplate = getModuleBean(arguments.bean);
 
 				for ( var i=1; i lte arguments.qRecords.recordCount; i++ ) {
@@ -82,7 +82,7 @@
 		var beans = [];
 
 		if ( arrayLen(arguments.beansArray) ) {
-			if ( structKeyExists(server, "railo") || structKeyExists(server, "lucee") ) {
+			if ( structKeyExists(server, "lucee") ) {
 				var recordbeantemplate = getModuleBean(arguments.bean);
 
 				for ( var beandata in arguments.beansArray ) {
@@ -109,7 +109,7 @@
 		var beanmap = getBeanMap(arguments.bean);
 
 		if ( arguments.qRecords.recordCount ) {
-			if ( structKeyExists(server, "railo") || structKeyExists(server, "lucee") ) {
+			if ( structKeyExists(server, "lucee") ) {
 				var recordbeantemplate = getModuleBean(arguments.bean);
 
 				for ( var i=1; i lte arguments.qRecords.recordCount; i++ ) {

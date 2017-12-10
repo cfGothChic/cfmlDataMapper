@@ -22,10 +22,6 @@
     ],
     "engines":[
         {
-            "type":"railo",
-            "version":">=4.2.1"
-        },
-        {
             "type":"lucee",
             "version":">=4.5.x"
         },
