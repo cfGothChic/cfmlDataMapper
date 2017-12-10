@@ -6,8 +6,8 @@
 	param name="form.departmentId" default="0";
 	param name="form.userTypeId" default="0";
 
-	variables.user = application.dataFactory.get(bean="user", id=form.id);
-	application.dataFactory.populate( cfc = variables.user, trim = true );
+	variables.user = application.DataFactory.get(bean="user", id=form.id);
+	application.DataFactory.populate( cfc = variables.user, trim = true );
 
 	variables.result = variables.user.save();
 	variables.id = variables.user.getId();

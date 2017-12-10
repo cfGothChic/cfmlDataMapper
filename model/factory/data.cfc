@@ -1,16 +1,16 @@
 ﻿component accessors=true {
 
-	property beanFactory;
-	property cacheService;
-	property sqlService;
-	property utilityService;
+	property BeanFactory;
+	property CacheService;
+	property SQLService;
+	property UtilityService;
 
 	variables.moduleCache = [];
 	variables.beanmaps = {};
 
-	public any function init( fw, utilityService ) {
+	public any function init( fw, UtilityService ) {
 		variables.fw = arguments.fw;
-		variables.utilityService = arguments.utilityService;
+		variables.UtilityService = arguments.UtilityService;
 		lock timeout="10" scope="application" type="exclusive" {
 			cacheBeanMetadata();
 		}
@@ -22,7 +22,7 @@
 		string id=0,
 		struct params={}
 	) {
-		var result = variables.cacheService.get(bean=arguments.bean, id=trim(val(arguments.id)), params=arguments.params);
+		var result = variables.CacheService.get(bean=arguments.bean, id=trim(val(arguments.id)), params=arguments.params);
 
 		if ( result.success ) {
 			return result.bean;
@@ -55,7 +55,7 @@
 						properties[columnname] = arguments.qRecords[columnname][i];
 					}
 
-					variables.beanFactory.injectProperties(recordbean, properties);
+					variables.BeanFactory.injectProperties(recordbean, properties);
 
 					arrayAppend(beans,recordbean);
 				}
@@ -68,7 +68,7 @@
 						properties[columnname] = arguments.qRecords[columnname][i];
 					}
 
-					variables.beanFactory.injectProperties(recordbean, properties);
+					variables.BeanFactory.injectProperties(recordbean, properties);
 
 					arrayAppend(beans,recordbean);
 				}
@@ -87,14 +87,14 @@
 
 				for ( var beandata in arguments.beansArray ) {
 					var recordbean = structcopy(recordbeantemplate);
-					variables.beanFactory.injectProperties(recordbean, beandata);
+					variables.BeanFactory.injectProperties(recordbean, beandata);
 					arrayAppend(beans,recordbean);
 				}
 
 			} else {
 				for ( var beandata in arguments.beansArray ) {
 					var recordbean = getModuleBean(arguments.bean);
-					variables.beanFactory.injectProperties(recordbean, beandata);
+					variables.BeanFactory.injectProperties(recordbean, beandata);
 					arrayAppend(beans,recordbean);
 				}
 			}
@@ -120,7 +120,7 @@
 						properties[columnname] = arguments.qRecords[columnname][i];
 					}
 
-					variables.beanFactory.injectProperties(recordbean, properties);
+					variables.BeanFactory.injectProperties(recordbean, properties);
 
 					beans[ recordbean.getPropertyValue(beanmap.primarykey) ] = recordbean;
 				}
@@ -133,7 +133,7 @@
 						properties[columnname] = arguments.qRecords[columnname][i];
 					}
 
-					variables.beanFactory.injectProperties(recordbean, properties);
+					variables.BeanFactory.injectProperties(recordbean, properties);
 
 					beans[ recordbean.getId() ] = recordbean;
 				}
@@ -161,12 +161,12 @@
 		string orderby=""
 	) {
 		if ( structKeyExists(arguments,"singular") ) {
-			throw("The singular argument of dataFactory.list() is deprecated. Use get() with the params argument instead.");
+			throw("The singular argument of DataFactory.list() is deprecated. Use get() with the params argument instead.");
 		}
-		var result = variables.cacheService.list(argumentCollection=arguments);
+		var result = variables.CacheService.list(argumentCollection=arguments);
 
 		if ( !result.success ) {
-			var qRecords = variables.sqlService.read(arguments.bean, arguments.params, arguments.orderby);
+			var qRecords = variables.SQLService.read(arguments.bean, arguments.params, arguments.orderby);
 			result.beans = getBeans(arguments.bean, qRecords);
 		}
 		return result.beans;
@@ -266,7 +266,7 @@
 
 	private function getByParams( beanname, params ) {
 		checkBeanExists(arguments.beanname);
-		var qRecord = variables.sqlService.read(arguments.beanname, arguments.params);
+		var qRecord = variables.SQLService.read(arguments.beanname, arguments.params);
 		var bean = get(arguments.beanname);
 		if ( qRecord.recordCount ) {
 			bean.populateBean(qRecord);
@@ -328,7 +328,7 @@
 		if ( len(modulename) ) {
 			return variables.fw.getSubsystemBeanFactory(modulename).getBean( beanname & "Bean" );
 		} else {
-			//return variables.beanFactory.getBean( beanname & "Bean" );
+			//return variables.BeanFactory.getBean( beanname & "Bean" );
 			return variables.fw.getDefaultBeanFactory().getBean( beanname & "Bean" );
 		}
 	}
@@ -338,7 +338,7 @@
 		if ( structKeyExists(prop,"cfsqltype") ) {
 			metadata.name = prop.name;
 			metadata.defaultvalue = ( structKeyExists(prop,"default") ? prop.default : "" );
-			metadata.displayname = ( structKeyExists(prop,"displayname") ? prop.displayname : variables.utilityService.upperFirst(prop.name) );
+			metadata.displayname = ( structKeyExists(prop,"displayname") ? prop.displayname : variables.UtilityService.upperFirst(prop.name) );
 			metadata.columnName = ( structKeyExists(prop,"columnName") ? prop.columnName : "" );
 			metadata.insert = ( structKeyExists(prop,"insert") ? prop.insert : true );
 			metadata.isidentity = ( structKeyExists(prop,"isidentity") ? prop.isidentity : false );

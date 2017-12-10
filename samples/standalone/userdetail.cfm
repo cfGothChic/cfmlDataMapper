@@ -5,7 +5,7 @@
 	variables.pageTitle = "User Detail";
 	arrayAppend(request.jsScripts,"user/detail.js");
 
-	variables.user = application.dataFactory.get(bean="user", id=url.id);
+	variables.user = application.DataFactory.get(bean="user", id=url.id);
 </cfscript>
 
 <cfinclude template="common/header.cfm">

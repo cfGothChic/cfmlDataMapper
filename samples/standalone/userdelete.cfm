@@ -1,7 +1,7 @@
 <cfscript>
 	param name="url.id" type="integer" default=0;
 
-	variables.user = application.dataFactory.get(bean="user", id=url.id);
+	variables.user = application.DataFactory.get(bean="user", id=url.id);
 
 	variables.result = {
 		success = variables.user.exists()

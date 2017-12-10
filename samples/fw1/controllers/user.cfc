@@ -1,6 +1,6 @@
 component accessors="true" {
 
-	property dataFactory;
+	property DataFactory;
 
 	function init(fw) {
 		variables.framework = fw;
@@ -12,7 +12,7 @@ component accessors="true" {
 	}
 
 	function delete(rc) {
-		rc.user = variables.dataFactory.get(bean="user", id=rc.id);
+		rc.user = variables.DataFactory.get(bean="user", id=rc.id);
 
 		var result = {
 			success = rc.user.exists()
@@ -27,14 +27,14 @@ component accessors="true" {
 	}
 
 	function detail(rc) {
-		rc.user = variables.dataFactory.get(bean="user", id=rc.id);
+		rc.user = variables.DataFactory.get(bean="user", id=rc.id);
 		rc.pageTitle = "User Detail";
 	}
 
 	function edit(rc) {
-		rc.user = variables.dataFactory.get(bean="user", id=rc.id);
-		rc.departments = variables.dataFactory.list(bean="department");
-		rc.types = variables.dataFactory.list(bean="usertype");
+		rc.user = variables.DataFactory.get(bean="user", id=rc.id);
+		rc.departments = variables.DataFactory.list(bean="department");
+		rc.types = variables.DataFactory.list(bean="usertype");
 
 		// form variables from validation errors
 		param name="rc.firstName" default=rc.user.getFirstName();
@@ -48,8 +48,8 @@ component accessors="true" {
     }
 
 	function list(rc) {
-		rc.users = variables.dataFactory.list( bean="user" );
-		rc.admins = variables.dataFactory.list( bean="adminuser", params={ userTypeId=1 } );
+		rc.users = variables.DataFactory.list( bean="user" );
+		rc.admins = variables.DataFactory.list( bean="adminuser", params={ userTypeId=1 } );
 
 		rc.pageTitle = "User List";
 	}
@@ -62,7 +62,7 @@ component accessors="true" {
 		param name="rc.departmentId" default="0";
 		param name="rc.userTypeId" default="0";
 
-		var user = variables.dataFactory.get(bean="user", id=rc.id);
+		var user = variables.DataFactory.get(bean="user", id=rc.id);
 		variables.framework.populate( cfc = user, trim = true );
 
 		var result = user.save();

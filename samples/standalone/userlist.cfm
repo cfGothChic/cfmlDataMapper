@@ -3,8 +3,8 @@
 	variables.pageTitle = "User List";
 	arrayAppend(request.jsScripts,"user/list.js");
 
-	variables.users = application.dataFactory.list(bean="user");
-	variables.admins = application.dataFactory.list( bean="adminuser", params={ userTypeId=1 } );
+	variables.users = application.DataFactory.list(bean="user");
+	variables.admins = application.DataFactory.list( bean="adminuser", params={ userTypeId=1 } );
 </cfscript>
 
 <cfinclude template="common/header.cfm">

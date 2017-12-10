@@ -1,6 +1,6 @@
 ﻿component accessors="true" output="false" {
 
-	property sqlService;
+	property SQLService;
 
 	public component function init() {
 		return this;
@@ -144,7 +144,7 @@
 
 		var fields = "";
 		for ( var prop IN arguments.beanmap.properties ) {
-			var isIncluded = variables.sqlService.isPropertyIncluded( prop=prop, beanmap=arguments.beanmap, includepk=includepk, type=arguments.type, pkOnly=arguments.pkOnly);
+			var isIncluded = variables.SQLService.isPropertyIncluded( prop=prop, beanmap=arguments.beanmap, includepk=includepk, type=arguments.type, pkOnly=arguments.pkOnly);
 
 			if ( isIncluded ) {
 				var columnname = tablename & ".[" & ( len( arguments.beanmap.properties[ prop ].columnName ) ? arguments.beanmap.properties[ prop ].columnName : prop ) & "]";

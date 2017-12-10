@@ -1,32 +1,32 @@
 ﻿component accessors="true" output="false" {
 
-	property dataGateway;
-	property dataFactory;
-	property msSqlService;
+	property DataGateway;
+	property DataFactory;
+	property MSSQLService;
 
 	public component function init() {
 		return this;
 	}
 
 	public numeric function create( required string beanname, required component bean ) {
-		var beanmap = variables.dataFactory.getBeanMap( bean=arguments.beanname );
+		var beanmap = variables.DataFactory.getBeanMap( bean=arguments.beanname );
 		var sql = createSQL( beanmap=beanmap );
 		var params = getParams( bean=arguments.bean, beanmap=beanmap, includepk=0 );
-		var newid = variables.dataGateway.create( sql=sql, params=params );
+		var newid = variables.DataGateway.create( sql=sql, params=params );
 		return newid;
 	}
 
 	public void function delete( required string bean, required numeric id ) {
-		var beanmap = variables.dataFactory.getBeanMap( bean=arguments.bean );
+		var beanmap = variables.DataFactory.getBeanMap( bean=arguments.bean );
 		var sql = deleteSQL( beanmap=beanmap );
-		variables.dataGateway.delete( sql=sql, primarykey=beanmap.primarykey, id=arguments.id );
+		variables.DataGateway.delete( sql=sql, primarykey=beanmap.primarykey, id=arguments.id );
 	}
 
 	public void function deleteByNotIn( required string bean, required string key, required string list ) {
-		var beanmap = variables.dataFactory.getBeanMap( bean=arguments.bean );
+		var beanmap = variables.DataFactory.getBeanMap( bean=arguments.bean );
 		var pkproperty = beanmap.properties[ arguments.key ];
 		var sql = deleteByNotInSQL( beanmap=beanmap, pkproperty=pkproperty, key=arguments.key );
-		variables.dataGateway.deleteByNotIn( sql=sql, key=arguments.key, list=arguments.list, sqltype=pkproperty.sqltype );
+		variables.DataGateway.deleteByNotIn( sql=sql, key=arguments.key, list=arguments.list, sqltype=pkproperty.sqltype );
 	}
 
 	public boolean function isPropertyIncluded(
@@ -58,7 +58,7 @@
 		string orderby="",
 		boolean pkOnly=false
 	) {
-		var beanmap = variables.dataFactory.getBeanMap( bean=arguments.bean );
+		var beanmap = variables.DataFactory.getBeanMap( bean=arguments.bean );
 
 		var sql = readSQL(
 			beanmap=beanmap,
@@ -67,12 +67,12 @@
 			pkOnly=arguments.pkOnly
 		);
 
-		var qRecords = variables.dataGateway.read( sql=sql, params=params, beanmap=beanmap );
+		var qRecords = variables.DataGateway.read( sql=sql, params=params, beanmap=beanmap );
 		return qRecords;
 	}
 
 	public query function readByJoin( required numeric beanid, required struct relationship ) {
-		var beanmap = variables.dataFactory.getBeanMap( bean=arguments.relationship.bean );
+		var beanmap = variables.DataFactory.getBeanMap( bean=arguments.relationship.bean );
 
 		if (
 			!len(arguments.relationship.fkColumn)
@@ -85,7 +85,7 @@
 
 		var sql = readByJoinSQL( beanmap=beanmap, relationship=arguments.relationship );
 
-		var qRecords = variables.dataGateway.readByJoin(
+		var qRecords = variables.DataGateway.readByJoin(
 			sql=sql,
 			beanid=arguments.beanid,
 			fkColumn=arguments.relationship.fkColumn,
@@ -96,10 +96,10 @@
 	}
 
 	public void function update( required string beanname, required component bean ) {
-		var beanmap = variables.dataFactory.getBeanMap( arguments.beanname );
+		var beanmap = variables.DataFactory.getBeanMap( arguments.beanname );
 		var sql = updateSQL( beanmap=beanmap );
 		var params = getParams( bean=arguments.bean, beanmap=beanmap );
-		variables.dataGateway.update( sql=sql, params=params );
+		variables.DataGateway.update( sql=sql, params=params );
 	}
 
 	private struct function getParams( required component bean, required struct beanmap, boolean includepk=true ) {
@@ -132,27 +132,27 @@
 	/* passthrough functions to server specific sql script builders */
 
 	public string function createSQL() {
-		return variables.msSqlService.createSQL( argumentCollection=arguments );
+		return variables.MSSQLService.createSQL( argumentCollection=arguments );
 	}
 
 	public string function deleteSQL() {
-		return variables.msSqlService.deleteSQL( argumentCollection=arguments );
+		return variables.MSSQLService.deleteSQL( argumentCollection=arguments );
 	}
 
 	public string function deleteByNotInSQL() {
-		return variables.msSqlService.deleteByNotInSQL( argumentCollection=arguments );
+		return variables.MSSQLService.deleteByNotInSQL( argumentCollection=arguments );
 	}
 
 	public string function readByJoinSQL() {
-		return variables.msSqlService.readByJoinSQL( argumentCollection=arguments );
+		return variables.MSSQLService.readByJoinSQL( argumentCollection=arguments );
 	}
 
 	public string function readSQL() {
-		return variables.msSqlService.readSQL( argumentCollection=arguments );
+		return variables.MSSQLService.readSQL( argumentCollection=arguments );
 	}
 
 	public string function updateSQL() {
-		return variables.msSqlService.updateSQL( argumentCollection=arguments );
+		return variables.MSSQLService.updateSQL( argumentCollection=arguments );
 	}
 
 }

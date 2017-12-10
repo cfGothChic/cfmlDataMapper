@@ -23,7 +23,7 @@ this.mappings[ "/cfmlDataMapper" ] = expandPath("../cfmlDataMapper/");
 The Data Mapper can be setup as a standalone factory object and saved to the application scope.
 
 ```coldfusion
-application.dataFactory = new cfmlDataMapper.factory({
+application.DataFactory = new cfmlDataMapper.factory({
   dsn = "usermanager",
   locations = "/model" // comma separated list of your application's model locations that contain a bean folder
 });

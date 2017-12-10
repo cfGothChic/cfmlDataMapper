@@ -5,12 +5,12 @@
 	property beanName;
 
 	// dependencies
-	property beanFactory;
-	property cacheService;
-	property dataFactory;
-	property dataGateway;
-	property sqlService;
-	property validationService;
+	property BeanFactory;
+	property CacheService;
+	property DataFactory;
+	property DataGateway;
+	property SQLService;
+	property ValidationService;
 
 	public component function init( string id=0 ) {
 		populate(arguments.id);
@@ -21,7 +21,7 @@
 		var result = { "success"=true, "code"=001, "messages"=[] };
 		try {
 			var beanmap = getBeanMap();
-			variables.sqlService.delete(getBeanName(), variables[ beanmap.primaryKey ]);
+			variables.SQLService.delete(getBeanName(), variables[ beanmap.primaryKey ]);
 		} catch (any e) {
 			arrayAppend(result.messages,"There was an issue deleting the " & getBeanName() & ".");
 			result.success = false;
@@ -38,7 +38,7 @@
 	public struct function getBeanMap() {
 		if ( isNull(variables.beanMap) ) {
 			var bean = getBeanName();
-			variables.beanMap = variables.dataFactory.getBeanMap(bean);
+			variables.beanMap = variables.DataFactory.getBeanMap(bean);
 		}
 		return variables.beanMap;
 	}
@@ -92,7 +92,7 @@
 			properties[columnname] = qRecord[columnname][1];
 		}
 
-		variables.beanFactory.injectProperties(this, properties);
+		variables.BeanFactory.injectProperties(this, properties);
 	}
 
 	public struct function save( validate=true ) {
@@ -114,9 +114,9 @@
 
 				if( result.success ){
 					if ( variables[ beanmap.primarykey ] ) {
-						variables.sqlService.update(bean, this);
+						variables.SQLService.update(bean, this);
 					} else {
-						var newid = variables.sqlService.create(bean, this);
+						var newid = variables.SQLService.create(bean, this);
 						setPrimaryKey(newid);
 					}
 
@@ -143,12 +143,12 @@
 	 */
 	public array function validate() {
 		var beanMap = getBeanMap();
-		return variables.validationService.validateBean( beanmap=beanmap, bean=this );
+		return variables.ValidationService.validateBean( beanmap=beanmap, bean=this );
 	}
 
 	private void function clearCache() {
 		var bean = getBeanName();
-		variables.cacheService.clearBean(bean);
+		variables.CacheService.clearBean(bean);
 	}
 
 	private string function getBeanMetaDataName() {
@@ -197,11 +197,11 @@
 
 	private array function getManyToManyValue( required string primarykey, required struct relationship ) {
 		if ( variables[ arguments.primarykey ] ) {
-			var qRecords = variables.sqlService.readByJoin(
+			var qRecords = variables.SQLService.readByJoin(
 				beanid = variables[ arguments.primarykey ],
 				relationship = arguments.relationship
 			);
-			return variables.dataFactory.getBeans(arguments.relationship.bean, qRecords);
+			return variables.DataFactory.getBeans(arguments.relationship.bean, qRecords);
 		} else {
 			return [];
 		}
@@ -209,7 +209,7 @@
 
 	private array function getOneToManyValue( required string primarykey, required struct relationship ) {
 		if ( variables[ arguments.primarykey ] ) {
-			return variables.dataFactory.list(
+			return variables.DataFactory.list(
 				bean = arguments.relationship.bean,
 				params = { "#relationship.fkName#" = variables[ arguments.primarykey ] }
 			);
@@ -256,18 +256,18 @@
 	}
 
 	private component function getSingularBean( required string primarykey, required struct relationship ) {
-		return variables.dataFactory.get(
+		return variables.DataFactory.get(
 			bean = arguments.relationship.bean,
 			id = getForeignKeyId(arguments.relationship.fkName)
 		);
 	}
 
 	private component function getSingularSprocBean( required string bean, required query qRecords ) {
-		var beans = variables.dataFactory.getBeans( bean=arguments.bean, qRecords=arguments.qRecords );
+		var beans = variables.DataFactory.getBeans( bean=arguments.bean, qRecords=arguments.qRecords );
 		if ( arrayLen(beans) ) {
 			return beans[1];
 		} else {
-			return variables.dataFactory.get( bean=arguments.bean );
+			return variables.DataFactory.get( bean=arguments.bean );
 		}
 	}
 
@@ -288,7 +288,7 @@
 		if ( isSingular ) {
 			return getSingularSprocBean( bean=arguments.bean, qRecords=arguments.qRecords );
 		} else {
-			return variables.dataFactory.getBeans( bean=arguments.bean, qRecords=arguments.qRecords );
+			return variables.DataFactory.getBeans( bean=arguments.bean, qRecords=arguments.qRecords );
 		}
 	}
 
@@ -299,7 +299,7 @@
 		setBeanName(arguments.bean);
 
 		if ( arguments.id ) {
-			var qRecord = variables.sqlService.read( bean=getBeanName(), params={ id = arguments.id } );
+			var qRecord = variables.SQLService.read( bean=getBeanName(), params={ id = arguments.id } );
 			if ( qRecord.recordCount ) {
 				populateBean(qRecord);
 			} else {
@@ -337,7 +337,7 @@
 				arguments.resultkeys = getRelationshipKeys(arguments.context);
 			}
 
-			var sprocData = variables.dataGateway.readSproc(arguments.sproc, arguments.params, arguments.resultkeys);
+			var sprocData = variables.DataGateway.readSproc(arguments.sproc, arguments.params, arguments.resultkeys);
 			populateSprocData(sprocData, arguments.resultkeys);
 
 			arguments.id = getPrimaryKeyFromSprocData( sprocData=sprocData );
@@ -370,7 +370,7 @@
 			}
 
 			if ( !isSimpleValue(value) ) {
-				variables.beanFactory.injectProperties(this, { "#arguments.relationshipName#" = value });
+				variables.BeanFactory.injectProperties(this, { "#arguments.relationshipName#" = value });
 			}
 		}
 	}
@@ -396,7 +396,7 @@
 		}
 
 		if ( structCount(properties) ) {
-			variables.beanFactory.injectProperties(this, properties);
+			variables.BeanFactory.injectProperties(this, properties);
 		}
 	}
 
@@ -405,7 +405,7 @@
 	}
 
 	private void function setPrimaryKey( required string primarykey ) {
-		if ( isNull(variables.dataFactory) ) {
+		if ( isNull(variables.DataFactory) ) {
 			// todo: make this dynamic so that the primary key does not have to be id for the pk to default to 0
 			variables.id = arguments.primarykey;
 		} else {

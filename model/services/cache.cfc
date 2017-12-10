@@ -1,9 +1,9 @@
 component accessors="true" {
 
-	property beanFactory;
-	property dataFactory;
-	property sqlService;
-	property utilityService;
+	property BeanFactory;
+	property DataFactory;
+	property SQLService;
+	property UtilityService;
 
 	variables.beanCache = {};
 
@@ -23,7 +23,7 @@ component accessors="true" {
 		var result = { success = false };
 
 		if ( arguments.id || structCount(arguments.params) ) {
-			var beanmap = variables.dataFactory.getBeanMap(arguments.bean);
+			var beanmap = variables.DataFactory.getBeanMap(arguments.bean);
 
 			if ( beanmap.cached ) {
 				var paramjson = getParamJson(beanmap,arguments.params);
@@ -57,7 +57,7 @@ component accessors="true" {
 		string orderby=""
 	) {
 		var result = { success = false, beans = [] };
-		var beanmap = variables.dataFactory.getBeanMap(arguments.bean);
+		var beanmap = variables.DataFactory.getBeanMap(arguments.bean);
 
 		if ( beanmap.cached ) {
 			var paramjson = getParamJson(beanmap,arguments.params);
@@ -123,8 +123,8 @@ component accessors="true" {
 
 	private void function cacheDefaultParams( required string bean, required struct beanmap ) {
 		lock timeout="60" scope="application" type="exclusive" {
-			var qRecords = variables.sqlService.read(bean=arguments.bean, params=beanmap.cacheparams[1]);
-			var beanStruct = variables.dataFactory.getBeanStruct(arguments.bean, qRecords);
+			var qRecords = variables.SQLService.read(bean=arguments.bean, params=beanmap.cacheparams[1]);
+			var beanStruct = variables.DataFactory.getBeanStruct(arguments.bean, qRecords);
 
 			// todo: figure out a better way to do this
 			var idlist = evaluate("valueList(qRecords.#beanmap.primarykey#)");
@@ -147,7 +147,7 @@ component accessors="true" {
 	}
 
 	private void function cacheSortOrder( required struct beanmap, required string bean, required string orderby ) {
-		var qRecords = variables.sqlService.read(
+		var qRecords = variables.SQLService.read(
 			bean = arguments.bean,
 			params = arguments.beanmap.cacheparams[1],
 			orderby = arguments.orderby,
@@ -203,8 +203,8 @@ component accessors="true" {
 		} else {
 			var thisbean = beanData.beans[primarykey];
 			var cachedStruct = thisbean.getSessionData();
-			var cachedbean = variables.dataFactory.get(bean=arguments.bean);
-			variables.beanFactory.injectProperties(cachedbean, cachedStruct);
+			var cachedbean = variables.DataFactory.get(bean=arguments.bean);
+			variables.BeanFactory.injectProperties(cachedbean, cachedStruct);
 		}
 		return cachedbean;
 	}
@@ -240,7 +240,7 @@ component accessors="true" {
 		) {
 			for ( var cacheparam in arguments.beanmap.cacheparams ) {
 				// check for exact match
-				var success = variables.utilityService.structCompare(cacheparam,arguments.params);
+				var success = variables.UtilityService.structCompare(cacheparam,arguments.params);
 				if ( success ) {
 					json = serializeJSON(cacheparam);
 					break;

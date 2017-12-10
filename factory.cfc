@@ -10,7 +10,7 @@ component accessors="true" output="false" {
 
   public cfmlDataMapper.model.factory.data function getFactory() {
     _get_framework_one().onRequestStart("");
-    return _get_framework_one().getDefaultBeanFactory().getBean("dataFactory");
+    return _get_framework_one().getDefaultBeanFactory().getBean("DataFactory");
   }
 
   private component function _get_framework_one() {

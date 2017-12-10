@@ -1,6 +1,5 @@
 component accessors=true {
 
-	property dataFactory;
 	property storedprocTag;
 
 	public function init( dsn ) {
