@@ -1,6 +1,9 @@
 <cfscript>
 	param name="url.id" type="integer" default=0;
 
+	variables.activeItem = "useredit";
+	variables.pageTitle = ( url.id ? "Edit" : "Add" ) & " User";
+
 	variables.user = application.dataFactory.get(bean="user", id=url.id);
 	variables.departments = application.dataFactory.list(bean="department");
 	variables.types = application.dataFactory.list(bean="usertype");
@@ -17,8 +20,6 @@
 	param name="form.email" default=variables.user.getEmail();
 	param name="form.departmentId" default=variables.user.getDepartmentId();
 	param name="form.userTypeId" default=variables.user.getUserTypeId();
-
-	variables.pageTitle = ( url.id ? "Edit" : "Add" ) & " User";
 </cfscript>
 
 <cfinclude template="common/header.cfm">

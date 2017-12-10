@@ -1,9 +1,11 @@
 <cfscript>
 	param name="url.id" type="integer" default=0;
 
-	variables.user = application.dataFactory.get(bean="user", id=url.id);
-
+	variables.activeItem = "userdetail";
 	variables.pageTitle = "User Detail";
+	arrayAppend(request.jsScripts,"user/detail.js");
+
+	variables.user = application.dataFactory.get(bean="user", id=url.id);
 </cfscript>
 
 <cfinclude template="common/header.cfm">

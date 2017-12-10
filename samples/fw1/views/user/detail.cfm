@@ -1,11 +1,15 @@
+<cfscript>
+	arrayAppend(rc.jsScripts,"user/detail.js");
+</cfscript>
+
 <cfoutput>
 	<h1>User Detail</h1>
 
 	<p>
-		<a href="#buildUrl('user.edit?id='&rc.user.getID())#" title="Edit">
+		<a href="#buildUrl('user.edit?id=' & rc.user.getID())#" title="Edit">
 			<i class="fa fa-edit"></i>
 		</a>
-		<a href="#buildUrl('user.delete?id='&rc.user.getID())#" class="delete" title="Delete">
+		<a href="#buildUrl('user.delete?id=' & rc.user.getID())#" class="delete" title="Delete">
 			<i class="fa fa-times fa-lg"></i>
 		</a>
 	</p>

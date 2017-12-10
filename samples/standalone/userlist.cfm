@@ -1,5 +1,7 @@
 <cfscript>
+	variables.activeItem = "userlist";
 	variables.pageTitle = "User List";
+	arrayAppend(request.jsScripts,"user/list.js");
 
 	variables.users = application.dataFactory.list(bean="user");
 </cfscript>
@@ -50,11 +52,5 @@
 		</table>
 	</cfif>
 </cfoutput>
-
-<script type="text/javascript">
-    $('.delete').on('click', function () {
-        return confirm('Are you sure you want to delete this user?');
-    });
-</script>
 
 <cfinclude template="common/footer.cfm">

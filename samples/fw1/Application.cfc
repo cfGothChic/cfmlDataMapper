@@ -2,6 +2,8 @@ component extends="framework.one" output="false" {
 
 	this.name = "fw1-usermanager";
 	this.applicationTimeout = createTimeSpan(3, 0, 0, 0);
+	this.sessionManagement = true;
+	this.sessionTimeout = CreateTimeSpan(0, 0, 30, 0);
 
 	this.datasources["usermanager"] = {
 		class: "net.sourceforge.jtds.jdbc.Driver",
@@ -20,5 +22,9 @@ component extends="framework.one" output="false" {
 		diLocations = "/model, /cfmlDataMapper/model",
 		reloadApplicationOnEveryRequest = false
 	};
+
+	function before( struct rc ) {
+		rc.jsScripts = [];
+	}
 
 }
