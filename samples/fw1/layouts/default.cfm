@@ -60,6 +60,12 @@
 
 		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
 		<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+		<cfif rc.jsScripts.len()>
+			<cfloop array="#rc.jsScripts#" index="local.script">
+				<script src="assets/js/#local.script#"></script>
+			</cfloop>
+		</cfif>
+
 	</body>
 	</html>
 </cfoutput>

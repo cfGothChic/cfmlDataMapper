@@ -28,6 +28,8 @@ component {
 			onApplicationStart();
 		}
 
+		request.jsScripts = [];
+
 		return true;
 	}
 

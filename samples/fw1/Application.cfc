@@ -21,4 +21,8 @@ component extends="framework.one" output="false" {
 		reloadApplicationOnEveryRequest = false
 	};
 
+	function before( struct rc ) {
+		rc.jsScripts = [];
+	}
+
 }
