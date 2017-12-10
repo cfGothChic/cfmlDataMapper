@@ -64,7 +64,7 @@
 	public struct function getSessionData( struct data={} ) {
 		var beanmap = getBeanMap();
 
-		for ( var prop IN beanmap.properties ) {
+		for ( var prop in beanmap.properties ) {
 			arguments.data[ prop ] = getPropertyValue(propertyname=prop);
 		}
 
