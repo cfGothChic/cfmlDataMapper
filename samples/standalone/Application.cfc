@@ -2,6 +2,8 @@ component {
 
 	this.name = "standalone-usermanager";
 	this.applicationTimeout = createTimeSpan(3, 0, 0, 0);
+	this.sessionManagement = true;
+	this.sessionTimeout = CreateTimeSpan(0, 0, 30, 0);
 
 	this.datasources["usermanager"] = {
 		class: "net.sourceforge.jtds.jdbc.Driver",

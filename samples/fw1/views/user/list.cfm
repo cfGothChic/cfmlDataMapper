@@ -1,5 +1,5 @@
 <cfscript>
-	rc.jsScripts.append("user/list.js");
+	arrayAppend(rc.jsScripts,"user/list.js");
 </cfscript>
 
 <cfoutput>
