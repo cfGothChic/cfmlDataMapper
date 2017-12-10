@@ -23,8 +23,8 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 		describe("The Cache Service", function(){
 
 			beforeEach(function( currentSpec ){
-				dataFactory = createEmptyMock("cfmlDataMapper.model.factory.data");
-				testClass.$property( propertyName="dataFactory", mock=dataFactory );
+				DataFactory = createEmptyMock("cfmlDataMapper.model.factory.data");
+				testClass.$property( propertyName="DataFactory", mock=DataFactory );
 
 				beanmap = {
 					bean = "user",
@@ -50,10 +50,10 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 			describe("populates the service cache and", function(){
 
 				beforeEach(function( currentSpec ){
-					dataGateway = createEmptyMock("cfmlDataMapper.model.gateways.data");
-					dataGateway.$( "read", querySim("id
+					SQLService = createEmptyMock("cfmlDataMapper.model.services.sql");
+					SQLService.$( "read", querySim("id
 						1") );
-					testClass.$property( propertyName="dataGateway", mock=dataGateway );
+					testClass.$property( propertyName="SQLService", mock=SQLService );
 				});
 
 
@@ -61,7 +61,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				it( "caches a bean list by default params and sort order", function(){
 					makePublic( testClass, "cacheDefaultParams" );
 
-					dataFactory.$( "getBeanStruct", {
+					DataFactory.$( "getBeanStruct", {
 						"1" = {
 							id = 1
 						}
@@ -69,8 +69,8 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 					testClass.cacheDefaultParams( bean="user", beanmap=beanmap );
 
-					expect( dataGateway.$once("read") ).toBeTrue();
-					expect( dataFactory.$once("getBeanStruct") ).toBeTrue();
+					expect( SQLService.$once("read") ).toBeTrue();
+					expect( DataFactory.$once("getBeanStruct") ).toBeTrue();
 				});
 
 
@@ -81,8 +81,8 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						makePublic( testClass, "getParamJson" );
 						makePublic( testClass, "paramsAreNotCached" );
 
-						utilityService = createEmptyMock("cfmlDataMapper.model.services.utility");
-						testClass.$property( propertyName="utilityService", mock=utilityService );
+						UtilityService = createEmptyMock("cfmlDataMapper.model.services.utility");
+						testClass.$property( propertyName="UtilityService", mock=UtilityService );
 					});
 
 
@@ -104,38 +104,38 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					it( "returns an empty json string if the passed in params do not match the bean's cacheparams", function(){
 						beanmap.cacheparams = [{},{ isDeleted=0 }];
 
-						utilityService.$( "structCompare", false );
+						UtilityService.$( "structCompare", false );
 
 						var result = testClass.getParamJson( beanmap=beanmap, params={ name="Moe" } );
 
 						expect( result ).toBeEmpty();
-						expect( utilityService.$atleast(2, "structCompare") ).toBeTrue();
+						expect( UtilityService.$atleast(2, "structCompare") ).toBeTrue();
 					});
 
 
 					it( "returns a json string if the passed in params match the bean's cacheparams", function(){
 						beanmap.cacheparams = [{},{ isDeleted=0 }];
 
-						utilityService.$( "structCompare" ).$args( LeftStruct={ isDeleted=0 }, RightStruct=params ).$results( true );
-						utilityService.$( "structCompare" ).$args( LeftStruct={}, RightStruct=params ).$results( false );
+						UtilityService.$( "structCompare" ).$args( LeftStruct={ isDeleted=0 }, RightStruct=params ).$results( true );
+						UtilityService.$( "structCompare" ).$args( LeftStruct={}, RightStruct=params ).$results( false );
 
 						var result = testClass.getParamJson( beanmap=beanmap, params=params );
 
 						expect( result ).notToBeEmpty();
 						expect( isJSON(result) ).toBeTrue();
-						expect( utilityService.$atleast(2, "structCompare") ).toBeTrue();
+						expect( UtilityService.$atleast(2, "structCompare") ).toBeTrue();
 					});
 
 
 					it( "returns an empty json string if the passed in params do not match the bean's cacheparam wildcard", function(){
 						beanmap.cacheparams = [{},{ userTypeID="*" }];
 
-						utilityService.$( "structCompare", false );
+						UtilityService.$( "structCompare", false );
 
 						var result = testClass.getParamJson( beanmap=beanmap, params={ name="Moe" } );
 
 						expect( result ).toBeEmpty();
-						expect( utilityService.$atleast(2, "structCompare") ).toBeTrue();
+						expect( UtilityService.$atleast(2, "structCompare") ).toBeTrue();
 					});
 
 
@@ -143,13 +143,13 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						beanmap.cacheparams = [{},{ userTypeID="*" }];
 						beanmap.cacheparamwild = ["userTypeID"];
 
-						utilityService.$( "structCompare", false );
+						UtilityService.$( "structCompare", false );
 
 						var result = testClass.getParamJson( beanmap=beanmap, params={ userTypeID=1 } );
 
 						expect( result ).notToBeEmpty();
 						expect( result ).toBeJSON();
-						expect( utilityService.$atleast(2, "structCompare") ).toBeTrue();
+						expect( UtilityService.$atleast(2, "structCompare") ).toBeTrue();
 					});
 
 
@@ -196,37 +196,17 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 					beforeEach(function( currentSpec ){
 						makePublic( testClass, "cacheSortOrder" );
-						makePublic( testClass, "getFullOrderBy" );
 						makePublic( testClass, "sortOrderIsNotCached" );
-					});
-
-
-					// getFullOrderBy()
-					it( "returns a full order by string for the bean", function(){
-						var result = testClass.getFullOrderBy( beanmap=beanmap, orderby="email desc" );
-
-						expect( result ).toBe( "email desc" );
-					});
-
-
-					it( "returns a full order by string for the bean with different columnname than property name", function(){
-						beanmap.properties.email.columnname = "emailaddress";
-
-						var result = testClass.getFullOrderBy( beanmap=beanmap, orderby="email desc" );
-
-						expect( result ).toBe( "emailaddress desc" );
 					});
 
 
 					// cacheSortOrder()
 					it( "caches bean ids by sort order", function(){
-						testClass.$( "getFullOrderBy", "id asc" );
-
 						testClass.cacheSortOrder( beanmap=beanmap, bean="user", orderby="id" );
 
-						expect( testClass.$once("getFullOrderBy") ).toBeTrue();
-						expect( dataGateway.$once("read") ).toBeTrue();
+						expect( SQLService.$once("read") ).toBeTrue();
 					});
+
 
 					// sortOrderIsNotCached()
 					it( "returns false if the sort order is cached", function(){
@@ -392,7 +372,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						testClass.$( "getCachedBean", userBean );
 					}
 
-					dataFactory.$( "getBeanMap", beanmap );
+					DataFactory.$( "getBeanMap", beanmap );
 				});
 
 
@@ -428,11 +408,11 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				describe("caches the user bean and", function(){
 
 					beforeEach(function( currentSpec ){
-						beanFactory = createEmptyMock("framework.ioc");
-						beanFactory.$( "injectProperties" );
-						testClass.$property( propertyName="beanFactory", mock=beanFactory );
+						BeanFactory = createEmptyMock("framework.ioc");
+						BeanFactory.$( "injectProperties" );
+						testClass.$property( propertyName="BeanFactory", mock=BeanFactory );
 
-						dataFactory.$( "get", userBean );
+						DataFactory.$( "get", userBean );
 
 						testClass.$property( propertyName="beanCache", mock=beanCache );
 					});
@@ -463,7 +443,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					// getCachedBean()
 					it( "returns a bean from the service cache", function(){
 						if ( !structKeyExists(server, "lucee") ) {
-							dataFactory.$( "get", userBean );
+							DataFactory.$( "get", userBean );
 						}
 
 						var result = testClass.getCachedBean( bean="user", beanData=beanCache.user, primaryKey=1 );
@@ -589,18 +569,18 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 						expect( result.success ).toBeFalse();
 						expect( structKeyExists(result, "bean") ).toBeFalse();
-						expect( dataFactory.$never("getBeanMap") ).toBeTrue();
+						expect( DataFactory.$never("getBeanMap") ).toBeTrue();
 					});
 
 
 					it( "does not return a bean if the bean is not defined as cached", function(){
-						dataFactory.$( "getBeanMap", { cached=false } );
+						DataFactory.$( "getBeanMap", { cached=false } );
 
 						var result = testClass.get( bean="user", id=1 );
 
 						expect( result.success ).toBeFalse();
 						expect( structKeyExists(result, "bean") ).toBeFalse();
-						expect( dataFactory.$once("getBeanMap") ).toBeTrue();
+						expect( DataFactory.$once("getBeanMap") ).toBeTrue();
 						expect( testClass.$never("getParamJson") ).toBeTrue();
 					});
 
@@ -608,7 +588,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					it( "returns a bean from the cache", function(){
 						var result = testClass.get( bean="user", id=1 );
 
-						expect( dataFactory.$once("getBeanMap") ).toBeTrue();
+						expect( DataFactory.$once("getBeanMap") ).toBeTrue();
 						expect( testClass.$once("getParamJson") ).toBeTrue();
 						expect( testClass.$once("beanCacheCheck") ).toBeTrue();
 						expect( testClass.$once("cacheBeans") ).toBeTrue();
@@ -632,7 +612,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 						var result = testClass.get( bean="user", id=0, params=params );
 
-						expect( dataFactory.$once("getBeanMap") ).toBeTrue();
+						expect( DataFactory.$once("getBeanMap") ).toBeTrue();
 						expect( testClass.$once("getParamJson") ).toBeTrue();
 						expect( testClass.$once("beanCacheCheck") ).toBeTrue();
 						expect( testClass.$once("cacheBeans") ).toBeTrue();
@@ -660,11 +640,11 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 
 					it( "returns an empty bean array if the bean is not defined as cached", function(){
-						dataFactory.$( "getBeanMap", { cached=false } );
+						DataFactory.$( "getBeanMap", { cached=false } );
 
 						var result = testClass.list( bean="user" );
 
-						expect( dataFactory.$once("getBeanMap") ).toBeTrue();
+						expect( DataFactory.$once("getBeanMap") ).toBeTrue();
 
 						expect( result.success ).toBeFalse();
 						expect( result.beans ).toBeEmpty();
@@ -674,7 +654,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					it( "returns and array of beans from the cache", function(){
 						var result = testClass.list( bean="user" );
 
-						expect( dataFactory.$once("getBeanMap") ).toBeTrue();
+						expect( DataFactory.$once("getBeanMap") ).toBeTrue();
 						expect( testClass.$once("beanCacheCheck") ).toBeTrue();
 						expect( testClass.$once("cacheBeans") ).toBeTrue();
 						expect( testClass.$once("beanParamsAreInCache") ).toBeTrue();
