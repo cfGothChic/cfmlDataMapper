@@ -14,13 +14,16 @@ component accessors="true" {
 	function delete(rc) {
 		rc.user = variables.dataFactory.get(bean="user", id=rc.id);
 
-		var success = ( rc.user.exists() ? true : false );
+		var result = {
+			success = rc.user.exists()
+		};
 
-		if ( success ) {
-			success = rc.user.delete();
+		if ( result.success ) {
+			result = rc.user.delete();
 		}
 
-		variables.framework.redirect( "user.list" );
+		rc.messages = result.messages;
+		variables.framework.redirect( action="user.list", preserve="messages" );
 	}
 
 	function detail(rc) {

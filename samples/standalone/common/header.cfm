@@ -11,7 +11,7 @@
 	<meta name="description" content="">
 	<meta name="author" content="">
 
-	<title>Standalone User Manager<cfoutput><cfif len(variables.pageTitle)> - #variables.pageTitle#</cfif></cfoutput></title>
+	<title><cfif variables.activeItem is not "index">Standalone </cfif>User Manager<cfoutput><cfif len(variables.pageTitle)> - #variables.pageTitle#</cfif></cfoutput></title>
 
 	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
 	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css">
