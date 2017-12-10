@@ -3,8 +3,5 @@
         "http":{
             "port":"8080"
         }
-    },
-    "app":{
-        "cfengine":"lucee@5"
     }
 }
