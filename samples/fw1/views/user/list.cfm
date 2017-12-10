@@ -1,3 +1,7 @@
+<cfscript>
+	arrayAppend(rc.jsScripts,"user/list.js");
+</cfscript>
+
 <cfoutput>
 	<div class="row">
 		<div class="col-md-12"><h1>Users</h1></div>
@@ -25,10 +29,10 @@
 				<cfloop array="#rc.users#" index="local.user">
 					<tr>
 						<td>
-							<a href="#buildUrl('user.edit?id='&local.user.getID())#" title="Edit">
+							<a href="#buildUrl('user.edit?id=' & local.user.getID())#" title="Edit">
 								<i class="fa fa-edit"></i>
 							</a>
-							<a href="#buildUrl('user.delete?id='&local.user.getID())#" class="delete" title="Delete">
+							<a href="#buildUrl('user.delete?id=' & local.user.getID())#" class="delete" title="Delete">
 								<i class="fa fa-times fa-lg"></i>
 							</a>
 						</td>
@@ -42,9 +46,3 @@
 		</table>
 	</cfif>
 </cfoutput>
-
-<script type="text/javascript">
-    $('.delete').on('click', function () {
-        return confirm('Are you sure you want to delete this user?');
-    });
-</script>

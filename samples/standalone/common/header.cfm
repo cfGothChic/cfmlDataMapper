@@ -1,5 +1,5 @@
 <cfparam name="variables.pageTitle" default="cfmlDataMapper Standalone Sample">
-<cfparam name="variables.activeItem" default="main">
+<cfparam name="variables.activeItem" default="index">
 <cfparam name="variables.messages" default="#[]#">
 
 <!DOCTYPE html>
@@ -11,7 +11,7 @@
 	<meta name="description" content="">
 	<meta name="author" content="">
 
-	<title>User Manager<cfoutput><cfif len(variables.pageTitle)> - #variables.pageTitle#</cfif></cfoutput></title>
+	<title>Standalone User Manager<cfoutput><cfif len(variables.pageTitle)> - #variables.pageTitle#</cfif></cfoutput></title>
 
 	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
 	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css">
@@ -31,15 +31,21 @@
 						<span class="icon-bar"></span>
 						<span class="icon-bar"></span>
 					</button>
-					<a class="navbar-brand" href="index.cfm">User Manager</a>
+					<cfif variables.activeItem is "index">
+						<a class="navbar-brand" href="/samples/index.cfm">User Manager</a>
+					<cfelse>
+						<a class="navbar-brand" href="/samples/standalone/index.cfm">Standalone User Manager</a>
+					</cfif>
 				</div>
 
 				<!-- Collect the nav links, forms, and other content for toggling -->
 				<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
 					<ul class="nav navbar-nav">
-						<li<cfif variables.activeItem is "index"> class="active"</cfif>><a href="index.cfm">Home</a></li>
-						<li<cfif variables.activeItem is "userlist"> class="active"</cfif>><a href="userlist.cfm" title="View the list of users">Users</a></li>
-						<li<cfif variables.activeItem is "useredit"> class="active"</cfif>><a href="useredit.cfm" title="Fill out form to add new user">Add User</a></li>
+						<li<cfif variables.activeItem is "index"> class="active"</cfif>><a href="/samples/index.cfm">Samples Home</a></li>
+						<cfif variables.activeItem is not "index">
+							<li<cfif variables.activeItem is "userlist"> class="active"</cfif>><a href="/samples/standalone/userlist.cfm" title="View the list of users">Users</a></li>
+							<li<cfif variables.activeItem is "useredit"> class="active"</cfif>><a href="/samples/standalone/useredit.cfm" title="Fill out form to add new user">Add User</a></li>
+						</cfif>
 					</ul>
 				</div><!-- /.navbar-collapse -->
 			</div><!-- /.container-fluid -->

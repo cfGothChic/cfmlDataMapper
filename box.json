@@ -31,12 +31,12 @@
         }
     ],
     "devDependencies":{
-        "fw1":"x",
+        "fw1":"3.5",
         "testbox":"^2.5.0+107"
     },
     "installPaths":{
-        "fw1":"framework",
-        "testbox":"testbox"
+        "fw1":"framework/",
+        "testbox":"testbox/"
     },
     "testbox":{
         "runner":[

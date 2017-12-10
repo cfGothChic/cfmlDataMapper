@@ -80,8 +80,8 @@ component accessors="true" {
 			// Handle length rules
 			if ( len(arguments.beanProperty.minlength) || len(arguments.beanProperty.maxlength) ) {
 				validationMessage = validateLength(
-					minvalue=arguments.beanProperty.minlength,
-					maxvalue=arguments.beanProperty.maxlength,
+					minlength=arguments.beanProperty.minlength,
+					maxlength=arguments.beanProperty.maxlength,
 					value=arguments.value,
 					displayname=displayname
 				);

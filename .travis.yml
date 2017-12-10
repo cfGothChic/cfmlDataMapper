@@ -13,4 +13,4 @@ install:
 - box server start port=8080 openbrowser=false
 
 script:
-- box testbox run
+- box testbox run reporter=mintext
