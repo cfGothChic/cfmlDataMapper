@@ -11,7 +11,7 @@
 		<meta name="description" content="">
 		<meta name="author" content="">
 
-		<title>User Manager<cfif len(rc.pageTitle)> - #rc.pageTitle#</cfif></title>
+		<title>FW/1 User Manager<cfif len(rc.pageTitle)> - #rc.pageTitle#</cfif></title>
 
 		<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
 		<link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css">
@@ -29,13 +29,13 @@
 						<span class="icon-bar"></span>
 						<span class="icon-bar"></span>
 					</button>
-					<a class="navbar-brand" href="#buildUrl('')#">User Manager</a>
+					<a class="navbar-brand" href="/samples/fw1/">FW/1 User Manager</a>
 				</div>
 
 				<!-- Collect the nav links, forms, and other content for toggling -->
 				<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
 					<ul class="nav navbar-nav">
-						<li<cfif getSectionAndItem() is "main.default"> class="active"</cfif>><a href="#buildUrl('')#">Home</a></li>
+						<li><a href="/samples/index.cfm">Samples Home</a></li>
 						<li<cfif getSectionAndItem() is "user.list"> class="active"</cfif>><a href="#buildUrl('user.list')#" title="View the list of users">Users</a></li>
 						<li<cfif getSectionAndItem() is "user.edit"> class="active"</cfif>><a href="#buildUrl('user.edit')#" title="Fill out form to add new user">Add User</a></li>
 					</ul>

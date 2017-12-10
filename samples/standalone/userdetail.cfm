@@ -1,6 +1,7 @@
 <cfscript>
 	param name="url.id" type="integer" default=0;
 
+	variables.activeItem = "userdetail";
 	variables.pageTitle = "User Detail";
 	arrayAppend(request.jsScripts,"user/detail.js");
 

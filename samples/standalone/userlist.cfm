@@ -1,4 +1,5 @@
 <cfscript>
+	variables.activeItem = "userlist";
 	variables.pageTitle = "User List";
 	arrayAppend(request.jsScripts,"user/list.js");
 
