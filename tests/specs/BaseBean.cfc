@@ -657,7 +657,9 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 							expect( result.messages ).notToBeEmpty();
 
 							expect( result ).toHaveKey( "error" );
-							expect( result.error ).toBeTypeOf( "struct" );
+							if ( structKeyExists(server, "lucee") ) {
+								expect( result.error ).toBeTypeOf( "struct" );
+							}
 						});
 
 					});
@@ -1152,7 +1154,9 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						expect( result.message ).notToBeEmpty();
 
 						expect( result ).toHaveKey( "error" );
-						expect( result.error ).toBeTypeOf( "struct" );
+						if ( structKeyExists(server, "lucee") ) {
+							expect( result.error ).toBeTypeOf( "struct" );
+						}
 					});
 
 

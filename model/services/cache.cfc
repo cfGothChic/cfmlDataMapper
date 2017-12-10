@@ -200,7 +200,7 @@ component accessors="true" {
 
 	private component function getCachedBean( required string bean, required struct beanData, required numeric primaryKey ){
 		// get the cached bean, but make a shallow copy so changes to the bean are not retained in cache
-		if ( structKeyExists(server, "railo") || structKeyExists(server, "lucee") ) {
+		if ( structKeyExists(server, "lucee") ) {
 			var cachedbean = structCopy(beanData.beans[primarykey]);
 		} else {
 			var thisbean = beanData.beans[primarykey];
