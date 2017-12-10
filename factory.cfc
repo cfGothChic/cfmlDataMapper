@@ -95,6 +95,10 @@ component accessors="true" output="false" {
     return getFactory().list( argumentCollection=arguments );
 	}
 
+  public void function setFactoryConfig(factoryConfig){
+    variables.factoryConfig = arguments.factoryConfig;
+  }
+
   // fw1 functionality to use with beans
 
   public function populate() {

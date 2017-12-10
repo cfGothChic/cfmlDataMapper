@@ -7,6 +7,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 		userBean = createMock("model.beans.user");
 		userBean.$( "getPropertyValue" ).$args( item="id" ).$results( 1 );
 		userBean.$( "getPropertyValue" ).$args( item="isDeleted" ).$results( 1 );
+		userBean.$( "getSessionData", {} );
 
 		userTypeBean = createMock("model.beans.userType");
 		userTypeBean.$( "getPropertyValue" ).$args( item="id" ).$results( 2 );
@@ -22,6 +23,9 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 		describe("The Cache Service", function(){
 
 			beforeEach(function( currentSpec ){
+				dataFactory = createEmptyMock("cfmlDataMapper.model.factory.data");
+				testClass.$property( propertyName="dataFactory", mock=dataFactory );
+
 				beanmap = {
 					bean = "user",
 					primarykey = "id",
@@ -46,9 +50,6 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 			describe("populates the service cache and", function(){
 
 				beforeEach(function( currentSpec ){
-					dataFactory = createEmptyMock("cfmlDataMapper.model.factory.data");
-					testClass.$property( propertyName="dataFactory", mock=dataFactory );
-
 					dataGateway = createEmptyMock("cfmlDataMapper.model.gateways.data");
 					dataGateway.$( "read", querySim("id
 						1") );
@@ -61,7 +62,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					makePublic( testClass, "cacheDefaultParams" );
 
 					dataFactory.$( "getBeanStruct", {
-						1 = {
+						"1" = {
 							id = 1
 						}
 					});
@@ -370,19 +371,13 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 			describe("uses the service cache and", function(){
 
 				beforeEach(function( currentSpec ){
-					beanCache = {
-						user = {
-							beans = {
-								1 = userBean,
-								2 = userTypeBean,
-								3 = departmentBean
-							},
-							params = {},
-							sortorder = {
-								default = [1,2,3]
-							}
-						}
+					beanCache.user.params = {};
+					beanCache.user.beans = {
+						"1" = userBean,
+						"2" = userTypeBean,
+						"3" = departmentBean
 					};
+					beanCache.user.sortorder.default = [1,2,3];
 
 					makePublic( testClass, "beanCacheCheck" );
 					makePublic( testClass, "beanParamsAreInCache" );
@@ -392,6 +387,10 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 					testClass.$( "getParamJson", "" )
 						.$( "cacheBeans" );
+
+					if ( !structKeyExists(server, "lucee") ) {
+						testClass.$( "getCachedBean", userBean );
+					}
 
 					dataFactory.$( "getBeanMap", beanmap );
 				});
@@ -463,6 +462,10 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 					// getCachedBean()
 					it( "returns a bean from the service cache", function(){
+						if ( !structKeyExists(server, "lucee") ) {
+							dataFactory.$( "get", userBean );
+						}
+
 						var result = testClass.getCachedBean( bean="user", beanData=beanCache.user, primaryKey=1 );
 
 						expect( result ).toBeTypeOf( "component" );
@@ -523,6 +526,10 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 
 					it( "returns an array of cached beans for the paramjson", function(){
+						if ( !structKeyExists(server, "lucee") ) {
+							testClass.$( "getCachedBean", userTypeBean );
+						}
+
 						var result = testClass.getBeansByParams( bean="user", paramjson=paramjson, params={}, orderby="" );
 
 						expect( testClass.$never("getParamBeanIds") ).toBeTrue();
@@ -534,6 +541,10 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 
 					it( "returns an array of cached beans for the params", function(){
+						if ( !structKeyExists(server, "lucee") ) {
+							testClass.$( "getCachedBean", departmentBean );
+						}
+
 						var result = testClass.getBeansByParams( bean="user", paramjson="", params=params, orderby="" );
 
 						expect( testClass.$once("getParamBeanIds") ).toBeTrue();
@@ -545,6 +556,10 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 
 					it( "returns an array of cached beans for the sort order", function(){
+						if ( !structKeyExists(server, "lucee") ) {
+							testClass.$( "getCachedBean", userTypeBean );
+						}
+
 						var result = testClass.getBeansByParams( bean="user", paramjson="", params={}, orderby="email asc" );
 
 						expect( testClass.$never("getParamBeanIds") ).toBeTrue();

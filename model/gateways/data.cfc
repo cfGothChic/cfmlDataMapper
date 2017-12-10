@@ -134,8 +134,8 @@ component accessors=true {
 	public struct function readSproc( string sprocname, array params=[], array resultkeys=[] ) {
 		var result = {};
 
-		if ( structKeyExists(server, "railo") || structKeyExists(server, "lucee") ) {
 			// because "new storedproc()" doesn't exist in railo and the railo script version causes a syntax error in cf9
+		if ( structKeyExists(server, "lucee") ) {
 			result = variables.storedprocTag.storedproc(argumentCollection=arguments);
 
 		} else {
@@ -268,7 +268,7 @@ component accessors=true {
 			);
 		} else {
 			return (
-				arguments.beanmap.properties[ arguments.prop ].insert 
+				arguments.beanmap.properties[ arguments.prop ].insert
 				&& (
 					arguments.includepk
 					|| arguments.prop != arguments.beanmap.primarykey
