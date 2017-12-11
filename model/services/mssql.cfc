@@ -13,7 +13,7 @@
 		var tablename = getTableName( beanmap=arguments.beanmap );
 
 		if ( pkproperty.isidentity ) {
-			sql &= "DECLARE @ident Table (newid int) ";
+			sql &= "DECLARE @ident TABLE (newid int) ";
 		} else {
 			sql &= "DECLARE @identid int = (SELECT MAX(" & tablename & "." & primarykeyfield & ") FROM " & tablename & ") ";
 			sql &= "SET @identid = @identid + 1; ";
@@ -51,10 +51,9 @@
 		return sql;
 	}
 
-	public string function deleteByNotInSQL( required string beanmap, required struct pkproperty, required string key ) {
+	public string function deleteByNotInSQL( required struct beanmap, required struct pkproperty ) {
 		var sql = "DELETE FROM " & getTableName( beanmap=arguments.beanmap );
-		sql &= " WHERE " & ( len(arguments.pkproperty.columnName) ? arguments.pkproperty.columnName : arguments.key );
-		sql &= " NOT IN (:" & arguments.key & ")";
+		sql &= " WHERE " & getPropertyField( prop=arguments.pkproperty ) & " NOT IN (:" & arguments.pkproperty.name & ")";
 		return sql;
 	}
 
@@ -70,32 +69,11 @@
 		sql &= getFields( type="select", beanmap=arguments.beanmap, pkOnly=arguments.pkOnly );
 		sql &= " FROM " & tablename;
 
-		if ( !structIsEmpty(arguments.params) ) {
-			var where = "";
-			for ( var field in arguments.params ) {
-				if ( structKeyExists(arguments.beanmap.properties,field) ) {
-					where &= ( len(where) ? " AND " : " WHERE " ) & tablename;
-
-					where &= ".[" & (
-						(
-							structKeyExists(arguments.beanmap.properties[ field ],"columnName")
-							&& len(arguments.beanmap.properties[ field ].columnName)
-						)
-						? arguments.beanmap.properties[ field ].columnName
-						: field
-					);
-
-					where &= "] = :" & field;
-				} else {
-					throw(message="The property '#field#' was not found in the '#arguments.bean#' bean definition");
-				}
-			}
-			sql &= where;
+		if ( structCount(arguments.params) ) {
+			sql &= getWhereStatement( beanmap=arguments.beanmap, params=arguments.params, tablename=tablename );
 		}
 
-		if ( len(arguments.orderby) || len(arguments.beanmap.orderby) ) {
-			sql &= " ORDER BY " & getFullOrderBy( beanmap=arguments.beanmap, orderby=arguments.orderby );
-		}
+		sql &= " ORDER BY " & getFullOrderBy( beanmap=arguments.beanmap, orderby=arguments.orderby );
 
 		return sql;
 	}
@@ -116,9 +94,7 @@
 
 		sql &= " WHERE " & joinpath & ".[" & arguments.relationship.fkColumn & "] = :" & arguments.relationship.fkColumn;
 
-		if ( len(arguments.beanmap.orderby) ) {
-			sql &= " ORDER BY " & arguments.beanmap.orderby;
-		}
+		sql &= " ORDER BY " & getFullOrderBy( beanmap=arguments.beanmap );
 
 		return sql;
 	}
@@ -133,44 +109,67 @@
 		return sql;
 	}
 
+	private string function getFieldByType(
+		required string type,
+		required struct prop,
+		required string propname,
+		required string columnname,
+		required string tablename
+	) {
+		var field = "";
+
+		switch ( arguments.type ) {
+
+			case "insert":
+				field &= arguments.columnname;
+				break;
+
+			case "values":
+				field &= ":" & arguments.propname;
+				break;
+
+			case "update":
+				field &= arguments.columnname & " = :" & arguments.propname;
+				break;
+
+			default:
+				if ( len(arguments.prop.columnName) || ( arguments.prop.sqltype == "cf_sql_integer" && arguments.prop.null ) ) {
+					field &= getSelectAsField(
+						columnname=columnname,
+						sqltype=arguments.prop.sqltype,
+						isNull=arguments.prop.null,
+						tablename=arguments.tablename
+					);
+					field &= "[" & arguments.propname & "]";
+				}
+				else {
+					field &= columnname;
+				}
+		}
+
+		return field;
+	}
+
 	/*
 	* @type possible values: insert, update, select, values
 	*/
 	private string function getFields( required string type, required struct beanmap, boolean pkOnly=false ) {
-		var delimiter = ( arguments.type == "values" ? ", :" : ", " );
 		var includepk = ( arguments.type == "select" ? true : false );
 		var tablename = getTableName( beanmap=arguments.beanmap );
 		arguments.pkOnly = ( arguments.type == "select" ? arguments.pkOnly : false );
 
 		var fields = "";
-		for ( var prop IN arguments.beanmap.properties ) {
-			var isIncluded = variables.SQLService.isPropertyIncluded( prop=prop, beanmap=arguments.beanmap, includepk=includepk, type=arguments.type, pkOnly=arguments.pkOnly);
+		for ( var propname in arguments.beanmap.properties ) {
+			var isIncluded = variables.SQLService.isPropertyIncluded( prop=propname, beanmap=arguments.beanmap, includepk=includepk, type=arguments.type, pkOnly=arguments.pkOnly );
 
 			if ( isIncluded ) {
-				var columnname = tablename & ".[" & ( len( arguments.beanmap.properties[ prop ].columnName ) ? arguments.beanmap.properties[ prop ].columnName : prop ) & "]";
-				if ( len(fields) ) {
-					fields &= delimiter;
-				}
+				var prop = arguments.beanmap.properties[ propname ];
+				var columnname = tablename & "." & getPropertyField( prop=prop );
 
-				if ( arguments.type == "insert" ) {
-					fields &= columnname;
-				} else if ( arguments.type == "values" ) {
-					fields &= prop;
-				} else if ( arguments.type == "update" ) {
-					fields &= columnname & " = :" & prop;
-				} else {
-					if ( len( arguments.beanmap.properties[ prop ].columnName ) ) {
-						fields &= getSelectField(
-							columnname=columnname,
-							sqltype=arguments.beanmap.properties[ prop ].sqltype,
-							isNull=arguments.beanmap.properties[ prop ].null,
-							tablename=tablename
-						);
-						fields &= "[" & prop & "]";
-					} else {
-						fields &= columnname;
-					}
+				if ( len(fields) ) {
+					fields &= ", ";
 				}
+				fields &= getFieldByType( type=arguments.type, prop=prop, propname=propname, columnname=columnname, tablename=tablename );
 			}
 		}
 
@@ -185,40 +184,65 @@
 
 		for ( var orderprop in orderprops ) {
 			orderprop = trim(orderprop);
+			var orderinfo = getOrderInfo( orderby=orderprop );
 
-			var propname = orderprop;
-			var direction = "ASC";
-			if ( listLen(orderprop," ") > 1 ) {
-				propname = ListFirst(orderprop," ");
-				direction = ListLast(orderprop," ");
-				direction =  arrayFindNoCase(["asc","desc"],direction) ? direction : "ASC";
-			}
-
-			var prop = structKeyExists(arguments.beanmap.properties,propname) ? arguments.beanmap.properties[propname] : {};
-
+			var prop = structKeyExists(arguments.beanmap.properties,orderinfo.propname) ? arguments.beanmap.properties[orderinfo.propname] : {};
 			if ( structIsEmpty(prop) ) {
-				for ( var propname in arguments.beanmap.properties ) {
-					if ( arguments.beanmap.properties[propname].columnname == propname ) {
-						prop = arguments.beanmap.properties[propname];
-						break;
-					}
-				}
+				prop = getPropertyByColumnName( beanmap=arguments.beanmap, columnname=orderinfo.propname );
 			}
 
-			if ( !structIsEmpty(prop) ) {
-				fullorderby &= ( len(fullorderby) ? ", " : "" ) & ( len(prop.columnname) ? prop.columnname : prop.name ) & " " & direction;
+			if ( structCount(prop) ) {
+				fullorderby &= ( len(fullorderby) ? ", " : "" ) & getPropertyField( prop=prop ) & " " & orderinfo.direction;
 			}
+		}
+
+		if ( !len(fullorderby) ) {
+			fullorderby = getPrimaryKeyField( beanmap=arguments.beanmap ) & " ASC";
 		}
 
 		return fullorderby;
 	}
 
-	private string function getPrimaryKeyField( required struct beanmap ) {
-		var pkproperty = arguments.beanmap.properties[ arguments.beanmap.primarykey ];
-		return "[" & ( len(pkproperty.columnName) ? pkproperty.columnName : arguments.beanmap.primarykey ) & "]";
+	private struct function getOrderInfo( required string orderby ) {
+		var result = {
+			propname = arguments.orderby,
+			direction = "ASC"
+		};
+
+		var order = listToArray(arguments.orderby, " ");
+		if ( arrayLen(order) > 1 ) {
+			result.propname = trim(order[1]);
+			if ( order[2] == "desc" ) {
+				result.direction = "DESC";
+			}
+		}
+
+		return result;
 	}
 
-	private string function getSelectField( required string columnname, required string sqltype, required boolean isNull ) {
+	private string function getPrimaryKeyField( required struct beanmap ) {
+		var pkproperty = arguments.beanmap.properties[ arguments.beanmap.primarykey ];
+		return getPropertyField( prop=pkproperty );
+	}
+
+	private struct function getPropertyByColumnName( required struct beanmap, required string columnname ){
+		var prop = {};
+
+		for ( var propname in arguments.beanmap.properties ) {
+			if ( arguments.beanmap.properties[propname].columnname == arguments.columnname ) {
+				prop = arguments.beanmap.properties[propname];
+				break;
+			}
+		}
+
+		return prop;
+	}
+
+	private string function getPropertyField( required struct prop ){
+		return "[" & ( len(arguments.prop.columnname) ? arguments.prop.columnname : arguments.prop.name ) & "]";
+	}
+
+	private string function getSelectAsField( required string columnname, required string sqltype, required boolean isNull ) {
 		var fieldresult = "";
 
 		if ( arguments.sqltype == "cf_sql_integer" && arguments.isNull ) {
@@ -237,7 +261,21 @@
 	}
 
 	private string function getTableName( required struct beanmap ) {
-		return ( len(arguments.beanmap.schema) ? "[" & arguments.beanmap.schema & "]." : "" ) & "[" & arguments.beanmap.table & "]";
+		return "[" & ( len(arguments.beanmap.schema) ? arguments.beanmap.schema : "dbo" ) & "].[" & arguments.beanmap.table & "]";
+	}
+
+	private string function getWhereStatement( required struct beanmap, required struct params, required string tablename ) {
+		var where = "";
+		for ( var field in arguments.params ) {
+			if ( structKeyExists(arguments.beanmap.properties,field) ) {
+				var prop = arguments.beanmap.properties[field];
+				where &= ( len(where) ? " AND " : " WHERE " ) & arguments.tablename;
+				where &= "." & getPropertyField( prop=prop ) & " = :" & field;
+			} else {
+				throw(message="The property '#lCase(field)#' was not found in the '#arguments.beanmap.bean#' bean definition");
+			}
+		}
+		return where;
 	}
 
 }

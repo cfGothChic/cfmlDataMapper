@@ -25,7 +25,7 @@
 	public void function deleteByNotIn( required string bean, required string key, required string list ) {
 		var beanmap = variables.DataFactory.getBeanMap( bean=arguments.bean );
 		var pkproperty = beanmap.properties[ arguments.key ];
-		var sql = deleteByNotInSQL( beanmap=beanmap, pkproperty=pkproperty, key=arguments.key );
+		var sql = deleteByNotInSQL( beanmap=beanmap, pkproperty=pkproperty );
 		variables.DataGateway.deleteByNotIn( sql=sql, key=arguments.key, list=arguments.list, sqltype=pkproperty.sqltype );
 	}
 
