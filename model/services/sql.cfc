@@ -102,31 +102,48 @@
 		variables.DataGateway.update( sql=sql, params=params );
 	}
 
+	private boolean function isNullInteger( required string sqltype, required string value ) {
+		return (
+			findNoCase("integer",arguments.sqltype)
+			&& isNumeric(arguments.value)
+			&& !arguments.value
+		);
+	}
+
 	private struct function getParams( required component bean, required struct beanmap, boolean includepk=true ) {
 		var params = {};
 
-		for ( var prop in arguments.beanmap.properties ) {
-			var isIncluded = isPropertyIncluded( prop=prop, beanmap=arguments.beanmap, includepk=includepk );
+		for ( var propname in arguments.beanmap.properties ) {
+			var isIncluded = isPropertyIncluded( prop=propname, beanmap=arguments.beanmap, includepk=includepk );
 
 			if ( isIncluded ) {
-				var valuestring = arguments.bean.getPropertyValue( propertyname=prop );
-				params[ prop ] = { value=valuestring, cfsqltype=arguments.beanmap.properties[ prop ].sqltype };
-				if (
-					arguments.beanmap.properties[ prop ].null
-					&& (
-						!len(valuestring)
-						|| findNoCase("integer",arguments.beanmap.properties[ prop ].sqltype)
-						&& isNumeric(valuestring) && !valuestring
-					)
-				) {
-					params[ prop ].value = "";
-					params[ prop ].null = true;
-				} else {
-					params[ prop ].null = false;
-				}
+				var prop = arguments.beanmap.properties[ propname ];
+				var propvalue = arguments.bean.getPropertyValue( propertyname=propname );
+				params[ propname ] = getSQLParam( prop=prop, propvalue=propvalue );
 			}
 		}
 		return params;
+	}
+
+	private struct function getSQLParam( required struct prop, required any propvalue ) {
+		var sqlprop = {
+			value = arguments.propvalue,
+			cfsqltype = arguments.prop.sqltype,
+			"null" = false
+		};
+
+		if (
+			arguments.prop.null
+			&& (
+				!len(arguments.propvalue)
+				|| isNullInteger( sqltype=arguments.prop.sqltype, value=arguments.propvalue )
+			)
+		) {
+			sqlprop.value = "";
+			sqlprop.null = true;
+		}
+
+		return sqlprop;
 	}
 
 	/* passthrough functions to server specific sql script builders */
