@@ -222,7 +222,7 @@
 					structDelete(beanmap.properties,prop.name);
 				}
 
-				beanmap.relationships[ prop.name ] = getRelationshipMetadata(prop);
+				beanmap.relationships[ prop.name ] = getRelationshipMetadata( prop=prop, beanname=beanmap.bean );
 				if ( !structCount( beanmap.relationships[ prop.name ] ) ) {
 					structDelete(beanmap.relationships,prop.name);
 				}
@@ -358,7 +358,7 @@
 		return metadata;
 	}
 
-	private struct function getRelationshipMetadata( prop ) {
+	private struct function getRelationshipMetadata( required struct prop, required string beanname ) {
 		var metadata = {};
 		if ( structKeyExists(prop,"bean") ) {
 			metadata.name = prop.name;
@@ -371,6 +371,8 @@
 			metadata.joinSchema = ( structKeyExists(prop,"joinSchema") ? prop.joinSchema : "" );
 			metadata.joinTable = ( structKeyExists(prop,"joinTable") ? prop.joinTable : "" );
 			metadata.joinColumn = ( structKeyExists(prop,"joinColumn") ? prop.joinColumn : "" );
+
+			validateRelationshipMetadata( relationship=metadata, beanname=arguments.beanname );
 		}
 		return metadata;
 	}
@@ -430,6 +432,24 @@
 			throw("The 'regex' attribute is required with the 'regexlabel' attribute" & message);
 		}
 
+	}
+
+	private void function validateRelationshipMetadata( required struct relationship, required string beanname ) {
+		switch ( arguments.relationship.joinType ) {
+			// todo: add validation for one and one-to-many relationships
+
+			case "many-to-many":
+				if (
+					!len(arguments.relationship.fkColumn)
+					|| !len(arguments.relationship.fksqltype)
+					|| !len(arguments.relationship.joinColumn)
+					|| !len(arguments.relationship.joinTable)
+				) {
+					throw( arguments.beanname & " bean is missing required bean map variables for the " & arguments.relationship.name & " relationship join table: fkColumn, fksqltype, joinColumn, joinTable" );
+				}
+				break;
+
+		}
 	}
 
 }

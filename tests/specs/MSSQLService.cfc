@@ -660,7 +660,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 
 				// readByJoinSQL()
-				it( "returns an select sql statement with a join table", function(){
+				it( "returns a select sql statement with a join table", function(){
 					var relationship = {
 						joinSchema = "",
 						joinTable = "user_roles",

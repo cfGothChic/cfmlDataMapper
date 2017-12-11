@@ -32,7 +32,7 @@
 	public boolean function isPropertyIncluded(
 		required string prop,
 		required struct beanmap,
-		required boolean includepk,
+		boolean includepk=true,
 		string type="update",
 		boolean pkOnly=false
 	) {
@@ -73,15 +73,6 @@
 
 	public query function readByJoin( required numeric beanid, required struct relationship ) {
 		var beanmap = variables.DataFactory.getBeanMap( bean=arguments.relationship.bean );
-
-		if (
-			!len(arguments.relationship.fkColumn)
-			|| !len(arguments.relationship.fksqltype)
-			|| !len(arguments.relationship.joinColumn)
-			|| !len(arguments.relationship.joinTable)
-		) {
-			throw(beanmap.bean & " bean is missing required bean map variables for the " & arguments.relationship.name & " relationship join table: fkColumn, fksqltype, joinColumn, joinTable");
-		}
 
 		var sql = readByJoinSQL( beanmap=beanmap, relationship=arguments.relationship );
 
@@ -126,7 +117,7 @@
 	}
 
 	private struct function getSQLParam( required struct prop, required any propvalue ) {
-		var sqlprop = {
+		var sqlparam = {
 			value = arguments.propvalue,
 			cfsqltype = arguments.prop.sqltype,
 			"null" = false
@@ -139,11 +130,11 @@
 				|| isNullInteger( sqltype=arguments.prop.sqltype, value=arguments.propvalue )
 			)
 		) {
-			sqlprop.value = "";
-			sqlprop.null = true;
+			sqlparam.value = "";
+			sqlparam.null = true;
 		}
 
-		return sqlprop;
+		return sqlparam;
 	}
 
 	/* passthrough functions to server specific sql script builders */

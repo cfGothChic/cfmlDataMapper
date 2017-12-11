@@ -395,6 +395,15 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						regexlabel = ""
 					};
 
+					relationshipMetadata = {
+						name = "test",
+						joinType = "many-to-many",
+						fkColumn = "test",
+						fksqltype = "test",
+						joinColumn = "test",
+						joinTable = "test"
+					};
+
 					makePublic( testClass, "createBeanMap" );
 					makePublic( testClass, "getBeanMapMetadata" );
 					makePublic( testClass, "getCfSqlType" );
@@ -403,6 +412,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					makePublic( testClass, "getPropertyMetadata" );
 					makePublic( testClass, "getRelationshipMetadata" );
 					makePublic( testClass, "validatePropertyMetadata" );
+					makePublic( testClass, "validateRelationshipMetadata" );
 				});
 
 
@@ -467,12 +477,14 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						.toThrow(type="application", regex="(insert)");
 				});
 
+
 				it( "errors if the isidentity attribute of a property is not a boolean", function(){
 					propertyMetadata.isidentity = "test";
 
 					expect( function(){ testClass.validatePropertyMetadata( metadata=propertyMetadata, beanname="test" ); } )
 						.toThrow(type="application", regex="(isidentity)");
 				});
+
 
 				it( "errors if the null attribute of a property is not a boolean", function(){
 					propertyMetadata.null = "test";
@@ -481,12 +493,14 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						.toThrow(type="application", regex="(null)");
 				});
 
+
 				it( "errors if the minvalue attribute of a property is not numeric", function(){
 					propertyMetadata.minvalue = "test";
 
 					expect( function(){ testClass.validatePropertyMetadata( metadata=propertyMetadata, beanname="test" ); } )
 						.toThrow(type="application", regex="(minvalue)");
 				});
+
 
 				it( "errors if the maxvalue attribute of a property is not numeric", function(){
 					propertyMetadata.maxvalue = "test";
@@ -495,12 +509,14 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						.toThrow(type="application", regex="(maxvalue)");
 				});
 
+
 				it( "errors if the minlength attribute of a property is not numeric", function(){
 					propertyMetadata.minlength = "test";
 
 					expect( function(){ testClass.validatePropertyMetadata( metadata=propertyMetadata, beanname="test" ); } )
 						.toThrow(type="application", regex="(minlength)");
 				});
+
 
 				it( "errors if the maxlength attribute of a property is not numeric", function(){
 					propertyMetadata.maxlength = "test";
@@ -509,12 +525,14 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						.toThrow(type="application", regex="(maxlength)");
 				});
 
+
 				it( "errors if a property has a regex attribute but not a regexlabel attribute", function(){
 					propertyMetadata.regex = "(test)";
 
 					expect( function(){ testClass.validatePropertyMetadata( metadata=propertyMetadata, beanname="test" ); } )
 						.toThrow(type="application", regex="(required)");
 				});
+
 
 				it( "errors if a property has a regexlabel attribute but not a regex attribute", function(){
 					propertyMetadata.regexlabel = "test";
@@ -523,10 +541,58 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						.toThrow(type="application", regex="(required)");
 				});
 
+
 				it( "validates a property successfully if all fields are correct", function(){
 					testClass.validatePropertyMetadata( metadata=propertyMetadata, beanname="test" );
 				});
 
+
+				// validateRelationshipMetadata()
+				it( "errors if the fkColumn attribute of a many-to-many relationship is blank", function(){
+					relationshipMetadata.fkColumn = "";
+
+					expect( function(){ testClass.validateRelationshipMetadata( relationship=relationshipMetadata, beanname="test" ); } )
+						.toThrow(type="application", regex="(join)");
+				});
+
+
+				it( "errors if the fksqltype attribute of a many-to-many relationship is blank", function(){
+					relationshipMetadata.fksqltype = "";
+
+					expect( function(){ testClass.validateRelationshipMetadata( relationship=relationshipMetadata, beanname="test" ); } )
+						.toThrow(type="application", regex="(join)");
+				});
+
+
+				it( "errors if the joinColumn attribute of a many-to-many relationship is blank", function(){
+					relationshipMetadata.joinColumn = "";
+
+					expect( function(){ testClass.validateRelationshipMetadata( relationship=relationshipMetadata, beanname="test" ); } )
+						.toThrow(type="application", regex="(join)");
+				});
+
+
+				it( "errors if the joinTable attribute of a many-to-many relationship is blank", function(){
+					relationshipMetadata.joinTable = "";
+
+					expect( function(){ testClass.validateRelationshipMetadata( relationship=relationshipMetadata, beanname="test" ); } )
+						.toThrow(type="application", regex="(join)");
+				});
+
+
+				it( "doesn't error if the relationship is a many-to-many and has the required fields", function(){
+					testClass.validateRelationshipMetadata( relationship=relationshipMetadata, beanname="test" );
+				});
+
+
+				it( "doesn't error if the relationship isn't a many-to-many", function(){
+					relationshipMetadata.joinType = "one";
+
+					testClass.validateRelationshipMetadata( relationship=relationshipMetadata, beanname="test" );
+				});
+
+
+				// todo: mock private methods in getPropertyMetadata() and getRelationshipMetadata()
 				// getPropertyMetadata()
 				it( "returns an empty structure if the property is not a data factory column definition", function(){
 					testClass.$( "validatePropertyMetadata" );
@@ -648,7 +714,13 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 				// getRelationshipMetadata()
 				it( "returns an empty structure if the property is not a data factory relationship definition", function(){
-					var result = testClass.getRelationshipMetadata( prop={} );
+					//testClass.$( "getCfSqlType", "cf_sql_integer" );
+					testClass.$( "validateRelationshipMetadata" );
+
+					var result = testClass.getRelationshipMetadata( prop={}, beanname="test" );
+
+					//expect( testClass.$never("getCfSqlType") ).toBeTrue();
+					expect( testClass.$never("validateRelationshipMetadata") ).toBeTrue();
 
 					expect( result ).toBeTypeOf( "struct" );
 					expect( structCount(result) ).toBe( 0 );
@@ -656,7 +728,13 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 
 				it( "returns a structure of a bean relationship's metadata", function(){
-					var result = testClass.getRelationshipMetadata( prop=metadata.properties[2] );
+					//testClass.$( "getCfSqlType", "cf_sql_integer" );
+					testClass.$( "validateRelationshipMetadata" );
+
+					var result = testClass.getRelationshipMetadata( prop=metadata.properties[2], beanname="test" );
+
+					//expect( testClass.$once("getCfSqlType") ).toBeTrue();
+					expect( testClass.$once("validateRelationshipMetadata") ).toBeTrue();
 
 					expect( result ).toBeTypeOf( "struct" );
 					expect( structCount(result) ).toBe( 10 );
