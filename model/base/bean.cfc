@@ -10,6 +10,7 @@
 	property DataFactory;
 	property DataGateway;
 	property SQLService;
+	property UtilityService;
 	property ValidationService;
 
 	public component function init( string id=0 ) {
@@ -18,7 +19,7 @@
 	}
 
 	public struct function delete() {
-		var result = { "success"=true, "code"=001, "messages"=[] };
+		var result = variables.UtilityService.getResultStruct();
 		try {
 			var beanmap = getBeanMap();
 			variables.SQLService.delete( beanname=getBeanName(), id=variables[ beanmap.primaryKey ] );
@@ -96,7 +97,7 @@
 	}
 
 	public struct function save( validate=true ) {
-		var result = { "success"=true, "code"=001, "message"=[] };
+		var result = variables.UtilityService.getResultStruct();
 
 		transaction {
 			try {
@@ -108,7 +109,7 @@
 					if( arrayLen(errors) ){
 						result.success = false;
 						result.code = 900;// indicates validation error
-						result.message = errors;
+						result.messages = errors;
 					}
 				}
 
@@ -128,7 +129,7 @@
 				transaction action="commit";
 			} catch (any e) {
 				transaction action="rollback";
-				arrayAppend(result.message,"There was an issue saving the " & getBeanName() & ".");
+				arrayAppend(result.messages,"There was an issue saving the " & getBeanName() & ".");
 				result.success = false;
 				result.code = 500;
 				result["error"] = e;

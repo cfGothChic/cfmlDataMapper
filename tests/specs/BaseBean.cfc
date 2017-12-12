@@ -40,6 +40,10 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 					qRecords = querySim("id
 						1");
+
+					UtilityService = createEmptyMock("cfmlDataMapper.model.services.utility");
+					UtilityService.$( "getResultStruct", { "success"=true, "code"=001, "messages"=[] } );
+					testClass.$property( propertyName="UtilityService", mock=UtilityService );
 				});
 
 
@@ -612,25 +616,37 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						});
 
 
+						afterEach(function( currentSpec ){
+							expect( deleteResult ).toBeTypeOf( "struct" );
+
+							expect( deleteResult ).toHaveKey( "success" );
+							expect( deleteResult.success ).toBeTypeOf( "boolean" );
+
+							expect( deleteResult ).toHaveKey( "code" );
+							expect( deleteResult.code ).toBeTypeOf( "numeric" );
+
+							expect( deleteResult ).toHaveKey( "messages" );
+							expect( deleteResult.messages ).toBeTypeOf( "array" );
+
+							for ( var key in deleteResult ) {
+								expect( key ).toBeWithCase( lCase(key) );
+							}
+						});
+
+
 						it( "deletes the record from the database", function(){
 							var result = testClass.delete();
 
+							expect( UtilityService.$once("getResultStruct") ).toBeTrue();
 							expect( testClass.$once("getBeanMap") ).toBeTrue();
 							expect( SQLService.$once("delete") ).toBeTrue();
 							expect( testClass.$once("getBeanName") ).toBeTrue();
 
-							expect( result ).toBeTypeOf( "struct" );
-							expect( result ).toHaveKey( "success" );
-							expect( result.success ).toBeTypeOf( "boolean" );
 							expect( result.success ).toBeTrue();
-
-							expect( result ).toHaveKey( "code" );
-							expect( result.code ).toBeTypeOf( "numeric" );
 							expect( result.code ).toBe( 001 );
-
-							expect( result ).toHaveKey( "messages" );
-							expect( result.messages ).toBeTypeOf( "array" );
 							expect( result.messages ).toBeEmpty();
+
+							deleteResult = result;
 						});
 
 
@@ -639,27 +655,21 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 							var result = testClass.delete();
 
+							expect( UtilityService.$once("getResultStruct") ).toBeTrue();
 							expect( testClass.$once("getBeanMap") ).toBeTrue();
 							expect( SQLService.$never("delete") ).toBeTrue();
 							expect( testClass.$once("getBeanName") ).toBeTrue();
 
-							expect( result ).toBeTypeOf( "struct" );
-							expect( result ).toHaveKey( "success" );
-							expect( result.success ).toBeTypeOf( "boolean" );
 							expect( result.success ).toBeFalse();
-
-							expect( result ).toHaveKey( "code" );
-							expect( result.code ).toBeTypeOf( "numeric" );
 							expect( result.code ).toBe( 500 );
-
-							expect( result ).toHaveKey( "messages" );
-							expect( result.messages ).toBeTypeOf( "array" );
 							expect( result.messages ).notToBeEmpty();
 
 							expect( result ).toHaveKey( "error" );
 							if ( structKeyExists(server, "lucee") ) {
 								expect( result.error ).toBeTypeOf( "struct" );
 							}
+
+							deleteResult = result;
 						});
 
 					});
@@ -1019,11 +1029,30 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					});
 
 
+					afterEach(function( currentSpec ){
+						expect( saveResult ).toBeTypeOf( "struct" );
+
+						expect( saveResult ).toHaveKey( "success" );
+						expect( saveResult.success ).toBeTypeOf( "boolean" );
+
+						expect( saveResult ).toHaveKey( "code" );
+						expect( saveResult.code ).toBeTypeOf( "numeric" );
+
+						expect( saveResult ).toHaveKey( "messages" );
+						expect( saveResult.messages ).toBeTypeOf( "array" );
+
+						for ( var key in saveResult ) {
+							expect( key ).toBeWithCase( lCase(key) );
+						}
+					});
+
+
 					it( "successfully creates a bean", function(){
 						testClass.$property( propertyName="id", mock=0 );
 
 						var result = testClass.save( validate=true );
 
+						expect( UtilityService.$once("getResultStruct") ).toBeTrue();
 						expect( testClass.$once("getBeanName") ).toBeTrue();
 						expect( testClass.$once("getBeanMap") ).toBeTrue();
 						expect( testClass.$once("validate") ).toBeTrue();
@@ -1032,24 +1061,18 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						expect( testClass.$once("setPrimaryKey") ).toBeTrue();
 						expect( testClass.$never("clearCache") ).toBeTrue();
 
-						expect( result ).toBeTypeOf( "struct" );
-						expect( result ).toHaveKey( "success" );
-						expect( result.success ).toBeTypeOf( "boolean" );
 						expect( result.success ).toBeTrue();
-
-						expect( result ).toHaveKey( "code" );
-						expect( result.code ).toBeTypeOf( "numeric" );
 						expect( result.code ).toBe( 001 );
+						expect( result.messages ).toBeEmpty();
 
-						expect( result ).toHaveKey( "message" );
-						expect( result.message ).toBeTypeOf( "array" );
-						expect( result.message ).toBeEmpty();
+						saveResult = result;
 					});
 
 
 					it( "successfully updates a bean", function(){
 						var result = testClass.save( validate=true );
 
+						expect( UtilityService.$once("getResultStruct") ).toBeTrue();
 						expect( testClass.$once("getBeanName") ).toBeTrue();
 						expect( testClass.$once("getBeanMap") ).toBeTrue();
 						expect( testClass.$once("validate") ).toBeTrue();
@@ -1058,24 +1081,18 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						expect( testClass.$never("setPrimaryKey") ).toBeTrue();
 						expect( testClass.$never("clearCache") ).toBeTrue();
 
-						expect( result ).toBeTypeOf( "struct" );
-						expect( result ).toHaveKey( "success" );
-						expect( result.success ).toBeTypeOf( "boolean" );
 						expect( result.success ).toBeTrue();
-
-						expect( result ).toHaveKey( "code" );
-						expect( result.code ).toBeTypeOf( "numeric" );
 						expect( result.code ).toBe( 001 );
+						expect( result.messages ).toBeEmpty();
 
-						expect( result ).toHaveKey( "message" );
-						expect( result.message ).toBeTypeOf( "array" );
-						expect( result.message ).toBeEmpty();
+						saveResult = result;
 					});
 
 
 					it( "successfully updates a bean without validating it", function(){
 						var result = testClass.save( validate=false );
 
+						expect( UtilityService.$once("getResultStruct") ).toBeTrue();
 						expect( testClass.$once("getBeanName") ).toBeTrue();
 						expect( testClass.$once("getBeanMap") ).toBeTrue();
 						expect( testClass.$never("validate") ).toBeTrue();
@@ -1084,18 +1101,11 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						expect( testClass.$never("setPrimaryKey") ).toBeTrue();
 						expect( testClass.$never("clearCache") ).toBeTrue();
 
-						expect( result ).toBeTypeOf( "struct" );
-						expect( result ).toHaveKey( "success" );
-						expect( result.success ).toBeTypeOf( "boolean" );
 						expect( result.success ).toBeTrue();
-
-						expect( result ).toHaveKey( "code" );
-						expect( result.code ).toBeTypeOf( "numeric" );
 						expect( result.code ).toBe( 001 );
+						expect( result.messages ).toBeEmpty();
 
-						expect( result ).toHaveKey( "message" );
-						expect( result.message ).toBeTypeOf( "array" );
-						expect( result.message ).toBeEmpty();
+						saveResult = result;
 					});
 
 
@@ -1104,6 +1114,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 						var result = testClass.save( validate=true );
 
+						expect( UtilityService.$once("getResultStruct") ).toBeTrue();
 						expect( testClass.$once("getBeanName") ).toBeTrue();
 						expect( testClass.$once("getBeanMap") ).toBeTrue();
 						expect( testClass.$once("validate") ).toBeTrue();
@@ -1112,18 +1123,11 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						expect( testClass.$never("setPrimaryKey") ).toBeTrue();
 						expect( testClass.$never("clearCache") ).toBeTrue();
 
-						expect( result ).toBeTypeOf( "struct" );
-						expect( result ).toHaveKey( "success" );
-						expect( result.success ).toBeTypeOf( "boolean" );
 						expect( result.success ).toBeFalse();
-
-						expect( result ).toHaveKey( "code" );
-						expect( result.code ).toBeTypeOf( "numeric" );
 						expect( result.code ).toBe( 900 );
+						expect( result.messages ).notToBeEmpty();
 
-						expect( result ).toHaveKey( "message" );
-						expect( result.message ).toBeTypeOf( "array" );
-						expect( result.message ).notToBeEmpty();
+						saveResult = result;
 					});
 
 
@@ -1132,6 +1136,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 						var result = testClass.save( validate=true );
 
+						expect( UtilityService.$once("getResultStruct") ).toBeTrue();
 						expect( testClass.$count("getBeanName") ).toBe( 2 );
 						expect( testClass.$once("getBeanMap") ).toBeTrue();
 						expect( testClass.$never("validate") ).toBeTrue();
@@ -1140,23 +1145,16 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						expect( testClass.$never("setPrimaryKey") ).toBeTrue();
 						expect( testClass.$never("clearCache") ).toBeTrue();
 
-						expect( result ).toBeTypeOf( "struct" );
-						expect( result ).toHaveKey( "success" );
-						expect( result.success ).toBeTypeOf( "boolean" );
 						expect( result.success ).toBeFalse();
-
-						expect( result ).toHaveKey( "code" );
-						expect( result.code ).toBeTypeOf( "numeric" );
 						expect( result.code ).toBe( 500 );
-
-						expect( result ).toHaveKey( "message" );
-						expect( result.message ).toBeTypeOf( "array" );
-						expect( result.message ).notToBeEmpty();
+						expect( result.messages ).notToBeEmpty();
 
 						expect( result ).toHaveKey( "error" );
 						if ( structKeyExists(server, "lucee") ) {
 							expect( result.error ).toBeTypeOf( "struct" );
 						}
+
+						saveResult = result;
 					});
 
 
@@ -1165,6 +1163,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 						var result = testClass.save( validate=true );
 
+						expect( UtilityService.$once("getResultStruct") ).toBeTrue();
 						expect( testClass.$once("getBeanName") ).toBeTrue();
 						expect( testClass.$once("getBeanMap") ).toBeTrue();
 						expect( testClass.$once("validate") ).toBeTrue();
@@ -1173,18 +1172,11 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						expect( testClass.$never("setPrimaryKey") ).toBeTrue();
 						expect( testClass.$once("clearCache") ).toBeTrue();
 
-						expect( result ).toBeTypeOf( "struct" );
-						expect( result ).toHaveKey( "success" );
-						expect( result.success ).toBeTypeOf( "boolean" );
 						expect( result.success ).toBeTrue();
-
-						expect( result ).toHaveKey( "code" );
-						expect( result.code ).toBeTypeOf( "numeric" );
 						expect( result.code ).toBe( 001 );
+						expect( result.messages ).toBeEmpty();
 
-						expect( result ).toHaveKey( "message" );
-						expect( result.message ).toBeTypeOf( "array" );
-						expect( result.message ).toBeEmpty();
+						saveResult = result;
 					});
 
 				});
