@@ -537,7 +537,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 				// delete()
 				it( "deletes a record", function(){
-					var result = testClass.delete( bean="user", id=1 );
+					var result = testClass.delete( beanname="user", id=1 );
 
 					expect( DataFactory.$once("getBeanMap") ).toBeTrue();
 					expect( testClass.$once("deleteSQL") ).toBeTrue();
@@ -547,7 +547,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 				// deleteByNotIn()
 				it( "deletes a list of records", function(){
-					var result = testClass.deleteByNotIn( bean="user", key="id", list="1,2,3" );
+					var result = testClass.deleteByNotIn( beanname="user", key="id", list="1,2,3" );
 
 					expect( DataFactory.$once("getBeanMap") ).toBeTrue();
 					expect( testClass.$once("deleteByNotInSQL") ).toBeTrue();

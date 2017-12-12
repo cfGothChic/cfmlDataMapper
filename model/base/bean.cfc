@@ -13,7 +13,7 @@
 	property ValidationService;
 
 	public component function init( string id=0 ) {
-		populate(arguments.id);
+		populate( id=arguments.id );
 		return this;
 	}
 
@@ -21,7 +21,7 @@
 		var result = { "success"=true, "code"=001, "messages"=[] };
 		try {
 			var beanmap = getBeanMap();
-			variables.SQLService.delete(getBeanName(), variables[ beanmap.primaryKey ]);
+			variables.SQLService.delete( beanname=getBeanName(), id=variables[ beanmap.primaryKey ] );
 		} catch (any e) {
 			arrayAppend(result.messages,"There was an issue deleting the " & getBeanName() & ".");
 			result.success = false;
@@ -100,7 +100,7 @@
 
 		transaction {
 			try {
-				var bean = getBeanName();
+				var beanname = getBeanName();
 				var beanmap = getBeanMap();
 
 				if(arguments.validate){
@@ -114,9 +114,9 @@
 
 				if( result.success ){
 					if ( variables[ beanmap.primarykey ] ) {
-						variables.SQLService.update(bean, this);
+						variables.SQLService.update( beanname=beanname, bean=this );
 					} else {
-						var newid = variables.SQLService.create(bean, this);
+						var newid = variables.SQLService.create( beanname=beanname, bean=this);
 						setPrimaryKey(newid);
 					}
 
@@ -147,8 +147,8 @@
 	}
 
 	private void function clearCache() {
-		var bean = getBeanName();
-		variables.CacheService.clearBean(bean);
+		var beanname = getBeanName();
+		variables.CacheService.clearBean( beanname=beanname );
 	}
 
 	private string function getBeanMetaDataName() {
@@ -262,12 +262,12 @@
 		);
 	}
 
-	private component function getSingularSprocBean( required string bean, required query qRecords ) {
-		var beans = variables.DataFactory.getBeans( bean=arguments.bean, qRecords=arguments.qRecords );
+	private component function getSingularSprocBean( required string beanname, required query qRecords ) {
+		var beans = variables.DataFactory.getBeans( bean=arguments.beanname, qRecords=arguments.qRecords );
 		if ( arrayLen(beans) ) {
 			return beans[1];
 		} else {
-			return variables.DataFactory.get( bean=arguments.bean );
+			return variables.DataFactory.get( bean=arguments.beanname );
 		}
 	}
 
@@ -283,20 +283,20 @@
 		}
 	}
 
-	private any function getSprocRelationship( required string bean, required string joinType, required query qRecords ) {
+	private any function getSprocRelationship( required string beanname, required string joinType, required query qRecords ) {
 		var isSingular = ( arguments.joinType == "one" );
 		if ( isSingular ) {
-			return getSingularSprocBean( bean=arguments.bean, qRecords=arguments.qRecords );
+			return getSingularSprocBean( beanname=arguments.beanname, qRecords=arguments.qRecords );
 		} else {
-			return variables.DataFactory.getBeans( bean=arguments.bean, qRecords=arguments.qRecords );
+			return variables.DataFactory.getBeans( bean=arguments.beanname, qRecords=arguments.qRecords );
 		}
 	}
 
-	private void function populate( numeric id=0, string bean="" ) {
+	private void function populate( numeric id=0, string beanname="" ) {
 		if ( !isNumeric(arguments.id) ) {
 			arguments.id = 0;
 		}
-		setBeanName(arguments.bean);
+		setBeanName( beanname=arguments.beanname );
 
 		if ( arguments.id ) {
 			var qRecord = variables.SQLService.read(
@@ -319,7 +319,7 @@
 	private void function populateBySproc(
 		required string sproc,
 		string id="",
-		string bean="",
+		string beanname="",
 		array params=[],
 		array resultkeys=[]
 	) {
@@ -327,7 +327,7 @@
 			arguments.id = 0;
 		}
 		arguments.context = getSprocContext( argumentCollection=arguments );
-		setBeanName(arguments.bean);
+		setBeanName( beanname=arguments.beanname );
 
 		if ( arguments.id || arrayLen(arguments.params) ) {
 
@@ -393,7 +393,7 @@
 
 			else {
 				properties[relationship] = getSprocRelationship(
-					bean=beanmap.relationships[relationship].bean,
+					beanname=beanmap.relationships[relationship].bean,
 					joinType=beanmap.relationships[relationship].joinType,
 					qRecords=arguments.data[relationship]
 				);
@@ -405,8 +405,8 @@
 		}
 	}
 
-	private void function setBeanName( string bean="" ) {
-		variables.beanname = ( len(arguments.bean) ? arguments.bean : getBeanMetaDataName() );
+	private void function setBeanName( string beanname="" ) {
+		variables.beanname = ( len(arguments.beanname) ? arguments.beanname : getBeanMetaDataName() );
 	}
 
 	private void function setPrimaryKey( required string primarykey ) {

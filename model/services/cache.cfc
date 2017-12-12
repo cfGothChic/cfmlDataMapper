@@ -11,8 +11,8 @@ component accessors="true" {
 		return this;
 	}
 
-	public void function clearBean( required string bean ) {
-		structDelete(variables.beanCache,arguments.bean);
+	public void function clearBean( required string beanname ) {
+		structDelete(variables.beanCache, arguments.beanname);
 	}
 
 	public struct function get(
@@ -28,7 +28,7 @@ component accessors="true" {
 			if ( beanmap.cached ) {
 				var paramjson = getParamJson( beanmap, arguments.params );
 
-				if ( beanCacheCheck( arguments.beanname, arguments.params ) ) {
+				if ( beanCacheCheck( argumentCollection=arguments ) ) {
 					cacheBeans( beanmap=beanmap, beanname=arguments.beanname, params=arguments.params, paramjson=paramjson );
 				}
 
@@ -62,12 +62,12 @@ component accessors="true" {
 		if ( beanmap.cached ) {
 			var paramjson = getParamJson( beanmap, arguments.params );
 
-			if ( beanCacheCheck( arguments.beanname, arguments.params, arguments.orderby ) ) {
+			if ( beanCacheCheck( argumentCollection=arguments ) ) {
 				cacheBeans( beanmap=beanmap, beanname=arguments.beanname, params=arguments.params, paramjson=paramjson, orderby=arguments.orderby );
 			}
 
 			if ( beanParamsAreInCache(beanmap, paramjson) ) {
-				result.beans = getBeansByParams( arguments.beanname, paramjson, arguments.params, arguments.orderby );
+				result.beans = getBeansByParams( beanname=arguments.beanname, paramjson=paramjson, params=arguments.params, orderby=arguments.orderby );
 				result.success = true;
 			}
 		}
@@ -76,12 +76,12 @@ component accessors="true" {
 	}
 
 	private boolean function beanCacheCheck(
-		required string bean,
+		required string beanname,
 		required struct params,
 		string orderby=""
 	) {
 		return (
-			!structKeyExists(variables.beanCache,arguments.bean)
+			!structKeyExists(variables.beanCache, arguments.beanname)
 			|| !structIsEmpty(arguments.params)
 			|| len(arguments.orderby)
 		);
@@ -105,18 +105,18 @@ component accessors="true" {
 		string paramjson="",
 		string orderby=""
 	) {
-		if ( checkBeanCache( arguments.beanmap, arguments.paramjson, arguments.orderby ) ) {
+		if ( checkBeanCache( argumentCollection=arguments ) ) {
 			arguments.methodname = "cacheBeans";
 
 			if ( !structKeyExists(variables.beanCache, arguments.beanname) ) {
 				cacheDefaultParams( argumentCollection=arguments );
 			}
 
-			if ( paramsAreNotCached( arguments.beanmap, arguments.beanname, arguments.paramjson, arguments.params ) ) {
-				cacheParamString( arguments.beanname,arguments.paramjson,arguments.params );
+			if ( paramsAreNotCached( argumentCollection=arguments ) ) {
+				cacheParamString( argumentCollection=arguments );
 			}
 
-			if ( sortOrderIsNotCached( arguments.beanmap, arguments.beanname, arguments.orderby ) ) {
+			if ( sortOrderIsNotCached( argumentCollection=arguments ) ) {
 				cacheSortOrder( argumentCollection=arguments );
 			}
 		}
@@ -125,7 +125,7 @@ component accessors="true" {
 	private void function cacheDefaultParams( required string beanname, required string methodname, required struct beanmap ) {
 		lock timeout="60" scope="application" type="exclusive" {
 			var qRecords = variables.SQLService.read(
-				bean=arguments.beanname,
+				beanname=arguments.beanname,
 				methodname=arguments.methodname,
 				params=arguments.beanmap.cacheparams[1]
 			);
@@ -144,12 +144,12 @@ component accessors="true" {
 	}
 
 	private void function cacheParamString(
-		required string bean,
+		required string beanname,
 		required string paramjson,
 		required struct params
 	) {
-		var beanids = getParamBeanIds(arguments.bean, arguments.params);
-		variables.beanCache[ arguments.bean ].params[ arguments.paramjson ] = beanids;
+		var beanids = getParamBeanIds( beanname=arguments.beanname, params=arguments.params );
+		variables.beanCache[ arguments.beanname ].params[ arguments.paramjson ] = beanids;
 	}
 
 	private void function cacheSortOrder(
@@ -185,15 +185,15 @@ component accessors="true" {
 		);
 	}
 
-	private array function getBeansByParams( required string bean, required string paramjson, required struct params, required string orderby ) {
-		var beanData = variables.beanCache[ arguments.bean ];
+	private array function getBeansByParams( required string beanname, required string paramjson, required struct params, required string orderby ) {
+		var beanData = variables.beanCache[ arguments.beanname ];
 		var beans = [];
 
-		var sortorder = structKeyExists(beanData.sortorder,arguments.orderby) ? beanData.sortorder[arguments.orderby] : beanData.sortorder.default;
-		var paramids = len(arguments.paramjson) && structKeyExists(beanData.params,arguments.paramjson) ? beanData.params[arguments.paramjson] : sortorder;
+		var sortorder = structKeyExists(beanData.sortorder, arguments.orderby) ? beanData.sortorder[arguments.orderby] : beanData.sortorder.default;
+		var paramids = len(arguments.paramjson) && structKeyExists(beanData.params, arguments.paramjson) ? beanData.params[arguments.paramjson] : sortorder;
 
 		if ( !len(arguments.paramjson) && structCount(arguments.params) ) {
-			paramids = getParamBeanIds(arguments.bean, arguments.params);
+			paramids = getParamBeanIds( beanname=arguments.beanname, params=arguments.params );
 		}
 
 		for ( var primarykey in sortorder ) {
@@ -201,7 +201,7 @@ component accessors="true" {
 				arrayFind(paramids,primarykey)
 				&& structKeyExists(beanData.beans, primarykey)
 			) {
-				var cachedbean = getCachedBean( beanname=arguments.bean, beanData=beanData, primaryKey=primaryKey );
+				var cachedbean = getCachedBean( beanname=arguments.beanname, beanData=beanData, primaryKey=primaryKey );
 				arrayAppend(beans, cachedbean);
 			}
 		}
@@ -221,8 +221,8 @@ component accessors="true" {
 		return cachedbean;
 	}
 
-	private array function getParamBeanIds( required string bean, required struct params ) {
-		var beanData = variables.beanCache[ arguments.bean ];
+	private array function getParamBeanIds( required string beanname, required struct params ) {
+		var beanData = variables.beanCache[ arguments.beanname ];
 		var beanids = [];
 		for ( var primarykey in beanData.beans ) {
 			var checkbean = beanData.beans[primarykey];
@@ -278,19 +278,19 @@ component accessors="true" {
 		return json;
 	}
 
-	private boolean function paramsAreNotCached( required struct beanmap, required string bean, required string paramjson ) {
+	private boolean function paramsAreNotCached( required struct beanmap, required string beanname, required string paramjson ) {
 		return (
 			arrayLen(arguments.beanmap.cacheparams) > 1
 			&& len(arguments.paramjson)
-			&& !structKeyExists(variables.beanCache[ arguments.bean ].params,arguments.paramjson)
+			&& !structKeyExists(variables.beanCache[ arguments.beanname ].params,arguments.paramjson)
 		);
 	}
 
-	private boolean function sortOrderIsNotCached( required struct beanmap, required string bean, required string orderby ) {
+	private boolean function sortOrderIsNotCached( required struct beanmap, required string beanname, required string orderby ) {
 		return (
 			len(arguments.orderby)
 			&& arguments.beanmap.orderby != arguments.orderby
-			&& !structKeyExists(variables.beanCache[ arguments.bean ].sortorder,arguments.orderby)
+			&& !structKeyExists(variables.beanCache[ arguments.beanname ].sortorder,arguments.orderby)
 		);
 	}
 

@@ -112,14 +112,14 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 						// setBeanName()
 						it( "updates the cached bean name with the argument", function(){
-							testClass.setBeanName( bean="test" );
+							testClass.setBeanName( beanname="test" );
 
 							expect( testClass.$never("getBeanMetaDataName") ).toBeTrue();
 						});
 
 
 						it( "updates the cached bean name with the metadata", function(){
-							testClass.setBeanName( bean="" );
+							testClass.setBeanName( beanname="" );
 
 							expect( testClass.$once("getBeanMetaDataName") ).toBeTrue();
 						});
@@ -522,7 +522,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 					// getSingularSprocBean()
 					it( "returns a bean populated from the stored procedure query", function(){
-						var result = testClass.getSingularSprocBean( bean="test", qRecords=qRecords );
+						var result = testClass.getSingularSprocBean( beanname="test", qRecords=qRecords );
 
 						expect( DataFactory.$once("getBeans") ).toBeTrue();
 						expect( DataFactory.$never("get") ).toBeTrue();
@@ -535,7 +535,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					it( "returns an empty bean if the stored procedure query has no results", function(){
 						DataFactory.$( "getBeans", [] );
 
-						var result = testClass.getSingularSprocBean( bean="test", qRecords=querySim("") );
+						var result = testClass.getSingularSprocBean( beanname="test", qRecords=querySim("") );
 
 						expect( DataFactory.$once("getBeans") ).toBeTrue();
 						expect( DataFactory.$once("get") ).toBeTrue();
@@ -554,7 +554,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 
 						it( "returns a bean from the stored procedure data if the joinType is one", function(){
-							var result = testClass.getSprocRelationship( bean="test", joinType="one", qRecords=qRecords );
+							var result = testClass.getSprocRelationship( beanname="test", joinType="one", qRecords=qRecords );
 
 							expect( testClass.$once("getSingularSprocBean") ).toBeTrue();
 							expect( DataFactory.$never("getBeans") ).toBeTrue();
@@ -565,7 +565,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 
 						it( "returns an array from the stored procedure data if the joinType is many", function(){
-							var result = testClass.getSprocRelationship( bean="test", joinType="many", qRecords=qRecords );
+							var result = testClass.getSprocRelationship( beanname="test", joinType="many", qRecords=qRecords );
 
 							expect( testClass.$never("getSingularSprocBean") ).toBeTrue();
 							expect( DataFactory.$once("getBeans") ).toBeTrue();
@@ -577,7 +577,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 
 						it( "returns an array from the stored procedure data if the joinType is one-to-many", function(){
-							var result = testClass.getSprocRelationship( bean="test", joinType="one-to-many", qRecords=qRecords );
+							var result = testClass.getSprocRelationship( beanname="test", joinType="one-to-many", qRecords=qRecords );
 
 							expect( testClass.$never("getSingularSprocBean") ).toBeTrue();
 							expect( DataFactory.$once("getBeans") ).toBeTrue();
@@ -589,7 +589,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 
 						it( "returns an array from the stored procedure data if the joinType is many-to-many", function(){
-							var result = testClass.getSprocRelationship( bean="test", joinType="many-to-many", qRecords=qRecords );
+							var result = testClass.getSprocRelationship( beanname="test", joinType="many-to-many", qRecords=qRecords );
 
 							expect( testClass.$never("getSingularSprocBean") ).toBeTrue();
 							expect( DataFactory.$once("getBeans") ).toBeTrue();
@@ -1206,7 +1206,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 
 					it( "gets the bean record from the database and populates the data", function(){
-						testClass.populate( id=1, bean="test" );
+						testClass.populate( id=1, beanname="test" );
 
 						expect( testClass.$once("setBeanName") ).toBeTrue();
 						expect( SQLService.$once("read") ).toBeTrue();
@@ -1216,7 +1216,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 
 					it( "doesn't get the bean record if the id is 0", function(){
-						testClass.populate( id=0, bean="test" );
+						testClass.populate( id=0, beanname="test" );
 
 						expect( testClass.$once("setBeanName") ).toBeTrue();
 						expect( SQLService.$never("read") ).toBeTrue();
@@ -1226,7 +1226,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 
 					it( "doesn't populate the bean data if the there isn't a record", function(){
-						testClass.populate( id=2, bean="test" );
+						testClass.populate( id=2, beanname="test" );
 
 						expect( testClass.$once("setBeanName") ).toBeTrue();
 						expect( SQLService.$once("read") ).toBeTrue();
@@ -1261,7 +1261,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 
 					it( "doesn't populate from a stored procedure if the primary key is 0 and there are no params", function(){
-						testClass.populateBySproc( sproc="getTest", id=0, bean="test", params=[], resultkeys=[] );
+						testClass.populateBySproc( sproc="getTest", id=0, beanname="test", params=[], resultkeys=[] );
 
 						expect( testClass.$once("getSprocContext") ).toBeTrue();
 						expect( testClass.$once("setBeanName") ).toBeTrue();
@@ -1274,7 +1274,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 
 					it( "doesn't populate from a stored procedure if the primary key is blank", function(){
-						testClass.populateBySproc( sproc="getTest", id="", bean="test", params=[], resultkeys=[] );
+						testClass.populateBySproc( sproc="getTest", id="", beanname="test", params=[], resultkeys=[] );
 
 						expect( testClass.$once("getSprocContext") ).toBeTrue();
 						expect( testClass.$once("setBeanName") ).toBeTrue();
@@ -1287,7 +1287,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 
 					it( "populates the data and relationships from a stored procedure", function(){
-						testClass.populateBySproc( sproc="getTest", id=1, bean="test", params=[], resultkeys=[] );
+						testClass.populateBySproc( sproc="getTest", id=1, beanname="test", params=[], resultkeys=[] );
 
 						expect( testClass.$once("getSprocContext") ).toBeTrue();
 						expect( testClass.$once("setBeanName") ).toBeTrue();
@@ -1300,7 +1300,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 
 					it( "populates the data and relationships from a stored procedure using params", function(){
-						testClass.populateBySproc( sproc="getTest", id=0, bean="test", params=[{ name="Test" }], resultkeys=[] );
+						testClass.populateBySproc( sproc="getTest", id=0, beanname="test", params=[{ name="Test" }], resultkeys=[] );
 
 						expect( testClass.$once("getSprocContext") ).toBeTrue();
 						expect( testClass.$once("setBeanName") ).toBeTrue();
@@ -1313,7 +1313,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 
 					it( "populates the data and relationships from a stored procedure using resultkeys", function(){
-						testClass.populateBySproc( sproc="getTest", id=1, bean="test", params=[], resultkeys=["test"] );
+						testClass.populateBySproc( sproc="getTest", id=1, beanname="test", params=[], resultkeys=["test"] );
 
 						expect( testClass.$once("getSprocContext") ).toBeTrue();
 						expect( testClass.$once("setBeanName") ).toBeTrue();

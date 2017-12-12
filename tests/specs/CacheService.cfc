@@ -157,7 +157,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					it( "caches a param string's bean id's", function(){
 						testClass.$( "getParamBeanIds", [1] );
 
-						testClass.cacheParamString( bean="user", paramjson=paramjson, params=params );
+						testClass.cacheParamString( beanname="user", paramjson=paramjson, params=params );
 
 						expect( testClass.$once("getParamBeanIds") ).toBeTrue();
 					});
@@ -165,7 +165,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 					// paramsAreNotCached()
 					it( "returns false if there are only default bean cacheparams", function(){
-						var result = testClass.paramsAreNotCached( beanmap=beanmap, bean="user", paramjson=paramjson );
+						var result = testClass.paramsAreNotCached( beanmap=beanmap, beanname="user", paramjson=paramjson );
 
 						expect( result ).toBeFalse();
 					});
@@ -174,7 +174,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					it( "returns false if the params are already cached", function(){
 						beanmap.cacheparams = [{},{ isDeleted=0 }];
 
-						var result = testClass.paramsAreNotCached( beanmap=beanmap, bean="user", paramjson=paramjson );
+						var result = testClass.paramsAreNotCached( beanmap=beanmap, beanname="user", paramjson=paramjson );
 
 						expect( result ).toBeFalse();
 					});
@@ -183,7 +183,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					it( "returns true if the params are not cached", function(){
 						beanmap.cacheparams = [{},{ isDeleted=0 }];
 
-						var result = testClass.paramsAreNotCached( beanmap=beanmap, bean="user", paramjson="[{name='Moe'}]" );
+						var result = testClass.paramsAreNotCached( beanmap=beanmap, beanname="user", paramjson="[{name='Moe'}]" );
 
 						expect( result ).toBeTrue();
 					});
@@ -210,14 +210,14 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 					// sortOrderIsNotCached()
 					it( "returns false if the sort order is cached", function(){
-						var result = testClass.sortOrderIsNotCached( beanmap=beanmap, bean="user", orderby="id" );
+						var result = testClass.sortOrderIsNotCached( beanmap=beanmap, beanname="user", orderby="id" );
 
 						expect( result ).toBeFalse();
 					});
 
 
 					it( "returns true if the sort order is not cached", function(){
-						var result = testClass.sortOrderIsNotCached( beanmap=beanmap, bean="user", orderby="lastName" );
+						var result = testClass.sortOrderIsNotCached( beanmap=beanmap, beanname="user", orderby="lastName" );
 
 						expect( result ).toBeTrue();
 					});
@@ -380,7 +380,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				it( "returns true if the bean is not cached", function(){
 					testClass.$property( propertyName="beanCache", mock={} );
 
-					var result = testClass.beanCacheCheck( bean="user", params={} );
+					var result = testClass.beanCacheCheck( beanname="user", params={} );
 
 					expect( result ).toBeTrue();
 				});
@@ -398,7 +398,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 				// getParamBeanIds()
 				it( "returns an array of bean ids for the params", function(){
-					var result = testClass.getParamBeanIds( bean="user", params=params );
+					var result = testClass.getParamBeanIds( beanname="user", params=params );
 
 					expect( result ).toBeTypeOf( "array" );
 					expect( result ).toHaveLength( 1 );
@@ -420,21 +420,21 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 					// beanCacheCheck()
 					it( "returns true if the bean is cached but there are params", function(){
-						var result = testClass.beanCacheCheck( bean="user", params={ isDeleted=0 } );
+						var result = testClass.beanCacheCheck( beanname="user", params={ isDeleted=0 } );
 
 						expect( result ).toBeTrue();
 					});
 
 
 					it( "returns true if the bean is cached but there is a sort order", function(){
-						var result = testClass.beanCacheCheck( bean="user", params={}, orderby="name" );
+						var result = testClass.beanCacheCheck( beanname="user", params={}, orderby="name" );
 
 						expect( result ).toBeTrue();
 					});
 
 
 					it( "returns false if the bean is cached and there are no params or a sort order", function(){
-						var result = testClass.beanCacheCheck( bean="user", params={} );
+						var result = testClass.beanCacheCheck( beanname="user", params={} );
 
 						expect( result ).toBeFalse();
 					});
@@ -455,8 +455,8 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 					// clearBean()
 					it( "removes a bean from the cache", function(){
-						testClass.clearBean(bean="user");
-						var result = testClass.beanCacheCheck( bean="user", params={} );
+						testClass.clearBean( beanname="user" );
+						var result = testClass.beanCacheCheck( beanname="user", params={} );
 
 						expect( result ).toBeTrue();
 					});
@@ -495,7 +495,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 					// getBeansByParams()
 					it( "returns an array of cached beans for default params", function(){
-						var result = testClass.getBeansByParams( bean="user", paramjson="", params={}, orderby="" );
+						var result = testClass.getBeansByParams( beanname="user", paramjson="", params={}, orderby="" );
 
 						expect( testClass.$never("getParamBeanIds") ).toBeTrue();
 
@@ -510,7 +510,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 							testClass.$( "getCachedBean", userTypeBean );
 						}
 
-						var result = testClass.getBeansByParams( bean="user", paramjson=paramjson, params={}, orderby="" );
+						var result = testClass.getBeansByParams( beanname="user", paramjson=paramjson, params={}, orderby="" );
 
 						expect( testClass.$never("getParamBeanIds") ).toBeTrue();
 
@@ -525,7 +525,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 							testClass.$( "getCachedBean", departmentBean );
 						}
 
-						var result = testClass.getBeansByParams( bean="user", paramjson="", params=params, orderby="" );
+						var result = testClass.getBeansByParams( beanname="user", paramjson="", params=params, orderby="" );
 
 						expect( testClass.$once("getParamBeanIds") ).toBeTrue();
 
@@ -540,7 +540,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 							testClass.$( "getCachedBean", userTypeBean );
 						}
 
-						var result = testClass.getBeansByParams( bean="user", paramjson="", params={}, orderby="email asc" );
+						var result = testClass.getBeansByParams( beanname="user", paramjson="", params={}, orderby="email asc" );
 
 						expect( testClass.$never("getParamBeanIds") ).toBeTrue();
 

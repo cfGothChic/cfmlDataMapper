@@ -17,14 +17,14 @@
 		return newid;
 	}
 
-	public void function delete( required string bean, required numeric id ) {
-		var beanmap = variables.DataFactory.getBeanMap( bean=arguments.bean );
+	public void function delete( required string beanname, required numeric id ) {
+		var beanmap = variables.DataFactory.getBeanMap( bean=arguments.beanname );
 		var sql = deleteSQL( beanmap=beanmap );
 		variables.DataGateway.delete( sql=sql, primarykey=beanmap.primarykey, id=arguments.id );
 	}
 
-	public void function deleteByNotIn( required string bean, required string key, required string list ) {
-		var beanmap = variables.DataFactory.getBeanMap( bean=arguments.bean );
+	public void function deleteByNotIn( required string beanname, required string key, required string list ) {
+		var beanmap = variables.DataFactory.getBeanMap( bean=arguments.beanname );
 		var pkproperty = beanmap.properties[ arguments.key ];
 		var sql = deleteByNotInSQL( beanmap=beanmap, pkproperty=pkproperty );
 		variables.DataGateway.deleteByNotIn( sql=sql, key=arguments.key, list=arguments.list, sqltype=pkproperty.sqltype );
