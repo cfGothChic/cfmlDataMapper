@@ -35,7 +35,27 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 				userBean = createMock("model.beans.user");
 
+				makePublic( testClass, "getServerType" );
 				makePublic( testClass, "isNullInteger" );
+			});
+
+
+			// getServerType()
+			it( "returns the default server type", function(){
+				var result = testClass.getServerType();
+
+				expect( result ).toBeTypeOf( "string" );
+				expect( result ).toBe( "mssql" );
+			});
+
+
+			it( "returns server type from the config variable", function(){
+				testClass.$property( propertyName="serverType", mock="mysql" );
+
+				var result = testClass.getServerType();
+
+				expect( result ).toBeTypeOf( "string" );
+				expect( result ).toBe( "mysql" );
 			});
 
 
@@ -406,7 +426,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 			});
 
-			describe("determines the sql server type and", function(){
+			describe("determines the sql server type to be", function(){
 
 				beforeEach(function( currentSpec ){
 					MSSQLService = createEmptyMock("cfmlDataMapper.model.services.mssql");
@@ -429,67 +449,153 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				});
 
 
-				// createSQL()
-				it( "returns a create sql statement for mssql", function(){
-					var result = testClass.createSQL();
+				describe("mssql and", function(){
 
-					expect( MSSQLService.$once("createSQL") ).toBeTrue();
-					expect( MySQLService.$never("createSQL") ).toBeTrue();
+					beforeEach(function( currentSpec ){
+						testClass.$( "getServerType", "mssql" );
+					});
 
-					expect( result ).toBeTypeOf( "string" );
+
+					// createSQL()
+					it( "returns a create sql statement", function(){
+						var result = testClass.createSQL();
+
+						expect( MSSQLService.$once("createSQL") ).toBeTrue();
+						expect( MySQLService.$never("createSQL") ).toBeTrue();
+
+						expect( result ).toBeTypeOf( "string" );
+					});
+
+
+					// deleteSQL()
+					it( "returns a delete sql statement", function(){
+						var result = testClass.deleteSQL();
+
+						expect( MSSQLService.$once("deleteSQL") ).toBeTrue();
+						expect( MySQLService.$never("deleteSQL") ).toBeTrue();
+
+						expect( result ).toBeTypeOf( "string" );
+					});
+
+
+					// deleteByNotInSQL()
+					it( "returns a delete by not in list sql statement for mssql", function(){
+						var result = testClass.deleteByNotInSQL();
+
+						expect( MSSQLService.$once("deleteByNotInSQL") ).toBeTrue();
+						expect( MySQLService.$never("deleteByNotInSQL") ).toBeTrue();
+
+						expect( result ).toBeTypeOf( "string" );
+					});
+
+
+					// readSQL()
+					it( "returns an select sql statement for mssql", function(){
+						var result = testClass.readSQL();
+
+						expect( MSSQLService.$once("readSQL") ).toBeTrue();
+						expect( MySQLService.$never("readSQL") ).toBeTrue();
+
+						expect( result ).toBeTypeOf( "string" );
+					});
+
+
+					// readByJoinSQL()
+					it( "returns a select sql statement with a join table for mssql", function(){
+						var result = testClass.readByJoinSQL();
+
+						expect( MSSQLService.$once("readByJoinSQL") ).toBeTrue();
+						expect( MySQLService.$never("readByJoinSQL") ).toBeTrue();
+
+						expect( result ).toBeTypeOf( "string" );
+					});
+
+
+					// updateSQL()
+					it( "returns an update sql statement for mssql", function(){
+						var result = testClass.updateSQL();
+
+						expect( MSSQLService.$once("updateSQL") ).toBeTrue();
+						expect( MySQLService.$never("updateSQL") ).toBeTrue();
+
+						expect( result ).toBeTypeOf( "string" );
+					});
+
 				});
 
 
-				// deleteSQL()
-				it( "returns a delete sql statement for mssql", function(){
-					var result = testClass.deleteSQL();
+				describe("mysql and", function(){
 
-					expect( MSSQLService.$once("deleteSQL") ).toBeTrue();
-					expect( MySQLService.$never("deleteSQL") ).toBeTrue();
-
-					expect( result ).toBeTypeOf( "string" );
-				});
-
-				// deleteByNotInSQL()
-				it( "returns a delete by not in list sql statement for mssql", function(){
-					var result = testClass.deleteByNotInSQL();
-
-					expect( MSSQLService.$once("deleteByNotInSQL") ).toBeTrue();
-					expect( MySQLService.$never("deleteByNotInSQL") ).toBeTrue();
-
-					expect( result ).toBeTypeOf( "string" );
-				});
-
-				// readSQL()
-				it( "returns an select sql statement for mssql", function(){
-					var result = testClass.readSQL();
-
-					expect( MSSQLService.$once("readSQL") ).toBeTrue();
-					expect( MySQLService.$never("readSQL") ).toBeTrue();
-
-					expect( result ).toBeTypeOf( "string" );
-				});
+					beforeEach(function( currentSpec ){
+						testClass.$( "getServerType", "mysql" );
+					});
 
 
-				// readByJoinSQL()
-				it( "returns a select sql statement with a join table for mssql", function(){
-					var result = testClass.readByJoinSQL();
+					// createSQL()
+					it( "returns a create sql statement", function(){
+						var result = testClass.createSQL();
 
-					expect( MSSQLService.$once("readByJoinSQL") ).toBeTrue();
-					expect( MySQLService.$never("readByJoinSQL") ).toBeTrue();
+						expect( MSSQLService.$never("createSQL") ).toBeTrue();
+						expect( MySQLService.$once("createSQL") ).toBeTrue();
 
-					expect( result ).toBeTypeOf( "string" );
-				});
+						expect( result ).toBeTypeOf( "string" );
+					});
 
 
-				// updateSQL()
-				it( "returns an update sql statement for mssql", function(){
-					var result = testClass.updateSQL();
+					// deleteSQL()
+					it( "returns a delete sql statement", function(){
+						var result = testClass.deleteSQL();
 
-					expect( MSSQLService.$once("updateSQL") ).toBeTrue();
-					expect( MySQLService.$never("updateSQL") ).toBeTrue();
+						expect( MSSQLService.$never("deleteSQL") ).toBeTrue();
+						expect( MySQLService.$once("deleteSQL") ).toBeTrue();
 
-					expect( result ).toBeTypeOf( "string" );
+						expect( result ).toBeTypeOf( "string" );
+					});
+
+
+					// deleteByNotInSQL()
+					it( "returns a delete by not in list sql statement for mssql", function(){
+						var result = testClass.deleteByNotInSQL();
+
+						expect( MSSQLService.$never("deleteByNotInSQL") ).toBeTrue();
+						expect( MySQLService.$once("deleteByNotInSQL") ).toBeTrue();
+
+						expect( result ).toBeTypeOf( "string" );
+					});
+
+
+					// readSQL()
+					it( "returns an select sql statement for mssql", function(){
+						var result = testClass.readSQL();
+
+						expect( MSSQLService.$never("readSQL") ).toBeTrue();
+						expect( MySQLService.$once("readSQL") ).toBeTrue();
+
+						expect( result ).toBeTypeOf( "string" );
+					});
+
+
+					// readByJoinSQL()
+					it( "returns a select sql statement with a join table for mssql", function(){
+						var result = testClass.readByJoinSQL();
+
+						expect( MSSQLService.$never("readByJoinSQL") ).toBeTrue();
+						expect( MySQLService.$once("readByJoinSQL") ).toBeTrue();
+
+						expect( result ).toBeTypeOf( "string" );
+					});
+
+
+					// updateSQL()
+					it( "returns an update sql statement for mssql", function(){
+						var result = testClass.updateSQL();
+
+						expect( MSSQLService.$never("updateSQL") ).toBeTrue();
+						expect( MySQLService.$once("updateSQL") ).toBeTrue();
+
+						expect( result ).toBeTypeOf( "string" );
+					});
+
 				});
 
 			});

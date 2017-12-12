@@ -3,7 +3,10 @@
 	property DataGateway;
 	property DataFactory;
 	property MSSQLService;
+	property MySQLService;
 	property ValidationService;
+
+	property serverType;
 
 	public component function init() {
 		return this;
@@ -28,6 +31,10 @@
 		var pkproperty = beanmap.properties[ arguments.key ];
 		var sql = deleteByNotInSQL( beanmap=beanmap, pkproperty=pkproperty );
 		variables.DataGateway.deleteByNotIn( sql=sql, key=arguments.key, list=arguments.list, sqltype=pkproperty.sqltype );
+	}
+
+	public string function getServerType() {
+		return isNull(variables.serverType) || !len(variables.serverType) ? "mssql" : variables.serverType;
 	}
 
 	public boolean function isPropertyIncluded(
@@ -105,27 +112,51 @@
 	/* passthrough functions to server specific sql script builders */
 
 	public string function createSQL() {
-		return variables.MSSQLService.createSQL( argumentCollection=arguments );
+		if ( getServerType() == "mysql" ) {
+			return variables.MySQLService.createSQL( argumentCollection=arguments );
+		} else {
+			return variables.MSSQLService.createSQL( argumentCollection=arguments );
+		}
 	}
 
 	public string function deleteSQL() {
-		return variables.MSSQLService.deleteSQL( argumentCollection=arguments );
+		if ( getServerType() == "mysql" ) {
+			return variables.MySQLService.deleteSQL( argumentCollection=arguments );
+		} else {
+			return variables.MSSQLService.deleteSQL( argumentCollection=arguments );
+		}
 	}
 
 	public string function deleteByNotInSQL() {
-		return variables.MSSQLService.deleteByNotInSQL( argumentCollection=arguments );
+		if ( getServerType() == "mysql" ) {
+			return variables.MySQLService.deleteByNotInSQL( argumentCollection=arguments );
+		} else {
+			return variables.MSSQLService.deleteByNotInSQL( argumentCollection=arguments );
+		}
 	}
 
 	public string function readByJoinSQL() {
-		return variables.MSSQLService.readByJoinSQL( argumentCollection=arguments );
+		if ( getServerType() == "mysql" ) {
+			return variables.MySQLService.readByJoinSQL( argumentCollection=arguments );
+		} else {
+			return variables.MSSQLService.readByJoinSQL( argumentCollection=arguments );
+		}
 	}
 
 	public string function readSQL() {
-		return variables.MSSQLService.readSQL( argumentCollection=arguments );
+		if ( getServerType() == "mysql" ) {
+			return variables.MySQLService.readSQL( argumentCollection=arguments );
+		} else {
+			return variables.MSSQLService.readSQL( argumentCollection=arguments );
+		}
 	}
 
 	public string function updateSQL() {
-		return variables.MSSQLService.updateSQL( argumentCollection=arguments );
+		if ( getServerType() == "mysql" ) {
+			return variables.MySQLService.updateSQL( argumentCollection=arguments );
+		} else {
+			return variables.MSSQLService.updateSQL( argumentCollection=arguments );
+		}
 	}
 
 	/* private functions */

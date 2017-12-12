@@ -24,7 +24,8 @@ component accessors="true" output="false" {
     var config = getFactoryConfig();
 
     var contants = {
-      dsn = config.dsn
+      dsn = config.dsn,
+      serverType = config.serverType
     };
 
     return contants;
@@ -61,6 +62,7 @@ component accessors="true" output="false" {
     }
 
     param name="config.reloadApplicationOnEveryRequest" default="false";
+    param name="config.serverType" default="";
 
     setFactoryConfig(config);
   }
