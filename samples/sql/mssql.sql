@@ -106,14 +106,38 @@ BEGIN
 	ALTER TABLE [dbo].[users_roles] CHECK CONSTRAINT [FK_users_roles_users]
 END
 
--- populate tables
-INSERT INTO departments (name, createdate, updatedate)
-VALUES
-	('Accounting', GETDATE(), GETDATE())
-	,('Development', GETDATE(), GETDATE())
-	,('Sales', GETDATE(), GETDATE())
-	,('Support', GETDATE(), GETDATE());
+-- populate departments
+DECLARE @tDepartments TABLE (
+	departmentId INT
+	, name VARCHAR(50)
+);
 
+INSERT INTO @tDepartments (departmentId, name)
+VALUES
+	(1, 'Accounting')
+	,(2, 'Development')
+	,(3, 'Sales')
+	,(4, 'Support');
+
+SET IDENTITY_INSERT dbo.departments ON;
+
+MERGE INTO dbo.departments AS t
+USING @tDepartments AS s
+ON 
+	t.departmentId = s.departmentId
+WHEN NOT MATCHED THEN
+	INSERT ( departmentId, name, updatedate ) 
+	VALUES (
+		s.departmentId
+		, s.name
+		, GETDATE()
+	);
+
+SET IDENTITY_INSERT dbo.departments ON;
+
+
+
+/*
 INSERT INTO roles (name, createdate, updatedate)
 VALUES
 	('Editor', GETDATE(), GETDATE())
@@ -141,3 +165,24 @@ VALUES
 	,( 2, 2 )
 	,( 3, 1 )
 	,( 3, 3 );
+
+	MERGE INTO dbo.departments AS t
+USING @tDepartments AS s
+ON 
+	t.departmentId = s.departmentId
+WHEN MATCHED THEN
+	UPDATE SET
+		t.name = t.name
+		, t.alias = t.alias
+
+WHEN NOT MATCHED THEN
+	INSERT (
+		Id
+		, name
+		, alias
+	) VALUES (
+		s.Id
+		, s.name
+		, s.alias
+	);
+*/
