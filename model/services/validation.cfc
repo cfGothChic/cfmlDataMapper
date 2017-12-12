@@ -25,6 +25,52 @@ component accessors="true" {
 		return errors;
 	}
 
+	public string function validateByDataType( required string datatype, required string value, required string displayname ){
+		var returnString = "";
+
+		switch(arguments.datatype){
+			case "boolean":
+				if( !isBoolean(arguments.value) ){
+					returnString = arguments.displayname & " must be a numeric value.";
+				}
+			break;
+
+			case "date":
+			case "timestamp":
+				if( !isDate(arguments.value) ){
+					returnString = arguments.displayname & " must be a date/time value.";
+				}
+			break;
+
+			case "email":
+				if( !isValid("email",arguments.value) ){
+					returnString = arguments.displayname & " must be a valid email address.";
+				}
+			break;
+
+			case "numeric":
+				if( !isNumeric(arguments.value) ){
+					returnString = arguments.displayname & " must be a numeric value.";
+				}
+			break;
+
+			case "telephone":
+				if ( !isValid("telephone",arguments.value) ) {
+					returnString = arguments.displayname & " must be a valid telephone number.";
+				}
+			break;
+
+			case "zip":
+			case "zipcode":
+				if( !validateZipCode(arguments.value) ){
+					returnString = arguments.displayname & " must be a valid zipcode or postal code.";
+				}
+			break;
+		}
+
+		return returnString;
+	}
+
 	private array function validateBeanProperty( required string value, required struct beanProperty ) {
 		var errors = [];
 		var validationMessage = "";
@@ -92,52 +138,6 @@ component accessors="true" {
 		}
 
 		return errors;
-	}
-
-	private string function validateByDataType( required string datatype, required string value, required string displayname ){
-		var returnString = "";
-
-		switch(arguments.datatype){
-			case "boolean":
-				if( !isBoolean(arguments.value) ){
-					returnString = arguments.displayname & " must be a numeric value.";
-				}
-			break;
-
-			case "date":
-			case "timestamp":
-				if( !isDate(arguments.value) ){
-					returnString = arguments.displayname & " must be a date/time value.";
-				}
-			break;
-
-			case "email":
-				if( !isValid("email",arguments.value) ){
-					returnString = arguments.displayname & " must be a valid email address.";
-				}
-			break;
-
-			case "numeric":
-				if( !isNumeric(arguments.value) ){
-					returnString = arguments.displayname & " must be a numeric value.";
-				}
-			break;
-
-			case "telephone":
-				if ( !isValid("telephone",arguments.value) ) {
-					returnString = arguments.displayname & " must be a valid telephone number.";
-				}
-			break;
-
-			case "zip":
-			case "zipcode":
-				if( !validateZipCode(arguments.value) ){
-					returnString = arguments.displayname & " must be a valid zipcode or postal code.";
-				}
-			break;
-		}
-
-		return returnString;
 	}
 
 	private string function validateLength( required string minlength, required string maxlength, required string value, required string displayname ){

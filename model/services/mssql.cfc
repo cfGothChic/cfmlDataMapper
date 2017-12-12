@@ -59,7 +59,7 @@
 
 	public string function readSQL(
 		required struct beanmap,
-		required struct params={},
+		required struct sqlparams={},
 		required string orderby="",
 		boolean pkOnly=false
 	) {
@@ -69,8 +69,8 @@
 		sql &= getFields( type="select", beanmap=arguments.beanmap, pkOnly=arguments.pkOnly );
 		sql &= " FROM " & tablename;
 
-		if ( structCount(arguments.params) ) {
-			sql &= getWhereStatement( beanmap=arguments.beanmap, params=arguments.params, tablename=tablename );
+		if ( structCount(arguments.sqlparams) ) {
+			sql &= getWhereStatement( beanmap=arguments.beanmap, sqlparams=arguments.sqlparams, tablename=tablename );
 		}
 
 		sql &= " ORDER BY " & getFullOrderBy( beanmap=arguments.beanmap, orderby=arguments.orderby );
@@ -160,10 +160,17 @@
 
 		var fields = "";
 		for ( var propname in arguments.beanmap.properties ) {
-			var isIncluded = variables.SQLService.isPropertyIncluded( prop=propname, beanmap=arguments.beanmap, includepk=includepk, type=arguments.type, pkOnly=arguments.pkOnly );
+			var prop = arguments.beanmap.properties[ propname ];
+
+			var isIncluded = variables.SQLService.isPropertyIncluded(
+				prop=prop,
+				primarykey=arguments.beanmap.primarykey,
+				includepk=includepk,
+				type=arguments.type,
+				pkOnly=arguments.pkOnly
+			);
 
 			if ( isIncluded ) {
-				var prop = arguments.beanmap.properties[ propname ];
 				var columnname = tablename & "." & getPropertyField( prop=prop );
 
 				if ( len(fields) ) {
@@ -264,9 +271,9 @@
 		return "[" & ( len(arguments.beanmap.schema) ? arguments.beanmap.schema : "dbo" ) & "].[" & arguments.beanmap.table & "]";
 	}
 
-	private string function getWhereStatement( required struct beanmap, required struct params, required string tablename ) {
+	private string function getWhereStatement( required struct beanmap, required struct sqlparams, required string tablename ) {
 		var where = "";
-		for ( var field in arguments.params ) {
+		for ( var field in arguments.sqlparams ) {
 			if ( structKeyExists(arguments.beanmap.properties,field) ) {
 				var prop = arguments.beanmap.properties[field];
 				where &= ( len(where) ? " AND " : " WHERE " ) & arguments.tablename;

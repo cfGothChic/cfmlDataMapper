@@ -16,13 +16,17 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					properties = {
 						id = {
 							name = "id",
+							displayname = "ID",
 							insert = true,
+							datatype = "integer",
 							sqltype = "cf_sql_integer",
 							null = true
 						},
 						email = {
 							name = "email",
+							displayname = "Email",
 							insert = true,
+							datatype = "string",
 							sqltype = "cf_sql_varchar",
 							null = true
 						}
@@ -64,7 +68,13 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 				// isPropertyIncluded()
 				it( "returns true if the type is select and not primarykey only", function(){
-					var result = testClass.isPropertyIncluded( prop="email", beanmap=beanmap, includepk=true, type="select", pkOnly=false );
+					var result = testClass.isPropertyIncluded(
+						prop=beanmap.properties.email,
+						primarykey=beanmap.primarykey,
+						includepk=true,
+						type="select",
+						pkOnly=false
+					);
 
 					expect( result ).toBeTypeOf( "boolean" );
 					expect( result ).toBeTrue();
@@ -72,7 +82,13 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 
 				it( "returns true if the type is select, the field is the primarykey and it is primarykey only", function(){
-					var result = testClass.isPropertyIncluded( prop="id", beanmap=beanmap, includepk=true, type="select", pkOnly=true );
+					var result = testClass.isPropertyIncluded(
+						prop=beanmap.properties.id,
+						primarykey=beanmap.primarykey,
+						includepk=true,
+						type="select",
+						pkOnly=true
+					);
 
 					expect( result ).toBeTypeOf( "boolean" );
 					expect( result ).toBeTrue();
@@ -80,7 +96,13 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 
 				it( "returns false if the type is select, the field is not the primarykey and it is primarykey only", function(){
-					var result = testClass.isPropertyIncluded( prop="email", beanmap=beanmap, includepk=true, type="select", pkOnly=true );
+					var result = testClass.isPropertyIncluded(
+						prop=beanmap.properties.email,
+						primarykey=beanmap.primarykey,
+						includepk=true,
+						type="select",
+						pkOnly=true
+					);
 
 					expect( result ).toBeTypeOf( "boolean" );
 					expect( result ).toBeFalse();
@@ -88,7 +110,13 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 
 				it( "returns true if the type is not select, the property is inserted and its including the primarykey", function(){
-					var result = testClass.isPropertyIncluded( prop="email", beanmap=beanmap, includepk=true, type="update", pkOnly=false );
+					var result = testClass.isPropertyIncluded(
+						prop=beanmap.properties.email,
+						primarykey=beanmap.primarykey,
+						includepk=true,
+						type="update",
+						pkOnly=false
+					);
 
 					expect( result ).toBeTypeOf( "boolean" );
 					expect( result ).toBeTrue();
@@ -96,7 +124,13 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 
 				it( "returns true if the type is not select, the property is inserted and its not the primrarykey when not included", function(){
-					var result = testClass.isPropertyIncluded( prop="email", beanmap=beanmap, includepk=false, type="update", pkOnly=false );
+					var result = testClass.isPropertyIncluded(
+						prop=beanmap.properties.email,
+						primarykey=beanmap.primarykey,
+						includepk=false,
+						type="update",
+						pkOnly=false
+					);
 
 					expect( result ).toBeTypeOf( "boolean" );
 					expect( result ).toBeTrue();
@@ -104,7 +138,13 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 
 				it( "returns false if the type is not select, the property is inserted and its the primarykey when not included", function(){
-					var result = testClass.isPropertyIncluded( prop="id", beanmap=beanmap, includepk=false, type="update", pkOnly=false );
+					var result = testClass.isPropertyIncluded(
+						prop=beanmap.properties.id,
+						primarykey=beanmap.primarykey,
+						includepk=false,
+						type="update",
+						pkOnly=false
+					);
 
 					expect( result ).toBeTypeOf( "boolean" );
 					expect( result ).toBeFalse();
@@ -113,10 +153,100 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 				it( "returns false if the type is not select and the property is not inserted", function(){
 					beanmap.properties.email.insert = false;
-					var result = testClass.isPropertyIncluded( prop="email", beanmap=beanmap, includepk=true, type="update", pkOnly=false );
+					var result = testClass.isPropertyIncluded(
+						prop=beanmap.properties.email,
+						primarykey=beanmap.primarykey,
+						includepk=true,
+						type="update",
+						pkOnly=false
+					);
 
 					expect( result ).toBeTypeOf( "boolean" );
 					expect( result ).toBeFalse();
+				});
+
+			});
+
+
+			// validateQueryParam()
+			describe("calls validateQueryParam() and", function(){
+
+				beforeEach(function( currentSpec ){
+					makePublic( testClass, "validateQueryParam" );
+
+					ValidationService = createEmptyMock("cfmlDataMapper.model.services.validation");
+					ValidationService.$( "validateByDataType", "" );
+					testClass.$property( propertyName="ValidationService", mock=ValidationService );
+
+					args = {
+						fieldkey = "email",
+						value = "test",
+						properties = beanmap.properties,
+						beanname = "test",
+						methodname = "test"
+					};
+				});
+
+
+				it( "returns true if the parameter value has a length and has a string or any bean property datatype", function(){
+					var result = testClass.validateQueryParam( argumentCollection=args );
+
+					expect( ValidationService.$never("validateByDataType") ).toBeTrue();
+
+					expect( result ).toBeTypeOf( "boolean" );
+					expect( result ).toBeTrue();
+				});
+
+
+				it( "returns true if the parameter value has a length and matches the bean property's datatype", function(){
+					args.fieldkey = "id";
+					args.value = 0;
+
+					var result = testClass.validateQueryParam( argumentCollection=args );
+
+					expect( ValidationService.$once("validateByDataType") ).toBeTrue();
+
+					expect( result ).toBeTypeOf( "boolean" );
+					expect( result ).toBeTrue();
+				});
+
+
+				it( "returns false if the parameter value doesn't have a length", function(){
+					args.value = "";
+
+					var result = testClass.validateQueryParam( argumentCollection=args );
+
+					expect( ValidationService.$never("validateByDataType") ).toBeTrue();
+
+					expect( result ).toBeTypeOf( "boolean" );
+					expect( result ).toBeFalse();
+				});
+
+
+				it( "throws an error if the parameter doesn't match a bean property name", function(){
+					args.fieldkey = "test";
+
+					expect( function(){ testClass.validateQueryParam( argumentCollection=args ); } )
+						.toThrow(type="application", regex="(exist)");
+				});
+
+
+				it( "throws an error if the parameter value isn't a simple value", function(){
+					args.value = {};
+
+					expect( function(){ testClass.validateQueryParam( argumentCollection=args ); } )
+						.toThrow(type="application", regex="(simple)");
+				});
+
+
+				it( "throws an error if the parameter value doesn't match the bean property datatype", function(){
+					ValidationService.$( "validateByDataType", "message" );
+
+					args.fieldkey = "id";
+					args.value = "test";
+
+					expect( function(){ testClass.validateQueryParam( argumentCollection=args ); } )
+						.toThrow(type="application", regex="(datatype)");
 				});
 
 			});
@@ -133,7 +263,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 
 				it( "returns a structure of the sql queryparam attributes", function(){
-					var result = testClass.getSQLParam( prop=beanmap.properties.email, propvalue="test" );
+					var result = testClass.getSQLParam( prop=beanmap.properties.email, value="test", allowNull=true );
 
 					expect( testClass.$once("isNullInteger") ).toBeTrue();
 
@@ -146,7 +276,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 
 				it( "returns a structure of the sql queryparam attributes set to null if the value doesn't have a length", function(){
-					var result = testClass.getSQLParam( prop=beanmap.properties.email, propvalue="" );
+					var result = testClass.getSQLParam( prop=beanmap.properties.email, value="", allowNull=true );
 
 					expect( testClass.$never("isNullInteger") ).toBeTrue();
 
@@ -161,7 +291,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				it( "returns a structure of the sql queryparam attributes set to null if the value is a null integer", function(){
 					testClass.$( "isNullInteger", true );
 
-					var result = testClass.getSQLParam( prop=beanmap.properties.id, propvalue=0 );
+					var result = testClass.getSQLParam( prop=beanmap.properties.id, value=0, allowNull=true );
 
 					expect( testClass.$once("isNullInteger") ).toBeTrue();
 
@@ -172,14 +302,75 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					expect( result.null ).toBeTrue();
 				});
 
+
+				it( "returns a structure of the sql queryparam attributes not set to null", function(){
+					var result = testClass.getSQLParam( prop=beanmap.properties.email, value="", allowNull=false );
+
+					expect( testClass.$never("isNullInteger") ).toBeTrue();
+
+					expect( result ).toBeTypeOf( "struct" );
+					expect( result ).toHaveKey( "value" );
+					expect( result ).toHaveKey( "cfsqltype" );
+					expect( result ).toHaveKey( "null" );
+					expect( result.null ).toBeFalse();
+				});
+
 			});
 
 
-			// getParams()
-			describe("calls getParams() and", function(){
+			// getQueryParams()
+			describe("calls getQueryParams() and", function(){
 
 				beforeEach(function( currentSpec ){
-					makePublic( testClass, "getParams" );
+					makePublic( testClass, "getQueryParams" );
+
+					testClass.$( "validateQueryParam", true )
+						.$( "getSQLParam", {} );
+				});
+
+
+				it( "returns a structure of sql parameters from the query properties", function(){
+					var result = testClass.getQueryParams( params={ id=0 }, properties=beanmap.properties, methodname="test", beanname="test" );
+
+					expect( testClass.$once("validateQueryParam") ).toBeTrue();
+					expect( testClass.$once("getSQLParam") ).toBeTrue();
+
+					expect( result ).toBeTypeOf( "struct" );
+					expect( result ).toHaveLength( 1 );
+				});
+
+
+				it( "returns an empty structure of sql parameters if no query parameters are passed in", function(){
+					var result = testClass.getQueryParams( params={}, properties=beanmap.properties, methodname="test", beanname="test" );
+
+					expect( testClass.$never("validateQueryParam") ).toBeTrue();
+					expect( testClass.$never("getSQLParam") ).toBeTrue();
+
+					expect( result ).toBeTypeOf( "struct" );
+					expect( result ).toBeEmpty();
+				});
+
+
+				it( "returns an empty structure of sql parameters if none of the query parameters are valid", function(){
+					testClass.$( "validateQueryParam", false );
+
+					var result = testClass.getQueryParams( params={ test="test" }, properties=beanmap.properties, methodname="test", beanname="test" );
+
+					expect( testClass.$once("validateQueryParam") ).toBeTrue();
+					expect( testClass.$never("getSQLParam") ).toBeTrue();
+
+					expect( result ).toBeTypeOf( "struct" );
+					expect( result ).toBeEmpty();
+				});
+
+			});
+
+
+			// getPropertyParams()
+			describe("calls getPropertyParams() and", function(){
+
+				beforeEach(function( currentSpec ){
+					makePublic( testClass, "getPropertyParams" );
 
 					userBean.$( "getPropertyValue", 1 );
 
@@ -188,8 +379,8 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				});
 
 
-				it( "returns a structure of parameters from the beanmap properties", function(){
-					var result = testClass.getParams( bean=userBean, beanmap=beanmap, includepk=true );
+				it( "returns a structure of sql parameters from the beanmap properties", function(){
+					var result = testClass.getPropertyParams( bean=userBean, beanmap=beanmap, includepk=true );
 
 					expect( testClass.$count("isPropertyIncluded") ).toBe( 2 );
 					expect( userBean.$count("getPropertyValue") ).toBe( 2 );
@@ -200,10 +391,10 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				});
 
 
-				it( "returns an empty structure if none of the beanmap properties should be included", function(){
+				it( "returns an empty structure of sql parameters if none of the beanmap properties should be included", function(){
 					testClass.$( "isPropertyIncluded", false );
 
-					var result = testClass.getParams( bean=userBean, beanmap=beanmap, includepk=true );
+					var result = testClass.getPropertyParams( bean=userBean, beanmap=beanmap, includepk=true );
 
 					expect( testClass.$count("isPropertyIncluded") ).toBe( 2 );
 					expect( userBean.$never("getPropertyValue") ).toBeTrue();
@@ -326,7 +517,8 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						.$( "readSQL", "" )
 						.$( "readByJoinSQL", "" )
 						.$( "updateSQL", "" )
-						.$( "getParams", {} );
+						.$( "getQueryParams", {} )
+						.$( "getPropertyParams", {} );
 				});
 
 
@@ -336,7 +528,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 					expect( DataFactory.$once("getBeanMap") ).toBeTrue();
 					expect( testClass.$once("createSQL") ).toBeTrue();
-					expect( testClass.$once("getParams") ).toBeTrue();
+					expect( testClass.$once("getPropertyParams") ).toBeTrue();
 					expect( DataGateway.$once("create") ).toBeTrue();
 
 					expect( result ).toBeTypeOf( "numeric" );
@@ -365,9 +557,10 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 				// read()
 				it( "returns a query of records", function(){
-					var result = testClass.read( bean="user", params={}, orderby="", pkOnly=false );
+					var result = testClass.read( beanname="user", methodname="", params={}, orderby="", pkOnly=false );
 
 					expect( DataFactory.$once("getBeanMap") ).toBeTrue();
+					expect( testClass.$once("getQueryParams") ).toBeTrue();
 					expect( testClass.$once("readSQL") ).toBeTrue();
 					expect( DataGateway.$once("read") ).toBeTrue();
 
@@ -399,7 +592,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 					expect( DataFactory.$once("getBeanMap") ).toBeTrue();
 					expect( testClass.$once("updateSQL") ).toBeTrue();
-					expect( testClass.$once("getParams") ).toBeTrue();
+					expect( testClass.$once("getPropertyParams") ).toBeTrue();
 					expect( DataGateway.$once("update") ).toBeTrue();
 				});
 

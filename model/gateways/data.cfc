@@ -7,13 +7,9 @@ component accessors=true {
 		return this;
 	}
 
-	public numeric function create( required string sql, required struct params ) {
+	public numeric function create( required string sql, required struct sqlparams ) {
 		var querycfc = new query( datasource=variables.dsn, sql=arguments.sql );
-
-		for ( var fieldkey in arguments.params ) {
-			var field = arguments.params[ fieldkey ];
-			querycfc.addParam( name=fieldkey, value=field.value, null=field.null, cfsqltype=field.cfsqltype );
-		}
+		addParams( querycfc=querycfc, sqlparams=arguments.sqlparams );
 
 		var qRecord = querycfc.execute().getResult();
 		return qRecord.newid;
@@ -31,17 +27,9 @@ component accessors=true {
 		querycfc.execute().getResult();
 	}
 
-	public query function read( required string sql, required struct params, required struct beanmap ) {
+	public query function read( required string sql, required struct sqlparams ) {
 		var querycfc = new query( datasource=variables.dsn, sql=arguments.sql );
-
-		if ( structCount(arguments.params) ) {
-			for ( var fieldkey in arguments.params ) {
-				if ( structKeyExists(arguments.beanmap.properties,fieldkey) ) {
-					querycfc.addParam( name=fieldkey, value=arguments.params[ fieldkey ], cfsqltype=arguments.beanmap.properties[ fieldkey ].sqltype );
-				}
-			}
-		}
-
+		addParams( querycfc=querycfc, sqlparams=arguments.sqlparams );
 		return querycfc.execute().getResult();
 	}
 
@@ -85,15 +73,17 @@ component accessors=true {
 		return result;
 	}
 
-	public void function update( required string sql, required struct params ) {
+	public void function update( required string sql, required struct sqlparams ) {
 		var querycfc = new query( datasource=variables.dsn, sql=arguments.sql );
-
-		for ( var fieldkey in arguments.params ) {
-			var field = arguments.params[ fieldkey ];
-			querycfc.addParam( name=fieldkey, value=field.value, null=field.null, cfsqltype=field.cfsqltype );
-		}
-
+		addParams( querycfc=querycfc, sqlparams=arguments.sqlparams );
 		querycfc.execute();
+	}
+
+	private void function addParams( required component querycfc, required struct sqlparams ) {
+		for ( var fieldkey in arguments.sqlparams ) {
+			var field = arguments.sqlparams[ fieldkey ];
+			arguments.querycfc.addParam( name=fieldkey, value=field.value, null=field.null, cfsqltype=field.cfsqltype );
+		}
 	}
 
 }

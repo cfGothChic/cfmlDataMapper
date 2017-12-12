@@ -16,32 +16,32 @@ component accessors="true" {
 	}
 
 	public struct function get(
-		required string bean,
+		required string beanname,
 		required numeric id,
 		struct params={}
 	) {
 		var result = { success = false };
 
 		if ( arguments.id || structCount(arguments.params) ) {
-			var beanmap = variables.DataFactory.getBeanMap(arguments.bean);
+			var beanmap = variables.DataFactory.getBeanMap( bean=arguments.beanname );
 
 			if ( beanmap.cached ) {
-				var paramjson = getParamJson(beanmap,arguments.params);
+				var paramjson = getParamJson( beanmap, arguments.params );
 
-				if ( beanCacheCheck(arguments.bean, arguments.params) ) {
-					cacheBeans(beanmap, arguments.bean, arguments.params, paramjson);
+				if ( beanCacheCheck( arguments.beanname, arguments.params ) ) {
+					cacheBeans( beanmap=beanmap, beanname=arguments.beanname, params=arguments.params, paramjson=paramjson );
 				}
 
-				var beanData = variables.beanCache[ arguments.bean ];
+				var beanData = variables.beanCache[ arguments.beanname ];
 
 				if ( arguments.id && structKeyExists(beanData.beans,arguments.id) ) {
-					result.bean = getCachedBean(arguments.bean,beanData,arguments.id);
+					result.bean = getCachedBean( beanname=arguments.beanname, beanData=beanData, primarykey=arguments.id );
 					result.success = true;
 
 				} else if ( beanParamsAreInCache(beanmap, paramjson) ) {
-					var paramids = structKeyExists(beanData.params,paramjson) ? beanData.params[paramjson] : [];
+					var paramids = structKeyExists(beanData.params, paramjson) ? beanData.params[paramjson] : [];
 					if ( arrayLen(paramids) ) {
-						result.bean = getCachedBean(arguments.bean,beanData,paramids[1]);
+						result.bean = getCachedBean( beanname=arguments.beanname, beanData=beanData, primarykey=paramids[1] );
 						result.success = true;
 					}
 				}
@@ -52,22 +52,22 @@ component accessors="true" {
 	}
 
 	public struct function list(
-		required string bean,
+		required string beanname,
 		struct params={},
 		string orderby=""
 	) {
 		var result = { success = false, beans = [] };
-		var beanmap = variables.DataFactory.getBeanMap(arguments.bean);
+		var beanmap = variables.DataFactory.getBeanMap( bean=arguments.beanname );
 
 		if ( beanmap.cached ) {
-			var paramjson = getParamJson(beanmap,arguments.params);
+			var paramjson = getParamJson( beanmap, arguments.params );
 
-			if ( beanCacheCheck(arguments.bean, arguments.params, arguments.orderby) ) {
-				cacheBeans(beanmap, arguments.bean, arguments.params, paramjson, arguments.orderby);
+			if ( beanCacheCheck( arguments.beanname, arguments.params, arguments.orderby ) ) {
+				cacheBeans( beanmap=beanmap, beanname=arguments.beanname, params=arguments.params, paramjson=paramjson, orderby=arguments.orderby );
 			}
 
 			if ( beanParamsAreInCache(beanmap, paramjson) ) {
-				result.beans = getBeansByParams(arguments.bean, paramjson, arguments.params, arguments.orderby);
+				result.beans = getBeansByParams( arguments.beanname, paramjson, arguments.params, arguments.orderby );
 				result.success = true;
 			}
 		}
@@ -100,36 +100,42 @@ component accessors="true" {
 
 	private void function cacheBeans(
 		required struct beanmap,
-		required string bean,
+		required string beanname,
 		struct params={},
 		string paramjson="",
 		string orderby=""
 	) {
-		if ( checkBeanCache(arguments.beanmap, arguments.paramjson, arguments.orderby) ) {
+		if ( checkBeanCache( arguments.beanmap, arguments.paramjson, arguments.orderby ) ) {
+			arguments.methodname = "cacheBeans";
 
-			if ( !structKeyExists(variables.beanCache,arguments.bean) ) {
-				cacheDefaultParams(arguments.bean,arguments.beanmap);
+			if ( !structKeyExists(variables.beanCache, arguments.beanname) ) {
+				cacheDefaultParams( argumentCollection=arguments );
 			}
 
-			if ( paramsAreNotCached(arguments.beanmap, arguments.bean, arguments.paramjson,arguments.params) ) {
-				cacheParamString(arguments.bean,arguments.paramjson,arguments.params);
+			if ( paramsAreNotCached( arguments.beanmap, arguments.beanname, arguments.paramjson, arguments.params ) ) {
+				cacheParamString( arguments.beanname,arguments.paramjson,arguments.params );
 			}
 
-			if ( sortOrderIsNotCached(arguments.beanmap, arguments.bean, arguments.orderby) ) {
-				cacheSortOrder(arguments.beanmap, arguments.bean, arguments.orderby);
+			if ( sortOrderIsNotCached( arguments.beanmap, arguments.beanname, arguments.orderby ) ) {
+				cacheSortOrder( argumentCollection=arguments );
 			}
 		}
 	}
 
-	private void function cacheDefaultParams( required string bean, required struct beanmap ) {
+	private void function cacheDefaultParams( required string beanname, required string methodname, required struct beanmap ) {
 		lock timeout="60" scope="application" type="exclusive" {
-			var qRecords = variables.SQLService.read(bean=arguments.bean, params=beanmap.cacheparams[1]);
-			var beanStruct = variables.DataFactory.getBeanStruct(arguments.bean, qRecords);
+			var qRecords = variables.SQLService.read(
+				bean=arguments.beanname,
+				methodname=arguments.methodname,
+				params=arguments.beanmap.cacheparams[1]
+			);
+
+			var beanStruct = variables.DataFactory.getBeanStruct( bean=arguments.beanname, qRecords=qRecords );
 
 			// todo: figure out a better way to do this
-			var idlist = evaluate("valueList(qRecords.#beanmap.primarykey#)");
+			var idlist = evaluate("valueList(qRecords.#arguments.beanmap.primarykey#)");
 
-			variables.beanCache[ arguments.bean ] = {
+			variables.beanCache[ arguments.beanname ] = {
 				beans = beanStruct,
 				sortorder = { "default" = listToArray(idlist) },
 				params = {}
@@ -146,16 +152,22 @@ component accessors="true" {
 		variables.beanCache[ arguments.bean ].params[ arguments.paramjson ] = beanids;
 	}
 
-	private void function cacheSortOrder( required struct beanmap, required string bean, required string orderby ) {
+	private void function cacheSortOrder(
+		required struct beanmap,
+		required string beanname,
+		required string methodname,
+		required string orderby
+	) {
 		var qRecords = variables.SQLService.read(
-			bean = arguments.bean,
+			beanname = arguments.beanname,
+			methodname = arguments.methodname,
 			params = arguments.beanmap.cacheparams[1],
 			orderby = arguments.orderby,
 			pkOnly = true
 		);
 
 		// todo: figure out a better way to do this
-		var idlist = evaluate("valueList(qRecords.#beanmap.primarykey#)");
+		var idlist = evaluate("valueList(qRecords.#arguments.beanmap.primarykey#)");
 
 		variables.beanCache[ arguments.beanmap.bean ].sortorder[ arguments.orderby ] = listToArray(idlist);
 	}
@@ -187,23 +199,23 @@ component accessors="true" {
 		for ( var primarykey in sortorder ) {
 			if (
 				arrayFind(paramids,primarykey)
-				&& structKeyExists(beanData.beans,primarykey)
+				&& structKeyExists(beanData.beans, primarykey)
 			) {
-				var cachedbean = getCachedBean(arguments.bean,beanData,primaryKey);
-				arrayAppend(beans,cachedbean);
+				var cachedbean = getCachedBean( beanname=arguments.bean, beanData=beanData, primaryKey=primaryKey );
+				arrayAppend(beans, cachedbean);
 			}
 		}
 		return beans;
 	}
 
-	private component function getCachedBean( required string bean, required struct beanData, required numeric primaryKey ){
+	private component function getCachedBean( required string beanname, required struct beanData, required numeric primaryKey ){
 		// get the cached bean, but make a shallow copy so changes to the bean are not retained in cache
 		if ( structKeyExists(server, "lucee") ) {
-			var cachedbean = structCopy(beanData.beans[primarykey]);
+			var cachedbean = structCopy(arguments.beanData.beans[ arguments.primarykey ]);
 		} else {
-			var thisbean = beanData.beans[primarykey];
+			var thisbean = arguments.beanData.beans[ arguments.primarykey ];
 			var cachedStruct = thisbean.getSessionData();
-			var cachedbean = variables.DataFactory.get(bean=arguments.bean);
+			var cachedbean = variables.DataFactory.get( bean=arguments.beanname );
 			variables.BeanFactory.injectProperties(cachedbean, cachedStruct);
 		}
 		return cachedbean;

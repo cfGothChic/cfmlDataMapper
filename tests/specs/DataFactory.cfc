@@ -201,7 +201,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					it( "returns an empty bean when nothing matches the param criteria", function(){
 						SQLService.$( "read", querySim("") );
 
-						var result = testClass.getByParams( beanname="user", params={} );
+						var result = testClass.getByParams( beanname="user", methodname="test", params={} );
 
 						expect( testClass.$once("checkBeanExists") ).toBeTrue();
 						expect( SQLService.$once("read") ).toBeTrue();
@@ -221,7 +221,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 							bean = userTypeBean
 						});
 
-						var result = testClass.getByParams( beanname="userType", params={} );
+						var result = testClass.getByParams( beanname="userType", methodname="test", params={} );
 
 						expect( testClass.$once("checkBeanExists") ).toBeTrue();
 						expect( SQLService.$once("read") ).toBeTrue();

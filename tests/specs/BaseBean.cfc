@@ -1196,8 +1196,8 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					beforeEach(function( currentSpec ){
 						makePublic( testClass, "populate" );
 
-						SQLService.$( "read" ).$args( bean="test", params={ id = 1 } ).$results( qRecords );
-						SQLService.$( "read" ).$args( bean="test", params={ id = 2 } ).$results( querySim("id") );
+						SQLService.$( "read" ).$args( beanname="test", methodname="populate", params={ id = 1 } ).$results( qRecords );
+						SQLService.$( "read" ).$args( beanname="test", methodname="populate", params={ id = 2 } ).$results( querySim("id") );
 
 						testClass.$( "getBeanName", "test" )
 							.$( "populateBean" )

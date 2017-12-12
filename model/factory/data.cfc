@@ -17,19 +17,19 @@
 		return this;
 	}
 
-	public any function get(
+	public component function get(
 		required string bean,
 		string id=0,
 		struct params={}
 	) {
-		var result = variables.CacheService.get(bean=arguments.bean, id=trim(val(arguments.id)), params=arguments.params);
+		var result = variables.CacheService.get( beanname=arguments.bean, id=trim(val(arguments.id)), params=arguments.params );
 
 		if ( result.success ) {
 			return result.bean;
-		} else if ( !val(arguments.id) && !structIsEmpty(arguments.params) ) {
-			return getByParams(arguments.bean, arguments.params);
+		} else if ( !val(arguments.id) && structCount(arguments.params) ) {
+			return getByParams( beanname=arguments.bean, methodname="get", params=arguments.params );
 		} else {
-			return getModuleBean(arguments.bean).init(argumentCollection=arguments);
+			return getModuleBean( arguments.bean ).init( argumentCollection=arguments );
 		}
 	}
 
@@ -163,11 +163,18 @@
 		if ( structKeyExists(arguments,"singular") ) {
 			throw("The singular argument of DataFactory.list() is deprecated. Use get() with the params argument instead.");
 		}
-		var result = variables.CacheService.list(argumentCollection=arguments);
+
+		arguments.beanname = arguments.bean;
+		var result = variables.CacheService.list( argumentCollection=arguments );
 
 		if ( !result.success ) {
-			var qRecords = variables.SQLService.read(arguments.bean, arguments.params, arguments.orderby);
-			result.beans = getBeans(arguments.bean, qRecords);
+			var qRecords = variables.SQLService.read(
+				beanname=arguments.bean,
+				methodname="list",
+				params=arguments.params,
+				orderby=arguments.orderby
+			);
+			result.beans = getBeans( bean=arguments.bean, qRecords=qRecords );
 		}
 		return result.beans;
 	}
@@ -229,6 +236,8 @@
 			}
 		}
 
+		// todo: make sure the primarykey property exists
+
 		variables.beanmaps[ beanmap.bean ] = beanmap;
 	}
 
@@ -264,10 +273,10 @@
 		return beanmap;
 	}
 
-	private function getByParams( beanname, params ) {
+	private component function getByParams( required string beanname, required string methodname, requires struct params ) {
 		checkBeanExists(arguments.beanname);
-		var qRecord = variables.SQLService.read(arguments.beanname, arguments.params);
-		var bean = get(arguments.beanname);
+		var qRecord = variables.SQLService.read( beanname=arguments.beanname, methodname=arguments.methodname, params=arguments.params);
+		var bean = get( bean=arguments.beanname );
 		if ( qRecord.recordCount ) {
 			bean.populateBean(qRecord);
 		}
@@ -279,7 +288,7 @@
 		return ( findNoCase("cf_sql_",arguments.sqltype) ? arguments.sqltype : "cf_sql_" & arguments.sqltype );
 	}
 
-	private string function getDatatype(valtype,sqltype){
+	private string function getDatatype( required string valtype, required string sqltype ){
 		var datatype = "any";
 
 		if( len(trim(arguments.valtype)) ){

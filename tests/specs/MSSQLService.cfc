@@ -316,10 +316,10 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 							testClass.$( "getPropertyField" ).$args( prop=beanmap.properties.email ).$results( "[email]" );
 
 							SQLService.$( "isPropertyIncluded" )
-								.$args( prop="id", beanmap=beanmap, includepk=true, type="select", pkOnly=false )
+								.$args( prop=beanmap.properties.id, primarykey=beanmap.primarykey, includepk=true, type="select", pkOnly=false )
 								.$results( true );
 							SQLService.$( "isPropertyIncluded" )
-								.$args( prop="email", beanmap=beanmap, includepk=true, type="select", pkOnly=false )
+								.$args( prop=beanmap.properties.email, primarykey=beanmap.primarykey, includepk=true, type="select", pkOnly=false )
 								.$results( true );
 						});
 
@@ -345,10 +345,10 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 								.$results( "[users].[email]" );
 
 							SQLService.$( "isPropertyIncluded" )
-								.$args( prop="id", beanmap=beanmap, includepk=false, type="update", pkOnly=false )
+								.$args( prop=beanmap.properties.id, primarykey=beanmap.primarykey, includepk=false, type="update", pkOnly=false )
 								.$results( false );
 							SQLService.$( "isPropertyIncluded" )
-								.$args( prop="email", beanmap=beanmap, includepk=false, type="update", pkOnly=false )
+								.$args( prop=beanmap.properties.email, primarykey=beanmap.primarykey, includepk=false, type="update", pkOnly=false )
 								.$results( true );
 
 							var result = testClass.getFields( type="update", beanmap=beanmap, pkOnly=false );
@@ -365,10 +365,10 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 						it( "returns the field list with only the primarykey if the type is select and the pkOnly flag is true", function(){
 							SQLService.$( "isPropertyIncluded" )
-								.$args( prop="id", beanmap=beanmap, includepk=true, type="select", pkOnly=true )
+								.$args( prop=beanmap.properties.id, primarykey=beanmap.primarykey, includepk=true, type="select", pkOnly=true )
 								.$results( true );
 							SQLService.$( "isPropertyIncluded" )
-								.$args( prop="email", beanmap=beanmap, includepk=true, type="select", pkOnly=true )
+								.$args( prop=beanmap.properties.email, primarykey=beanmap.primarykey, includepk=true, type="select", pkOnly=true )
 								.$results( false );
 
 							var result = testClass.getFields( type="select", beanmap=beanmap, pkOnly=true );
@@ -396,7 +396,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 
 						it( "returns an empty string if there are no params passed in", function(){
-							var result = testClass.getWhereStatement( beanmap=beanmap, params={}, tablename="[users]" );
+							var result = testClass.getWhereStatement( beanmap=beanmap, sqlparams={}, tablename="[users]" );
 
 							expect( testClass.$never("getPropertyField") ).toBeTrue();
 
@@ -406,7 +406,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 
 						it( "returns a where sql statement with one filter", function(){
-							var result = testClass.getWhereStatement( beanmap=beanmap, params={ email="test" }, tablename="[users]" );
+							var result = testClass.getWhereStatement( beanmap=beanmap, sqlparams={ email="test" }, tablename="[users]" );
 
 							expect( testClass.$once("getPropertyField") ).toBeTrue();
 
@@ -417,7 +417,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 
 						it( "returns a where sql statement with two filters", function(){
-							var result = testClass.getWhereStatement( beanmap=beanmap, params={ id=1, email="test" }, tablename="[users]" );
+							var result = testClass.getWhereStatement( beanmap=beanmap, sqlparams={ id=1, email="test" }, tablename="[users]" );
 
 							expect( testClass.$count("getPropertyField") ).toBe( 2 );
 
@@ -428,7 +428,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 
 						it( "throws an error if the param isn't in the beanmap properties", function(){
-							expect( function(){ testClass.getWhereStatement( beanmap=beanmap, params={ name="test" }, tablename="[users]" ); } )
+							expect( function(){ testClass.getWhereStatement( beanmap=beanmap, sqlparams={ name="test" }, tablename="[users]" ); } )
 								.toThrow(type="application", regex="(name)");
 						});
 
@@ -628,7 +628,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 				// readSQL()
 				it( "returns an select sql statement", function(){
-					var result = testClass.readSQL( beanmap=beanmap, params={}, orderby="", pkOnly=false );
+					var result = testClass.readSQL( beanmap=beanmap, sqlparams={}, orderby="", pkOnly=false );
 
 					expect( testClass.$once("getTableName") ).toBeTrue();
 					expect( testClass.$once("getFields") ).toBeTrue();
@@ -644,7 +644,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 
 				it( "returns an select sql statement with param filters", function(){
-					var result = testClass.readSQL( beanmap=beanmap, params={ email="test" }, orderby="", pkOnly=false );
+					var result = testClass.readSQL( beanmap=beanmap, sqlparams={ email="test" }, orderby="", pkOnly=false );
 
 					expect( testClass.$once("getTableName") ).toBeTrue();
 					expect( testClass.$once("getFields") ).toBeTrue();

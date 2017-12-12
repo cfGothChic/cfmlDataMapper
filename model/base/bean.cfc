@@ -299,7 +299,12 @@
 		setBeanName(arguments.bean);
 
 		if ( arguments.id ) {
-			var qRecord = variables.SQLService.read( bean=getBeanName(), params={ id = arguments.id } );
+			var qRecord = variables.SQLService.read(
+				beanname=getBeanName(),
+				methodname="populate",
+				params={ id = arguments.id }
+			);
+
 			if ( qRecord.recordCount ) {
 				populateBean(qRecord);
 			} else {
