@@ -106,13 +106,14 @@ BEGIN
 	ALTER TABLE [dbo].[users_roles] CHECK CONSTRAINT [FK_users_roles_users]
 END
 
+
 -- populate departments
 DECLARE @tDepartments TABLE (
 	departmentId INT
 	, name VARCHAR(50)
 );
 
-INSERT INTO @tDepartments (departmentId, name)
+INSERT INTO @tDepartments ( departmentId, name )
 VALUES
 	(1, 'Accounting')
 	,(2, 'Development')
@@ -123,8 +124,7 @@ SET IDENTITY_INSERT dbo.departments ON;
 
 MERGE INTO dbo.departments AS t
 USING @tDepartments AS s
-ON 
-	t.departmentId = s.departmentId
+	ON t.departmentId = s.departmentId
 WHEN NOT MATCHED THEN
 	INSERT ( departmentId, name, updatedate ) 
 	VALUES (
@@ -133,30 +133,117 @@ WHEN NOT MATCHED THEN
 		, GETDATE()
 	);
 
-SET IDENTITY_INSERT dbo.departments ON;
+SET IDENTITY_INSERT dbo.departments OFF;
 
 
+-- populate roles
+DECLARE @tRoles TABLE (
+	roleId INT
+	, name VARCHAR(50)
+);
 
-/*
-INSERT INTO roles (name, createdate, updatedate)
+INSERT INTO @tRoles ( roleId, name )
 VALUES
-	('Editor', GETDATE(), GETDATE())
-	,('Reviewer', GETDATE(), GETDATE())
-	,('Manager', GETDATE(), GETDATE());
+	(1,'Editor')
+	,(2,'Reviewer')
+	,(3,'Manager');
 
-INSERT INTO usertypes (name, createdate, updatedate)
+SET IDENTITY_INSERT dbo.roles ON;
+
+MERGE INTO dbo.roles AS t
+USING @tRoles AS s
+	ON t.roleId = s.roleId
+WHEN NOT MATCHED THEN
+	INSERT ( roleId, name, updatedate ) 
+	VALUES (
+		s.roleId
+		, s.name
+		, GETDATE()
+	);
+
+SET IDENTITY_INSERT dbo.roles OFF;
+
+
+-- populate usertypes
+DECLARE @tUserTypes TABLE (
+	userTypeId INT
+	, name VARCHAR(50)
+);
+
+INSERT INTO @tUserTypes ( userTypeId, name )
 VALUES
-	('Admin', GETDATE(), GETDATE())
-	,('Manager', GETDATE(), GETDATE())
-	,('User', GETDATE(), GETDATE());
+	(1,'Admin')
+	,(2,'Manager')
+	,(3,'User');
 
-INSERT INTO users (firstName, lastName, email, departmentId, userTypeId, createdate, updatedate)
-VALUES 
-	('Curly', 'Stooge', 'curly@stooges.com', 1, 1, GETDATE(), GETDATE())
-	,('Larry', 'Stooge', 'larry@stooges.com', 2, 2, GETDATE(), GETDATE())
-	,('Moe', 'Stooge', 'moe@stooges.com', 3, 3, GETDATE(), GETDATE());
+SET IDENTITY_INSERT dbo.usertypes ON;
 
-INSERT INTO dbo.users_roles ( userId, roleId )
+MERGE INTO dbo.usertypes AS t
+USING @tUserTypes AS s
+	ON t.userTypeId = s.userTypeId
+WHEN NOT MATCHED THEN
+	INSERT ( userTypeId, name, updatedate ) 
+	VALUES (
+		s.userTypeId
+		, s.name
+		, GETDATE()
+	);
+
+SET IDENTITY_INSERT dbo.usertypes OFF;
+
+
+-- populate users
+DECLARE @tUsers TABLE (
+	userId INT
+	, firstName VARCHAR(50)
+	, lastName VARCHAR(50)
+	, email VARCHAR(50)
+	, departmentId INT
+	, userTypeId INT
+);
+
+INSERT INTO @tUsers ( userId, firstName, lastName, email, departmentId, userTypeId )
+VALUES
+	(1, 'Curly', 'Stooge', 'curly@stooges.com', 1, 1)
+	,(2, 'Larry', 'Stooge', 'larry@stooges.com', 2, 2)
+	,(3, 'Moe', 'Stooge', 'moe@stooges.com', 3, 3);
+
+SET IDENTITY_INSERT dbo.users ON;
+
+MERGE INTO dbo.users AS t
+USING @tUsers AS s
+	ON t.userId = s.userId
+WHEN MATCHED THEN
+	UPDATE SET
+		firstName = t.firstName
+		, lastName = t.lastName
+		, email = t.email
+		, departmentId = t.departmentId
+		, userTypeId = t.userTypeId
+		, updatedate = GETDATE()
+
+WHEN NOT MATCHED THEN
+	INSERT ( userId, firstName, lastName, email, departmentId, userTypeId, updatedate ) 
+	VALUES (
+		s.userId
+		, s.firstName
+		, s.lastName
+		, s.email
+		, s.departmentId
+		, s.userTypeId
+		, GETDATE()
+	);
+
+SET IDENTITY_INSERT dbo.users OFF;
+
+
+-- populate users_roles
+DECLARE @tUserRoles TABLE (
+	userId INT
+	, roleId INT
+);
+
+INSERT INTO @tUserRoles ( userId, roleId )
 VALUES
 	( 1, 1 )
 	,( 1, 2 )
@@ -166,23 +253,13 @@ VALUES
 	,( 3, 1 )
 	,( 3, 3 );
 
-	MERGE INTO dbo.departments AS t
-USING @tDepartments AS s
-ON 
-	t.departmentId = s.departmentId
-WHEN MATCHED THEN
-	UPDATE SET
-		t.name = t.name
-		, t.alias = t.alias
-
+MERGE INTO dbo.users_roles AS t
+USING @tUserRoles AS s
+	ON t.userId = s.userId
+	AND t.roleId = s.roleId
 WHEN NOT MATCHED THEN
-	INSERT (
-		Id
-		, name
-		, alias
-	) VALUES (
-		s.Id
-		, s.name
-		, s.alias
+	INSERT ( userId, roleId ) 
+	VALUES (
+		s.userId
+		, s.roleId
 	);
-*/
