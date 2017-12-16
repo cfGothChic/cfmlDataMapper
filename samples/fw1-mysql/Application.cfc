@@ -7,7 +7,7 @@ component extends="framework.one" output="false" {
 
 	this.datasources["usermanager"] = {
 		class: "org.gjt.mm.mysql.Driver",
-		connectionString: "jdbc:mysql://localhost:3306/usermanager?useUnicode=true&characterEncoding=UTF-8&useLegacyDatetimeCode=true",
+		connectionString: "jdbc:mysql://localhost:3306/usermanager?useUnicode=true&characterEncoding=UTF-8&useLegacyDatetimeCode=true&allowMultiQueries=true",
 		username: "usermanager",
 		password: "usermanager"
 	};

@@ -14,7 +14,7 @@
 
 	if ( arrayLen(variables.result.message) ) {
 		session.redirect = duplicate(form);
-		session.redirect.messages = variables.result.message;
+		session.redirect.messages = variables.result.messages;
 		location(url="useredit.cfm?id=#variables.id#",addtoken=false);
 
 	} else {

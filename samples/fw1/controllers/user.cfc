@@ -66,7 +66,7 @@ component accessors="true" {
 		variables.framework.populate( cfc = user, trim = true );
 
 		var result = user.save();
-		rc.messages = result.message;
+		rc.messages = result.messages;
 
 		if ( arrayLen(rc.messages) ) {
 			variables.framework.redirect(action="user.edit",preserve="firstName,lastName,email,departmentId,userTypeId,messages",append="id");
