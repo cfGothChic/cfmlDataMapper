@@ -121,7 +121,7 @@
 		switch ( arguments.type ) {
 
 			case "insert":
-				field &= arguments.columnname;
+				field &= getPropertyField( prop=prop );
 				break;
 
 			case "values":

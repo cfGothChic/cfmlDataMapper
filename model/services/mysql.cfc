@@ -12,10 +12,8 @@
 		var primarykeyfield = getPrimaryKeyField( beanmap=arguments.beanmap );
 		var tablename = getTableName( beanmap=arguments.beanmap );
 
-		if ( pkproperty.isidentity ) {
-			sql &= "DECLARE @ident TABLE (newid int) ";
-		} else {
-			sql &= "DECLARE @identid int = (SELECT MAX(" & tablename & "." & primarykeyfield & ") FROM " & tablename & ") ";
+		if ( !pkproperty.isidentity ) {
+			sql &= "SET @identid = (SELECT MAX(" & tablename & "." & primarykeyfield & ") FROM " & tablename & "); ";
 			sql &= "SET @identid = @identid + 1; ";
 		}
 
@@ -28,17 +26,17 @@
 		sql &= getFields( type="insert", beanmap=arguments.beanmap );
 
 		if ( pkproperty.isidentity ) {
-			sql &= ") OUTPUT inserted." & primarykeyfield & " into @ident VALUES (:";
+			sql &= ") VALUES (";
 		} else {
-			sql &= ") VALUES (@identid, :";
+			sql &= ") VALUES (@identid, ";
 		}
 
 		sql &= getFields( type="values", beanmap=arguments.beanmap );
 
 		if ( pkproperty.isidentity ) {
-			sql &= ") SELECT newid FROM @ident";
+			sql &= "); SELECT LAST_INSERT_ID() AS newid;";
 		} else {
-			sql &= ") SELECT @identid AS newid";
+			sql &= "); SELECT @identid AS newid;";
 		}
 
 		return sql;
@@ -82,17 +80,16 @@
 		var tablename = getTableName( beanmap=arguments.beanmap );
 		var primarykey = getPrimaryKeyField( beanmap=arguments.beanmap );
 
-		var joinpath = ( len(arguments.relationship.joinSchema) ? "[" & arguments.relationship.joinSchema & "]." : "" );
-		joinpath &= "[" & arguments.relationship.joinTable & "]";
+		var joinpath = "`" & arguments.relationship.joinTable & "`";
 
 		var sql = "SELECT ";
 		sql &= getFields( type="select", beanmap=arguments.beanmap );
 		sql &= " FROM " & tablename;
 
 		sql &= " JOIN " & joinpath;
-		sql &= " ON " & joinpath & ".[" & arguments.relationship.joinColumn & "] = " & tablename & "." & primarykey;
+		sql &= " ON " & joinpath & ".`" & arguments.relationship.joinColumn & "` = " & tablename & "." & primarykey;
 
-		sql &= " WHERE " & joinpath & ".[" & arguments.relationship.fkColumn & "] = :" & arguments.relationship.fkColumn;
+		sql &= " WHERE " & joinpath & ".`" & arguments.relationship.fkColumn & "` = :" & arguments.relationship.fkColumn;
 
 		sql &= " ORDER BY " & getFullOrderBy( beanmap=arguments.beanmap );
 
@@ -121,7 +118,7 @@
 		switch ( arguments.type ) {
 
 			case "insert":
-				field &= arguments.columnname;
+				field &= getPropertyField( prop=prop );
 				break;
 
 			case "values":
@@ -140,7 +137,7 @@
 						isNull=arguments.prop.null,
 						tablename=arguments.tablename
 					);
-					field &= "[" & arguments.propname & "]";
+					field &= "`" & arguments.propname & "`";
 				}
 				else {
 					field &= columnname;
@@ -246,14 +243,14 @@
 	}
 
 	private string function getPropertyField( required struct prop ){
-		return "[" & ( len(arguments.prop.columnname) ? arguments.prop.columnname : arguments.prop.name ) & "]";
+		return "`" & ( len(arguments.prop.columnname) ? arguments.prop.columnname : arguments.prop.name ) & "`";
 	}
 
 	private string function getSelectAsField( required string columnname, required string sqltype, required boolean isNull ) {
 		var fieldresult = "";
 
 		if ( arguments.sqltype == "cf_sql_integer" && arguments.isNull ) {
-			fieldresult &= "ISNULL(";
+			fieldresult &= "IFNULL(";
 		}
 
 		fieldresult &= arguments.columnname;
@@ -268,7 +265,7 @@
 	}
 
 	private string function getTableName( required struct beanmap ) {
-		return "[" & ( len(arguments.beanmap.schema) ? arguments.beanmap.schema : "dbo" ) & "].[" & arguments.beanmap.table & "]";
+		return "`" & arguments.beanmap.table & "`";
 	}
 
 	private string function getWhereStatement( required struct beanmap, required struct sqlparams, required string tablename ) {

@@ -151,8 +151,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					var result = testClass.getTableName( beanmap=beanmap );
 
 					expect( result ).toBeTypeOf( "string" );
-					expect( result ).toMatch( "(dbo)" );
-					expect( result ).toMatch( "(users)" );
+					expect( result ).toBe( "[dbo].[users]" );
 				});
 
 
@@ -162,8 +161,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					var result = testClass.getTableName( beanmap=beanmap );
 
 					expect( result ).toBeTypeOf( "string" );
-					expect( result ).toMatch( "(security)" );
-					expect( result ).toMatch( "(users)" );
+					expect( result ).toBe( "[security].[users]" );
 				});
 
 
@@ -193,7 +191,8 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						beforeEach(function( currentSpec ){
 							makePublic( testClass, "getFieldByType" );
 
-							testClass.$( "getSelectAsField", "[id]" );
+							testClass.$( "getPropertyField", "[emailaddress]" )
+								.$( "getSelectAsField", "[id]" );
 
 							args = {
 								type="",

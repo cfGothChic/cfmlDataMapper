@@ -123,7 +123,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					var result = testClass.getSelectAsField( columnname="name", sqltype="cf_sql_varchar", isNull=true );
 
 					expect( result ).toBeTypeOf( "string" );
-					expect( result ).notToMatch( "(ISNULL)" );
+					expect( result ).notToMatch( "(IFNULL)" );
 					expect( result ).toMatch( "(name)" );
 				});
 
@@ -132,7 +132,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					var result = testClass.getSelectAsField( columnname="name", sqltype="cf_sql_integer", isNull=false );
 
 					expect( result ).toBeTypeOf( "string" );
-					expect( result ).notToMatch( "(ISNULL)" );
+					expect( result ).notToMatch( "(IFNULL)" );
 					expect( result ).toMatch( "(name)" );
 				});
 
@@ -141,7 +141,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					var result = testClass.getSelectAsField( columnname="name", sqltype="cf_sql_integer", isNull=true );
 
 					expect( result ).toBeTypeOf( "string" );
-					expect( result ).toMatch( "(ISNULL)" );
+					expect( result ).toMatch( "(IFNULL)" );
 					expect( result ).toMatch( "(name)" );
 				});
 
@@ -151,19 +151,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					var result = testClass.getTableName( beanmap=beanmap );
 
 					expect( result ).toBeTypeOf( "string" );
-					expect( result ).toMatch( "(dbo)" );
-					expect( result ).toMatch( "(users)" );
-				});
-
-
-				it( "return the table name sql string with a declared schema", function(){
-					beanmap.schema = "security";
-
-					var result = testClass.getTableName( beanmap=beanmap );
-
-					expect( result ).toBeTypeOf( "string" );
-					expect( result ).toMatch( "(security)" );
-					expect( result ).toMatch( "(users)" );
+					expect( result ).toBe( "`users`" );
 				});
 
 
@@ -193,7 +181,8 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						beforeEach(function( currentSpec ){
 							makePublic( testClass, "getFieldByType" );
 
-							testClass.$( "getSelectAsField", "[id]" );
+							testClass.$( "getPropertyField", "[emailaddress]" )
+								.$( "getSelectAsField", "[id]" );
 
 							args = {
 								type="",
@@ -572,12 +561,10 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					expect( testClass.$count("getFields") ).toBe( 2 );
 
 					expect( result ).toBeTypeOf( "string" );
-					expect( result ).toMatch( "(DECLARE)" );
-					expect( result ).toMatch( "(TABLE)" );
 					expect( result ).notToMatch( "(SET)" );
 					expect( result ).toMatch( "(INSERT)" );
-					expect( result ).toMatch( "(OUTPUT)" );
 					expect( result ).toMatch( "(VALUES)" );
+					expect( result ).toMatch( "(LAST_INSERT_ID)" );
 					expect( result ).toMatch( "(newid)" );
 				});
 
@@ -592,12 +579,10 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					expect( testClass.$count("getFields") ).toBe( 2 );
 
 					expect( result ).toBeTypeOf( "string" );
-					expect( result ).toMatch( "(DECLARE)" );
-					expect( result ).notToMatch( "(TABLE)" );
 					expect( result ).toMatch( "(SET)" );
 					expect( result ).toMatch( "(INSERT)" );
-					expect( result ).notToMatch( "(OUTPUT)" );
 					expect( result ).toMatch( "(VALUES)" );
+					expect( result ).notToMatch( "(LAST_INSERT_ID)" );
 					expect( result ).toMatch( "(newid)" );
 				});
 
