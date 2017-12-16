@@ -282,11 +282,11 @@
 		return prop;
 	}
 
-	private string function getPropertyField( required struct prop ){
+	public string function getPropertyField( required struct prop ){
 		return "`" & ( len(arguments.prop.columnname) ? arguments.prop.columnname : arguments.prop.name ) & "`";
 	}
 
-	private string function getSelectAsField(
+	public string function getSelectAsField(
 		required string propname,
 		required string columnname,
 		required string sqltype,
@@ -309,7 +309,7 @@
 		return fieldresult;
 	}
 
-	private string function getTableName( required struct beanmap ) {
+	public string function getTableName( required struct beanmap ) {
 		return "`" & arguments.beanmap.table & "`";
 	}
 

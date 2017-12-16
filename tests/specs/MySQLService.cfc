@@ -128,9 +128,6 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 				beforeEach(function( currentSpec ){
 					makePublic( testClass, "getPropertyByColumnName" );
-					makePublic( testClass, "getPropertyField" );
-					makePublic( testClass, "getSelectAsField" );
-					makePublic( testClass, "getTableName" );
 				});
 
 
@@ -158,7 +155,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					var result = testClass.getPropertyField( prop=beanmap.properties.email );
 
 					expect( result ).toBeTypeOf( "string" );
-					expect( result ).toMatch( "(email)" );
+					expect( result ).toBe( "`email`" );
 				});
 
 
@@ -168,7 +165,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					var result = testClass.getPropertyField( prop=beanmap.properties.email );
 
 					expect( result ).toBeTypeOf( "string" );
-					expect( result ).toMatch( "(emailaddress)" );
+					expect( result ).toBe( "`emailaddress`" );
 				});
 
 
@@ -239,8 +236,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 								type="",
 								prop=beanmap.properties.email,
 								propname="email",
-								columnname="[emailaddress]",
-								tablename="[users]"
+								columnname="[emailaddress]"
 							};
 						});
 
