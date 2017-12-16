@@ -19,7 +19,7 @@ component {
 		application.DataFactory = new cfmlDataMapper.factory({
 			dsn = "usermanager",
 			locations = "/model",
-			reloadApplicationOnEveryRequest = true
+			reloadApplicationOnEveryRequest = false
 		});
 
 		return true;

@@ -25,7 +25,9 @@ component accessors="true" output="false" {
 
     var contants = {
       dsn = config.dsn,
-      serverType = config.serverType
+      dataFactoryConfig = {
+        serverType = config.serverType
+      }
     };
 
     return contants;
