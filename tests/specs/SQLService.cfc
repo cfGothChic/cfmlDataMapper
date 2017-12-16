@@ -12,23 +12,29 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 			beforeEach(function( currentSpec ){
 				beanmap = {
 					bean = "user",
+					schema = "",
+					table = "users",
 					primarykey = "id",
+					orderby = "name",
 					properties = {
 						id = {
 							name = "id",
+							columnname = "",
 							displayname = "ID",
 							insert = true,
 							datatype = "integer",
 							sqltype = "cf_sql_integer",
-							null = true
+							"null" = true,
+							isidentity = true
 						},
 						email = {
 							name = "email",
+							columnname = "",
 							displayname = "Email",
 							insert = true,
 							datatype = "string",
 							sqltype = "cf_sql_varchar",
-							null = true
+							"null" = true
 						}
 					}
 				};
@@ -440,12 +446,6 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					makePublic( testClass, "getServerTypeService" );
 
 					MSSQLService = createEmptyMock("cfmlDataMapper.model.services.mssql");
-					MSSQLService.$( "createSQL", "" )
-						.$( "deleteSQL", "" )
-						.$( "deleteByNotInSQL", "" )
-						.$( "readSQL", "" )
-						.$( "readByJoinSQL", "" )
-						.$( "updateSQL", "" );
 					testClass.$property( propertyName="MSSQLService", mock=MSSQLService );
 
 					MySQLService = createEmptyMock("cfmlDataMapper.model.services.mysql");
@@ -477,79 +477,182 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					expect( result ).toBeInstanceOf( "cfmlDataMapper.model.services.mysql" );
 				});
 
-
-				describe("calls getServerTypeService() to build sql and", function(){
-
-					beforeEach(function( currentSpec ){
-						testClass.$( "getServerTypeService", MSSQLService );
-					});
+			});
 
 
-					// createSQL()
-					it( "returns a create sql statement", function(){
-						var result = testClass.createSQL();
+			describe("compiles sql from beanmap information and", function(){
 
-						expect( testClass.$once("getServerTypeService") ).toBeTrue();
-						expect( MSSQLService.$once("createSQL") ).toBeTrue();
+				beforeEach(function( currentSpec ){
+					MSSQLService.$( "getCreateNewId", "" )
+						.$( "getCreateSetNewId", "" )
+						.$( "getCreateValues", "" )
+						.$( "getPropertyField", "" )
+						.$( "getSelectAsField", "" )
+						.$( "getTableName", "" );
 
-						expect( result ).toBeTypeOf( "string" );
-					});
-
-
-					// deleteSQL()
-					it( "returns a delete sql statement", function(){
-						var result = testClass.deleteSQL();
-
-						expect( testClass.$once("getServerTypeService") ).toBeTrue();
-						expect( MSSQLService.$once("deleteSQL") ).toBeTrue();
-
-						expect( result ).toBeTypeOf( "string" );
-					});
+					testClass.$( "getServerTypeService", MSSQLService )
+						.$( "getFields", "[users].[email]" )
+						.$( "getFullOrderBy", "[id] ASC" )
+						.$( "getPrimaryKeyField", "[id]" )
+						.$( "getWhereStatement", "WHERE" );
+				});
 
 
-					// deleteByNotInSQL()
-					it( "returns a delete by not in list sql statement for mssql", function(){
-						var result = testClass.deleteByNotInSQL();
+				// createSQL()
+				it( "returns a create sql statement with identity", function(){
+					var result = testClass.createSQL( beanmap=beanmap );
 
-						expect( testClass.$once("getServerTypeService") ).toBeTrue();
-						expect( MSSQLService.$once("deleteByNotInSQL") ).toBeTrue();
+					expect( testClass.$once("getPrimaryKeyField") ).toBeTrue();
+					expect( testClass.$count("getServerTypeService") ).toBe( 4 );
+					expect( MSSQLService.$once("getTableName") ).toBeTrue();
+					expect( MSSQLService.$once("getCreateSetNewId") ).toBeTrue();
+					expect( testClass.$count("getFields") ).toBe( 2 );
+					expect( MSSQLService.$once("getCreateValues") ).toBeTrue();
+					expect( MSSQLService.$once("getCreateNewId") ).toBeTrue();
 
-						expect( result ).toBeTypeOf( "string" );
-					});
-
-
-					// readSQL()
-					it( "returns an select sql statement for mssql", function(){
-						var result = testClass.readSQL();
-
-						expect( testClass.$once("getServerTypeService") ).toBeTrue();
-						expect( MSSQLService.$once("readSQL") ).toBeTrue();
-
-						expect( result ).toBeTypeOf( "string" );
-					});
+					expect( result ).toBeTypeOf( "string" );
+					expect( result ).toMatch( "(INSERT)" );
+					expect( result ).notToMatch( "(id,)" );
+				});
 
 
-					// readByJoinSQL()
-					it( "returns a select sql statement with a join table for mssql", function(){
-						var result = testClass.readByJoinSQL();
+				it( "returns a create sql statement without identity", function(){
+					beanmap.properties.id.isidentity = false;
 
-						expect( testClass.$once("getServerTypeService") ).toBeTrue();
-						expect( MSSQLService.$once("readByJoinSQL") ).toBeTrue();
+					var result = testClass.createSQL( beanmap=beanmap );
 
-						expect( result ).toBeTypeOf( "string" );
-					});
+					expect( testClass.$once("getPrimaryKeyField") ).toBeTrue();
+					expect( testClass.$count("getServerTypeService") ).toBe( 4 );
+					expect( MSSQLService.$once("getTableName") ).toBeTrue();
+					expect( MSSQLService.$once("getCreateSetNewId") ).toBeTrue();
+					expect( testClass.$count("getFields") ).toBe( 2 );
+					expect( MSSQLService.$once("getCreateValues") ).toBeTrue();
+					expect( MSSQLService.$once("getCreateNewId") ).toBeTrue();
+
+					expect( result ).toBeTypeOf( "string" );
+					expect( result ).toMatch( "(INSERT)" );
+					expect( result ).toMatch( "(id,)" );
+				});
 
 
-					// updateSQL()
-					it( "returns an update sql statement for mssql", function(){
-						var result = testClass.updateSQL();
+				it( "returns a create sql statement without identity and has a columnname", function(){
+					beanmap.properties.id.isidentity = false;
+					beanmap.properties.id.columnname = "userid";
 
-						expect( testClass.$once("getServerTypeService") ).toBeTrue();
-						expect( MSSQLService.$once("updateSQL") ).toBeTrue();
+					var result = testClass.createSQL( beanmap=beanmap );
 
-						expect( result ).toBeTypeOf( "string" );
-					});
+					expect( testClass.$once("getPrimaryKeyField") ).toBeTrue();
+					expect( testClass.$count("getServerTypeService") ).toBe( 4 );
+					expect( MSSQLService.$once("getTableName") ).toBeTrue();
+					expect( MSSQLService.$once("getCreateSetNewId") ).toBeTrue();
+					expect( testClass.$count("getFields") ).toBe( 2 );
+					expect( MSSQLService.$once("getCreateValues") ).toBeTrue();
+					expect( MSSQLService.$once("getCreateNewId") ).toBeTrue();
 
+					expect( result ).toBeTypeOf( "string" );
+					expect( result ).toMatch( "(INSERT)" );
+					expect( result ).toMatch( "(userid,)" );
+				});
+
+
+				// deleteByNotInSQL()
+				it( "returns a delete by not in list sql statement", function(){
+					var result = testClass.deleteByNotInSQL( beanmap=beanmap, pkproperty=beanmap.properties.id );
+
+					expect( MSSQLService.$once("getTableName") ).toBeTrue();
+					expect( MSSQLService.$once("getPropertyField") ).toBeTrue();
+
+					expect( result ).toBeTypeOf( "string" );
+					expect( result ).toMatch( "(DELETE)" );
+					expect( result ).toMatch( "(WHERE)" );
+					expect( result ).toMatch( "(NOT)" );
+				});
+
+
+				// deleteSQL()
+				it( "returns a delete sql statement", function(){
+					var result = testClass.deleteSQL( beanmap=beanmap );
+
+					expect( MSSQLService.$once("getTableName") ).toBeTrue();
+					expect( testClass.$once("getPrimaryKeyField") ).toBeTrue();
+
+					expect( result ).toBeTypeOf( "string" );
+					expect( result ).toMatch( "(DELETE)" );
+					expect( result ).toMatch( "(WHERE)" );
+				});
+
+
+				// readByJoinSQL()
+				it( "returns a select sql statement with a join table", function(){
+					var relationship = {
+						joinSchema = "",
+						joinTable = "user_roles",
+						joinColumn = "roleId",
+						fkColumn = "userId"
+					};
+
+					var result = testClass.readByJoinSQL( beanmap=beanmap, relationship=relationship );
+
+					expect( MSSQLService.$once("getTableName") ).toBeTrue();
+					expect( testClass.$once("getPrimaryKeyField") ).toBeTrue();
+					expect( testClass.$once("getFields") ).toBeTrue();
+					expect( testClass.$once("getFullOrderBy") ).toBeTrue();
+
+					expect( result ).toBeTypeOf( "string" );
+					expect( result ).toMatch( "(SELECT)" );
+					expect( result ).toMatch( "(FROM)" );
+					expect( result ).toMatch( "(JOIN)" );
+					expect( result ).toMatch( "(ON)" );
+					expect( result ).toMatch( "(WHERE)" );
+					expect( result ).toMatch( "(ORDER)" );
+				});
+
+
+				// readSQL()
+				it( "returns a select sql statement", function(){
+					var result = testClass.readSQL( beanmap=beanmap, sqlparams={}, orderby="", pkOnly=false );
+
+					expect( MSSQLService.$once("getTableName") ).toBeTrue();
+					expect( testClass.$once("getFields") ).toBeTrue();
+					expect( testClass.$never("getWhereStatement") ).toBeTrue();
+					expect( testClass.$once("getFullOrderBy") ).toBeTrue();
+
+					expect( result ).toBeTypeOf( "string" );
+					expect( result ).toMatch( "(SELECT)" );
+					expect( result ).toMatch( "(FROM)" );
+					expect( result ).notToMatch( "(WHERE)" );
+					expect( result ).toMatch( "(ORDER)" );
+				});
+
+
+				it( "returns a select sql statement with param filters", function(){
+					var result = testClass.readSQL( beanmap=beanmap, sqlparams={ email="test" }, orderby="", pkOnly=false );
+
+					expect( MSSQLService.$once("getTableName") ).toBeTrue();
+					expect( testClass.$once("getFields") ).toBeTrue();
+					expect( testClass.$once("getWhereStatement") ).toBeTrue();
+					expect( testClass.$once("getFullOrderBy") ).toBeTrue();
+
+					expect( result ).toBeTypeOf( "string" );
+					expect( result ).toMatch( "(SELECT)" );
+					expect( result ).toMatch( "(FROM)" );
+					expect( result ).toMatch( "(WHERE)" );
+					expect( result ).toMatch( "(ORDER)" );
+				});
+
+
+				// updateSQL()
+				it( "returns an update sql statement", function(){
+					var result = testClass.updateSQL( beanmap=beanmap );
+
+					expect( MSSQLService.$once("getTableName") ).toBeTrue();
+					expect( testClass.$once("getFields") ).toBeTrue();
+					expect( testClass.$once("getPrimaryKeyField") ).toBeTrue();
+
+					expect( result ).toBeTypeOf( "string" );
+					expect( result ).toMatch( "(UPDATE)" );
+					expect( result ).toMatch( "(SET)" );
+					expect( result ).toMatch( "(WHERE)" );
 				});
 
 			});

@@ -120,28 +120,95 @@
 
 	/* raw sql building functions */
 
-	public string function createSQL() {
-		return getServerTypeService().createSQL( argumentCollection=arguments );
+	public string function createSQL( required struct beanmap ) {
+		var sql = "";
+		var pkproperty = arguments.beanmap.properties[ arguments.beanmap.primarykey ];
+		var primarykeyfield = getPrimaryKeyField( beanmap=arguments.beanmap );
+		var tablename = getServerTypeService().getTableName( beanmap=arguments.beanmap );
+
+		sql &= getServerTypeService().getCreateSetNewId( isidentity=pkproperty.isidentity, tablename=tablename, primarykeyfield=primarykeyfield );
+
+		sql &= "INSERT INTO " & tablename & " (";
+
+		if ( !pkproperty.isidentity ) {
+			sql &= ( len(pkproperty.columnname) ? pkproperty.columnname : pkproperty.name ) & ", ";
+		}
+
+		sql &= getFields( type="insert", beanmap=arguments.beanmap );
+
+		sql &= getServerTypeService().getCreateValues( isidentity=pkproperty.isidentity, primarykeyfield=primarykeyfield );
+
+		sql &= getFields( type="values", beanmap=arguments.beanmap );
+
+		sql &= getServerTypeService().getCreateNewId( isidentity=pkproperty.isidentity );
+
+		return sql;
 	}
 
-	public string function deleteSQL() {
-		return getServerTypeService().deleteSQL( argumentCollection=arguments );
+	public string function deleteByNotInSQL( required struct beanmap, required struct pkproperty ) {
+		var sql = "DELETE FROM " & getServerTypeService().getTableName( beanmap=arguments.beanmap );
+		sql &= " WHERE " & getServerTypeService().getPropertyField( prop=arguments.pkproperty );
+		sql &= " NOT IN (:" & arguments.pkproperty.name & ")";
+		return sql;
 	}
 
-	public string function deleteByNotInSQL() {
-		return getServerTypeService().deleteByNotInSQL( argumentCollection=arguments );
+	public string function deleteSQL( required struct beanmap ) {
+		var sql = "DELETE FROM " & getServerTypeService().getTableName( beanmap=arguments.beanmap );
+		sql &= " WHERE " & getPrimaryKeyField( beanmap=arguments.beanmap );
+		sql &= " = :" & arguments.beanmap.primarykey;
+		return sql;
 	}
 
-	public string function readByJoinSQL() {
-		return getServerTypeService().readByJoinSQL( argumentCollection=arguments );
+	public string function readByJoinSQL( required struct beanmap, required struct relationship ) {
+		var tablename = getServerTypeService().getTableName( beanmap=arguments.beanmap );
+		var primarykey = getPrimaryKeyField( beanmap=arguments.beanmap );
+
+		var joinpath = ( len(arguments.relationship.joinSchema) ? "[" & arguments.relationship.joinSchema & "]." : "" );
+		joinpath &= "[" & arguments.relationship.joinTable & "]";
+
+		var sql = "SELECT ";
+		sql &= getFields( type="select", beanmap=arguments.beanmap );
+		sql &= " FROM " & tablename;
+
+		sql &= " JOIN " & joinpath;
+		sql &= " ON " & joinpath & ".[" & arguments.relationship.joinColumn & "] = " & tablename & "." & primarykey;
+
+		sql &= " WHERE " & joinpath & ".[" & arguments.relationship.fkColumn & "] = :" & arguments.relationship.fkColumn;
+
+		sql &= " ORDER BY " & getFullOrderBy( beanmap=arguments.beanmap );
+
+		return sql;
 	}
 
-	public string function readSQL() {
-		return getServerTypeService().readSQL( argumentCollection=arguments );
+	public string function readSQL(
+		required struct beanmap,
+		required struct sqlparams={},
+		required string orderby="",
+		boolean pkOnly=false
+	) {
+		var tablename = getServerTypeService().getTableName( beanmap=arguments.beanmap );
+
+		var sql = "SELECT ";
+		sql &= getFields( type="select", beanmap=arguments.beanmap, pkOnly=arguments.pkOnly );
+		sql &= " FROM " & tablename;
+
+		if ( structCount(arguments.sqlparams) ) {
+			sql &= getWhereStatement( beanmap=arguments.beanmap, sqlparams=arguments.sqlparams, tablename=tablename );
+		}
+
+		sql &= " ORDER BY " & getFullOrderBy( beanmap=arguments.beanmap, orderby=arguments.orderby );
+
+		return sql;
 	}
 
-	public string function updateSQL() {
-		return getServerTypeService().updateSQL( argumentCollection=arguments );
+	public string function updateSQL( required struct beanmap ) {
+		var tablename = getServerTypeService().getTableName( beanmap=arguments.beanmap );
+
+		var sql = "UPDATE " & tablename & " SET ";
+		sql &= getFields( type="update", beanmap=arguments.beanmap );
+		sql &= " WHERE " & tablename & "." & getPrimaryKeyField( beanmap=arguments.beanmap ) & " = :" & arguments.beanmap.primarykey;
+
+		return sql;
 	}
 
 	/* private functions */
