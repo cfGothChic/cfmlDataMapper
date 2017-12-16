@@ -118,54 +118,30 @@
 		variables.DataGateway.update( sql=sql, sqlparams=sqlparams );
 	}
 
-	/* passthrough functions to server specific sql script builders */
+	/* raw sql building functions */
 
 	public string function createSQL() {
-		if ( getServerType() == "mysql" ) {
-			return variables.MySQLService.createSQL( argumentCollection=arguments );
-		} else {
-			return variables.MSSQLService.createSQL( argumentCollection=arguments );
-		}
+		return getServerTypeService().createSQL( argumentCollection=arguments );
 	}
 
 	public string function deleteSQL() {
-		if ( getServerType() == "mysql" ) {
-			return variables.MySQLService.deleteSQL( argumentCollection=arguments );
-		} else {
-			return variables.MSSQLService.deleteSQL( argumentCollection=arguments );
-		}
+		return getServerTypeService().deleteSQL( argumentCollection=arguments );
 	}
 
 	public string function deleteByNotInSQL() {
-		if ( getServerType() == "mysql" ) {
-			return variables.MySQLService.deleteByNotInSQL( argumentCollection=arguments );
-		} else {
-			return variables.MSSQLService.deleteByNotInSQL( argumentCollection=arguments );
-		}
+		return getServerTypeService().deleteByNotInSQL( argumentCollection=arguments );
 	}
 
 	public string function readByJoinSQL() {
-		if ( getServerType() == "mysql" ) {
-			return variables.MySQLService.readByJoinSQL( argumentCollection=arguments );
-		} else {
-			return variables.MSSQLService.readByJoinSQL( argumentCollection=arguments );
-		}
+		return getServerTypeService().readByJoinSQL( argumentCollection=arguments );
 	}
 
 	public string function readSQL() {
-		if ( getServerType() == "mysql" ) {
-			return variables.MySQLService.readSQL( argumentCollection=arguments );
-		} else {
-			return variables.MSSQLService.readSQL( argumentCollection=arguments );
-		}
+		return getServerTypeService().readSQL( argumentCollection=arguments );
 	}
 
 	public string function updateSQL() {
-		if ( getServerType() == "mysql" ) {
-			return variables.MySQLService.updateSQL( argumentCollection=arguments );
-		} else {
-			return variables.MSSQLService.updateSQL( argumentCollection=arguments );
-		}
+		return getServerTypeService().updateSQL( argumentCollection=arguments );
 	}
 
 	/* private functions */
@@ -224,6 +200,14 @@
 		}
 
 		return sqlparams;
+	}
+
+	private component function getServerTypeService() {
+		if ( getServerType() == "mysql" ) {
+			return variables.MySQLService;
+		} else {
+			return variables.MSSQLService;
+		}
 	}
 
 	private struct function getSQLParam( required struct prop, required any value, boolean allowNull=true ) {
