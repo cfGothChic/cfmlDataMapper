@@ -50,12 +50,20 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 
 			it( "returns server type from the config variable", function(){
-				testClass.$property( propertyName="serverType", mock="mysql" );
+				testClass.$property( propertyName="dataFactoryConfig", mock={ serverType = "mysql" } );
 
 				var result = testClass.getServerType();
 
 				expect( result ).toBeTypeOf( "string" );
 				expect( result ).toBe( "mysql" );
+			});
+
+
+			it( "throws an error if the server type config variable is invalid", function(){
+				testClass.$property( propertyName="dataFactoryConfig", mock={ serverType = "test" } );
+
+				expect( function(){ testClass.getServerType(); } )
+					.toThrow(type="application", regex="(serverType)");
 			});
 
 

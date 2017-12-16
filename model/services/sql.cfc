@@ -6,7 +6,7 @@
 	property MySQLService;
 	property ValidationService;
 
-	property serverType;
+	property dataFactoryConfig;
 
 	public component function init() {
 		return this;
@@ -34,7 +34,16 @@
 	}
 
 	public string function getServerType() {
-		return isNull(variables.serverType) || !len(variables.serverType) ? "mssql" : variables.serverType;
+		param variables.dataFactoryConfig.serverType = "mssql";
+
+		if (
+			len(variables.dataFactoryConfig.serverType)
+			&& !arrayFindNoCase(["mssql","mysql"], variables.dataFactoryConfig.serverType)
+		) {
+			throw("The DataFactory serverType config variable must be 'mssql' or 'mysql' (defaults to 'mssql'): " & variables.dataFactoryConfig.serverType);
+		}
+
+		return variables.dataFactoryConfig.serverType;
 	}
 
 	public boolean function isPropertyIncluded(
