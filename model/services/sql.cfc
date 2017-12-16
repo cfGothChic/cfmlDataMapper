@@ -221,6 +221,158 @@
 		);
 	}
 
+	private string function getFieldByType(
+		required string type,
+		required struct prop,
+		required string propname,
+		required string columnname
+	) {
+		var field = "";
+
+		switch ( arguments.type ) {
+
+			case "insert":
+				field &= getServerTypeService().getPropertyField( prop=prop );
+				break;
+
+			case "values":
+				field &= ":" & arguments.propname;
+				break;
+
+			case "update":
+				field &= arguments.columnname & " = :" & arguments.propname;
+				break;
+
+			default:
+				if ( len(arguments.prop.columnName) || ( arguments.prop.sqltype == "cf_sql_integer" && arguments.prop.null ) ) {
+					field &= getServerTypeService().getSelectAsField(
+						propname=arguments.propname,
+						columnname=columnname,
+						sqltype=arguments.prop.sqltype,
+						isNull=arguments.prop.null
+					);
+				}
+				else {
+					field &= columnname;
+				}
+		}
+
+		return field;
+	}
+
+	/*
+	* @type possible values: insert, update, select, values
+	*/
+	private string function getFields( required string type, required struct beanmap, boolean pkOnly=false ) {
+		var includepk = ( arguments.type == "select" ? true : false );
+		var tablename = getServerTypeService().getTableName( beanmap=arguments.beanmap );
+		arguments.pkOnly = ( arguments.type == "select" ? arguments.pkOnly : false );
+
+		var fields = "";
+		for ( var propname in arguments.beanmap.properties ) {
+			var prop = arguments.beanmap.properties[ propname ];
+
+			var isIncluded = isPropertyIncluded(
+				prop=prop,
+				primarykey=arguments.beanmap.primarykey,
+				includepk=includepk,
+				type=arguments.type,
+				pkOnly=arguments.pkOnly
+			);
+
+			if ( isIncluded ) {
+				var columnname = tablename & "." & getServerTypeService().getPropertyField( prop=prop );
+
+				if ( len(fields) ) {
+					fields &= ", ";
+				}
+				fields &= getFieldByType( type=arguments.type, prop=prop, propname=propname, columnname=columnname );
+			}
+		}
+
+		return fields;
+	}
+
+	private string function getFullOrderBy( required struct beanmap, string orderby="" ) {
+		arguments.orderby = ( len(arguments.orderby) ? arguments.orderby : arguments.beanmap.orderby );
+
+		var fullorderby = "";
+		var orderprops = listToArray(arguments.orderby);
+
+		for ( var orderprop in orderprops ) {
+			orderprop = trim(orderprop);
+			var orderinfo = getOrderInfo( orderby=orderprop );
+
+			var prop = structKeyExists(arguments.beanmap.properties,orderinfo.propname) ? arguments.beanmap.properties[orderinfo.propname] : {};
+			if ( structIsEmpty(prop) ) {
+				prop = getPropertyByColumnName( beanmap=arguments.beanmap, columnname=orderinfo.propname );
+			}
+
+			if ( structCount(prop) ) {
+				fullorderby &= ( len(fullorderby) ? ", " : "" ) & getServerTypeService().getPropertyField( prop=prop )
+				fullorderby &= " " & orderinfo.direction;
+			}
+		}
+
+		if ( !len(fullorderby) ) {
+			fullorderby = getPrimaryKeyField( beanmap=arguments.beanmap ) & " ASC";
+		}
+
+		return fullorderby;
+	}
+
+	private struct function getOrderInfo( required string orderby ) {
+		var result = {
+			propname = arguments.orderby,
+			direction = "ASC"
+		};
+
+		var order = listToArray(arguments.orderby, " ");
+		if ( arrayLen(order) > 1 ) {
+			result.propname = trim(order[1]);
+			if ( order[2] == "desc" ) {
+				result.direction = "DESC";
+			}
+		}
+
+		return result;
+	}
+
+	private string function getPrimaryKeyField( required struct beanmap ) {
+		var pkproperty = arguments.beanmap.properties[ arguments.beanmap.primarykey ];
+		return getServerTypeService().getPropertyField( prop=pkproperty );
+	}
+
+	private struct function getPropertyByColumnName( required struct beanmap, required string columnname ){
+		var prop = {};
+
+		for ( var propname in arguments.beanmap.properties ) {
+			if ( arguments.beanmap.properties[propname].columnname == arguments.columnname ) {
+				prop = arguments.beanmap.properties[propname];
+				break;
+			}
+		}
+
+		return prop;
+	}
+
+	private struct function getPropertyParams( required component bean, required struct beanmap, boolean includepk=true ) {
+		var sqlparams = {};
+
+		for ( var propname in arguments.beanmap.properties ) {
+			var prop = arguments.beanmap.properties[ propname ];
+
+			var isIncluded = isPropertyIncluded( prop=prop, primarykey=arguments.beanmap.primarykey, includepk=includepk );
+
+			if ( isIncluded ) {
+				var value = arguments.bean.getPropertyValue( propertyname=propname );
+				sqlparams[ propname ] = getSQLParam( prop=prop, value=value );
+			}
+		}
+
+		return sqlparams;
+	}
+
 	private struct function getQueryParams(
 		required struct params,
 		required struct properties,
@@ -246,23 +398,6 @@
 					sqlparams[ fieldkey ] = getSQLParam( prop=prop, value=value, allowNull=false );
 				}
 
-			}
-		}
-
-		return sqlparams;
-	}
-
-	private struct function getPropertyParams( required component bean, required struct beanmap, boolean includepk=true ) {
-		var sqlparams = {};
-
-		for ( var propname in arguments.beanmap.properties ) {
-			var prop = arguments.beanmap.properties[ propname ];
-
-			var isIncluded = isPropertyIncluded( prop=prop, primarykey=arguments.beanmap.primarykey, includepk=includepk );
-
-			if ( isIncluded ) {
-				var value = arguments.bean.getPropertyValue( propertyname=propname );
-				sqlparams[ propname ] = getSQLParam( prop=prop, value=value );
 			}
 		}
 
@@ -297,6 +432,20 @@
 		}
 
 		return sqlparam;
+	}
+
+	private string function getWhereStatement( required struct beanmap, required struct sqlparams, required string tablename ) {
+		var where = "";
+		for ( var field in arguments.sqlparams ) {
+			if ( structKeyExists(arguments.beanmap.properties,field) ) {
+				var prop = arguments.beanmap.properties[field];
+				where &= ( len(where) ? " AND " : " WHERE " ) & arguments.tablename;
+				where &= "." & getServerTypeService().getPropertyField( prop=prop ) & " = :" & field;
+			} else {
+				throw(message="The property '#lCase(field)#' was not found in the '#arguments.beanmap.bean#' bean definition");
+			}
+		}
+		return where;
 	}
 
 	private boolean function validateQueryParam(
