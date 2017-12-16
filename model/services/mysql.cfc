@@ -246,7 +246,12 @@
 		return "`" & ( len(arguments.prop.columnname) ? arguments.prop.columnname : arguments.prop.name ) & "`";
 	}
 
-	private string function getSelectAsField( required string columnname, required string sqltype, required boolean isNull ) {
+	private string function getSelectAsField(
+		required string propname,
+		required string columnname,
+		required string sqltype,
+		required boolean isNull
+	) {
 		var fieldresult = "";
 
 		if ( arguments.sqltype == "cf_sql_integer" && arguments.isNull ) {
@@ -259,7 +264,7 @@
 			fieldresult &= ",0)";
 		}
 
-		fieldresult &= " AS ";
+		fieldresult &= " AS `" & arguments.propname & "`";
 
 		return fieldresult;
 	}

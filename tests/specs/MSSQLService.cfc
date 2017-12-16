@@ -120,29 +120,26 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 				// getSelectAsField()
 				it( "return the just the column name if the property isn't an integer", function(){
-					var result = testClass.getSelectAsField( columnname="name", sqltype="cf_sql_varchar", isNull=true );
+					var result = testClass.getSelectAsField( propname="name", columnname="[fullname]", sqltype="cf_sql_varchar", isNull=true );
 
 					expect( result ).toBeTypeOf( "string" );
-					expect( result ).notToMatch( "(ISNULL)" );
-					expect( result ).toMatch( "(name)" );
+					expect( result ).toBe( "[fullname] AS [name]" );
 				});
 
 
 				it( "return the just the column name if the property is an integer but isn't null", function(){
-					var result = testClass.getSelectAsField( columnname="name", sqltype="cf_sql_integer", isNull=false );
+					var result = testClass.getSelectAsField( propname="name", columnname="[fullname]", sqltype="cf_sql_integer", isNull=false );
 
 					expect( result ).toBeTypeOf( "string" );
-					expect( result ).notToMatch( "(ISNULL)" );
-					expect( result ).toMatch( "(name)" );
+					expect( result ).toBe( "[fullname] AS [name]" );
 				});
 
 
 				it( "return the column name defaulted to 0 if the property is an integer and it is null", function(){
-					var result = testClass.getSelectAsField( columnname="name", sqltype="cf_sql_integer", isNull=true );
+					var result = testClass.getSelectAsField( propname="name", columnname="[fullname]", sqltype="cf_sql_integer", isNull=true );
 
 					expect( result ).toBeTypeOf( "string" );
-					expect( result ).toMatch( "(ISNULL)" );
-					expect( result ).toMatch( "(name)" );
+					expect( result ).toBe( "ISNULL([fullname],0) AS [name]" );
 				});
 
 
