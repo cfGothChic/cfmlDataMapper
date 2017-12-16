@@ -822,6 +822,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 							expect( testClass.$never("getOrderInfo") ).toBeTrue();
 							expect( testClass.$never("getPropertyByColumnName") ).toBeTrue();
+							expect( MSSQLService.$never("getTableName") ).toBeTrue();
 							expect( MSSQLService.$never("getPropertyField") ).toBeTrue();
 							expect( testClass.$once("getPrimaryKeyField") ).toBeTrue();
 
@@ -836,6 +837,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 							expect( testClass.$once("getOrderInfo") ).toBeTrue();
 							expect( testClass.$never("getPropertyByColumnName") ).toBeTrue();
+							expect( MSSQLService.$once("getTableName") ).toBeTrue();
 							expect( MSSQLService.$once("getPropertyField") ).toBeTrue();
 							expect( testClass.$never("getPrimaryKeyField") ).toBeTrue();
 
@@ -852,6 +854,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 							expect( testClass.$once("getOrderInfo") ).toBeTrue();
 							expect( testClass.$once("getPropertyByColumnName") ).toBeTrue();
+							expect( MSSQLService.$never("getTableName") ).toBeTrue();
 							expect( MSSQLService.$never("getPropertyField") ).toBeTrue();
 							expect( testClass.$once("getPrimaryKeyField") ).toBeTrue();
 
@@ -866,6 +869,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 							expect( testClass.$once("getOrderInfo") ).toBeTrue();
 							expect( testClass.$never("getPropertyByColumnName") ).toBeTrue();
+							expect( MSSQLService.$once("getTableName") ).toBeTrue();
 							expect( MSSQLService.$once("getPropertyField") ).toBeTrue();
 							expect( testClass.$never("getPrimaryKeyField") ).toBeTrue();
 
@@ -883,6 +887,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 							expect( testClass.$once("getOrderInfo") ).toBeTrue();
 							expect( testClass.$once("getPropertyByColumnName") ).toBeTrue();
+							expect( MSSQLService.$once("getTableName") ).toBeTrue();
 							expect( MSSQLService.$once("getPropertyField") ).toBeTrue();
 							expect( testClass.$never("getPrimaryKeyField") ).toBeTrue();
 
@@ -903,6 +908,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 							expect( testClass.$count("getOrderInfo") ).toBe( 2 );
 							expect( testClass.$never("getPropertyByColumnName") ).toBeTrue();
+							expect( MSSQLService.$count("getTableName") ).toBe( 2 );
 							expect( MSSQLService.$count("getPropertyField") ).toBe( 2 );
 							expect( testClass.$never("getPrimaryKeyField") ).toBeTrue();
 
@@ -1022,9 +1028,10 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 							var result = testClass.readByJoinSQL( beanmap=beanmap, relationship=relationship );
 
-							expect( MSSQLService.$once("getTableName") ).toBeTrue();
+							expect( MSSQLService.$count("getTableName") ).toBe( 2 );
 							expect( testClass.$once("getPrimaryKeyField") ).toBeTrue();
 							expect( testClass.$once("getFields") ).toBeTrue();
+							expect( MSSQLService.$count("getPropertyField") ).toBe( 2 );
 							expect( testClass.$once("getFullOrderBy") ).toBeTrue();
 
 							expect( result ).toBeTypeOf( "string" );

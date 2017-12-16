@@ -163,17 +163,24 @@
 		var tablename = getServerTypeService().getTableName( beanmap=arguments.beanmap );
 		var primarykey = getPrimaryKeyField( beanmap=arguments.beanmap );
 
-		var joinpath = ( len(arguments.relationship.joinSchema) ? "[" & arguments.relationship.joinSchema & "]." : "" );
-		joinpath &= "[" & arguments.relationship.joinTable & "]";
+		var rBeanMap = {
+			schema = arguments.relationship.joinSchema,
+			table = arguments.relationship.joinTable
+		};
+		var rTablename = getServerTypeService().getTableName( beanmap=rBeanMap );
 
 		var sql = "SELECT ";
 		sql &= getFields( type="select", beanmap=arguments.beanmap );
 		sql &= " FROM " & tablename;
 
-		sql &= " JOIN " & joinpath;
-		sql &= " ON " & joinpath & ".[" & arguments.relationship.joinColumn & "] = " & tablename & "." & primarykey;
+		var prop = { name=arguments.relationship.joinColumn, columnname="" };
+		sql &= " JOIN " & rTablename;
+		sql &= " ON " & rTablename & "." & getServerTypeService().getPropertyField( prop=prop );
+		sql &= " = " & tablename & "." & primarykey;
 
-		sql &= " WHERE " & joinpath & ".[" & arguments.relationship.fkColumn & "] = :" & arguments.relationship.fkColumn;
+		prop = { name=arguments.relationship.fkColumn, columnname="" };
+		sql &= " WHERE " & rTablename & "." & getServerTypeService().getPropertyField( prop=prop );
+		sql &= " = :" & arguments.relationship.fkColumn;
 
 		sql &= " ORDER BY " & getFullOrderBy( beanmap=arguments.beanmap );
 
@@ -309,7 +316,9 @@
 			}
 
 			if ( structCount(prop) ) {
-				fullorderby &= ( len(fullorderby) ? ", " : "" ) & getServerTypeService().getPropertyField( prop=prop )
+				fullorderby &= ( len(fullorderby) ? ", " : "" );
+				fullorderby &= getServerTypeService().getTableName( beanmap=arguments.beanmap )
+				fullorderby &= "." & getServerTypeService().getPropertyField( prop=prop )
 				fullorderby &= " " & orderinfo.direction;
 			}
 		}
