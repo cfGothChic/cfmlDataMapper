@@ -36,6 +36,60 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				makePublic( testClass, "getOrderInfo" );
 			});
 
+
+			// getCreateNewId()
+			it( "returns a string of sql for the create statement to return the new id if it is an identity", function(){
+				var result = testClass.getCreateNewId( isidentity=true );
+
+				expect( result ).toBeTypeOf( "string" );
+				expect( result ).toMatch( "(LAST_INSERT_ID)" );
+				expect( result ).notToMatch( "@newid" );
+			});
+
+
+			it( "returns a string of sql for the create statement to return the new id if it isn't an identity", function(){
+				var result = testClass.getCreateNewId( isidentity=false );
+
+				expect( result ).toBeTypeOf( "string" );
+				expect( result ).notToMatch( "(LAST_INSERT_ID)" );
+				expect( result ).toMatch( "@newid" );
+			});
+
+
+			// getCreateSetNewId()
+			it( "returns an empty string to set the new id for the create statement if it is an identity", function(){
+				var result = testClass.getCreateSetNewId( isidentity=true, tablename="`users`", primarykeyfield="`userid`" );
+
+				expect( result ).toBeTypeOf( "string" );
+				expect( result ).toBeEmpty();
+			});
+
+
+			it( "returns a string of sql to set the new id for the create statement if it isn't an identity", function(){
+				var result = testClass.getCreateSetNewId( isidentity=false, tablename="`users`", primarykeyfield="`userid`" );
+
+				expect( result ).toBeTypeOf( "string" );
+				expect( result ).toMatch( "@newid" );
+			});
+
+
+			// getCreateValues()
+			it( "returns a string of sql to set the new id for the create statement if it is an identity", function(){
+				var result = testClass.getCreateValues( isidentity=true );
+
+				expect( result ).toBeTypeOf( "string" );
+				expect( result ).notToMatch( "@newid" );
+			});
+
+
+			it( "returns a string of sql to set the new id for the create statement if it isn't an identity", function(){
+				var result = testClass.getCreateValues( isidentity=false );
+
+				expect( result ).toBeTypeOf( "string" );
+				expect( result ).toMatch( "@newid" );
+			});
+
+
 			// getOrderInfo()
 			it( "returns a structure of parsed orderby information with default direction", function(){
 				var result = testClass.getOrderInfo( orderby="email" );

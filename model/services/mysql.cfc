@@ -6,6 +6,46 @@
 		return this;
 	}
 
+	public string function getCreateNewId( required boolean isidentity ) {
+		var sql = "";
+
+		if ( arguments.isidentity ) {
+			sql &= "); SELECT LAST_INSERT_ID() AS newid;";
+		} else {
+			sql &= "); SELECT @newid AS newid;";
+		}
+
+		return sql;
+	}
+
+	public string function getCreateSetNewId(
+		required boolean isidentity,
+		required string tablename,
+		required string primarykeyfield
+	) {
+		var sql = "";
+
+		if ( !arguments.isidentity ) {
+			sql &= "SET @newid = (SELECT MAX(" & arguments.tablename & "." & arguments.primarykeyfield & ") ";
+			sql &= "FROM " & arguments.tablename & ") ";
+			sql &= "SET @newid = @newid + 1; ";
+		}
+
+		return sql;
+	}
+
+	public string function getCreateValues( required boolean isidentity ) {
+		var sql = "";
+
+		if ( arguments.isidentity ) {
+			sql &= ") VALUES (";
+		} else {
+			sql &= ") VALUES (@newid, ";
+		}
+
+		return sql;
+	}
+
 	public string function createSQL( required struct beanmap ) {
 		var sql = "";
 		var pkproperty = arguments.beanmap.properties[ arguments.beanmap.primarykey ];
