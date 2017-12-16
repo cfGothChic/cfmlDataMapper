@@ -45,7 +45,8 @@ The Data Mapper can be setup as a standalone factory object and saved to the app
 application.DataFactory = new cfmlDataMapper.factory({
   dsn = "usermanager",
   serverType = "mysql", // optional, defaults to mysql
-  locations = "/model" // comma separated list of your application's model locations that contain a bean folder
+  locations = "/model", // comma separated list of your application's model locations that contain a bean folder
+  reloadApplicationOnEveryRequest = false // optional, defaults to framework default
 });
 ```
 
