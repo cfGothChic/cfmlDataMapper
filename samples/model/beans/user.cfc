@@ -4,6 +4,7 @@ component accessors="true" extends="cfmlDataMapper.model.base.bean"
     orderby="lastName, firstName"
 {
 
+  // columns
 	property name="id" columnName="userId" cfsqltype="integer" isidentity="true" default="0";
 	property name="firstName" cfsqltype="varchar" maxlength="50" default="";
 	property name="lastName" cfsqltype="varchar" maxlength="50" default="";
@@ -11,43 +12,66 @@ component accessors="true" extends="cfmlDataMapper.model.base.bean"
 	property name="createDate" cfsqltype="timestamp" insert="false" default="";
 	property name="updateDate" cfsqltype="timestamp" default="";
 
+  // many-to-one relationships
 	property name="departmentId" cfsqltype="integer" null="true" default="0";
 	property name="departmentBean" bean="department" joinType="one" fkName="departmentId";
 
 	property name="userTypeId" cfsqltype="integer" null="true" default="0";
 	property name="userTypeBean" bean="userType" joinType="one" fkName="userTypeId";
 
-	function getCreateDate() {
+  // many-to-many relationships
+  property name="roleBeans"
+    bean="role"
+    joinType="many-to-many"
+    joinTable="users_roles"
+    joinColumn="roleId"
+    fkColumn="userId"
+    fksqltype="integer";
+
+	public string function getCreateDate() {
 		return isDate(variables.createDate) ? variables.createDate : now();
 	}
 
-  function getCreateDateFormatted() {
+  public string function getCreateDateFormatted() {
 		return dateformat(getCreateDate(), "m/d/yyyy");
 	}
 
-	function getDepartment() {
+	public component function getDepartment() {
 		super.populateRelationship("departmentBean");
 		return variables.departmentBean;
 	}
 
-	function getSortName() {
+  public string function getName() {
+		return getFirstName() & " " & getLastName();
+	}
+
+  public array function getRoles(){
+      super.populateRelationship("roleBeans");
+      return variables.roleBeans;
+  }
+
+	public string function getSortName() {
 		return getLastName() & ", " & getFirstName();
 	}
 
-	function getUpdateDate() {
+	public string function getUpdateDate() {
 		return isDate(variables.updateDate) ? variables.updateDate : now();
 	}
 
-  function getUpdateDateFormatted() {
+  public string function getUpdateDateFormatted() {
 		return dateformat(getUpdateDate(), "m/d/yyyy");
 	}
 
-	function getUserType() {
+	public component function getUserType() {
 		super.populateRelationship("userTypeBean");
 		return variables.userTypeBean;
 	}
 
-	function save() {
+  public boolean function hasRoles() {
+      return ( arrayLen( getRoles() ) ? true : false );
+  }
+
+	public struct function save() {
 		var result = {"code" = 001};
 
 		if ( !getId() ) {
@@ -67,7 +91,7 @@ component accessors="true" extends="cfmlDataMapper.model.base.bean"
 		return result;
 	}
 
-	function validate() {
+	public array function validate() {
 		var errors = super.validate();
 
 		if ( !getDepartmentId() ) {

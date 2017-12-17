@@ -4,9 +4,9 @@
 	variables.activeItem = "useredit";
 	variables.pageTitle = ( url.id ? "Edit" : "Add" ) & " User";
 
-	variables.user = application.dataFactory.get(bean="user", id=url.id);
-	variables.departments = application.dataFactory.list(bean="department");
-	variables.types = application.dataFactory.list(bean="usertype");
+	variables.user = application.DataFactory.get(bean="user", id=url.id);
+	variables.departments = application.DataFactory.list(bean="department");
+	variables.types = application.DataFactory.list(bean="usertype");
 
 	if ( structKeyExists(session, "redirect") ) {
 		structAppend(form, session.redirect);

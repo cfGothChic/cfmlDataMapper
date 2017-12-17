@@ -13,7 +13,6 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 				beforeEach(function( currentSpec ){
 					makePublic( testClass, "validateBeanProperty" );
-					makePublic( testClass, "validateByDataType" );
 					makePublic( testClass, "validateLength" );
 					makePublic( testClass, "validateRange" );
 					makePublic( testClass, "validateRegex" );

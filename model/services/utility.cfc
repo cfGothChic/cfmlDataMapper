@@ -4,6 +4,10 @@
 		return this;
 	}
 
+	public struct function getResultStruct() {
+		return { "success"=true, "code"=001, "messages"=[] };
+	}
+
 	/**
 	 * Recursive functions to compare structures and arrays.
 	 * Fix by Jose Alfonso.

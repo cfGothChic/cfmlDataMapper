@@ -1,12 +1,12 @@
 # cfmlDataMapper [![Build Status](https://travis-ci.org/cfGothChic/cfmlDataMapper.png)](https://travis-ci.org/cfGothChic/cfmlDataMapper)
 
-CFML Data Mapper is a flexible transient bean factory that manages the relationship between an application's beans and the data layer, providing basic database functionality reducing the need for boilerplate code. It can also handle lazy loading specific relationship data for a request through the use of stored procedures. A standalone implementation is available, but it can also be integrated into a FW/1 application. At this time it only works with SQL Server, but MySQL functionality is planned.
+CFML Data Mapper is a flexible transient bean factory that manages the relationship between an application's beans and the data layer, providing basic database functionality reducing the need for boilerplate code. It can also handle lazy loading specific relationship data for a request through the use of stored procedures. A standalone implementation is available, but it can also be integrated into a FW/1 application.
 
 It can be used as an ORM alternative and the bean structure will be familiar if you have used it. The benefit of the Data Mapper is that it removes the overhead and performance hit of using the built in ORM functions available in CFML.
 
 * Tested on CF 10, 11 & 2016 and Lucee 4.5 & 5
 * Works with FW/1 3.1+ (Standalone version requires 3.5+)
-* Works with SQL Server
+* Works with SQL Server and MySQL
 
 # Installation
 
@@ -18,14 +18,35 @@ Example Application Specific Mapping:
 this.mappings[ "/cfmlDataMapper" ] = expandPath("../cfmlDataMapper/");
 ```
 
+Add Framework One to the /cfmlDataMapper folder, or create a server mapping or application specific mapping to /framework.
+
+# SQL Server and MySQL
+
+By default the Data Mapper is setup to use SQL Server, but you can add a config variable to the bean factory constants to indicate to use MySQL.
+
+```coldfusion
+variables.framework = {
+  diConfig = {
+    constants = {
+      dsn = "usermanager",
+      dataFactoryConfig = {
+        serverType = "mysql"
+      }
+    }
+  }
+};
+```
+
 # Standalone Factory
 
 The Data Mapper can be setup as a standalone factory object and saved to the application scope.
 
 ```coldfusion
-application.dataFactory = new cfmlDataMapper.factory({
+application.DataFactory = new cfmlDataMapper.factory({
   dsn = "usermanager",
-  locations = "/model" // comma separated list of your application's model locations that contain a bean folder
+  serverType = "mysql", // optional, defaults to mysql
+  locations = "/model", // comma separated list of your application's model locations that contain a bean folder
+  reloadApplicationOnEveryRequest = false // optional, defaults to framework default
 });
 ```
 

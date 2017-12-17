@@ -40,6 +40,10 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 					qRecords = querySim("id
 						1");
+
+					UtilityService = createEmptyMock("cfmlDataMapper.model.services.utility");
+					UtilityService.$( "getResultStruct", { "success"=true, "code"=001, "messages"=[] } );
+					testClass.$property( propertyName="UtilityService", mock=UtilityService );
 				});
 
 
@@ -112,14 +116,14 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 						// setBeanName()
 						it( "updates the cached bean name with the argument", function(){
-							testClass.setBeanName( bean="test" );
+							testClass.setBeanName( beanname="test" );
 
 							expect( testClass.$never("getBeanMetaDataName") ).toBeTrue();
 						});
 
 
 						it( "updates the cached bean name with the metadata", function(){
-							testClass.setBeanName( bean="" );
+							testClass.setBeanName( beanname="" );
 
 							expect( testClass.$once("getBeanMetaDataName") ).toBeTrue();
 						});
@@ -402,7 +406,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				});
 
 
-				describe("uses the dataFactory and", function(){
+				describe("uses the DataFactory and", function(){
 
 					beforeEach(function( currentSpec ){
 						makePublic( testClass, "clearCache" );
@@ -412,17 +416,17 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						makePublic( testClass, "getSingularSprocBean" );
 						makePublic( testClass, "getSprocRelationship" );
 
-						dataFactory = createEmptyMock("cfmlDataMapper.model.factory.data");
+						DataFactory = createEmptyMock("cfmlDataMapper.model.factory.data");
 
-						dataFactory.$( "get", userBean )
+						DataFactory.$( "get", userBean )
 							.$( "getBeanMap", beanmap )
 							.$( "getBeans", [userBean] )
 							.$( "list", [userBean] );
-						testClass.$property( propertyName="dataFactory", mock=dataFactory );
+						testClass.$property( propertyName="DataFactory", mock=DataFactory );
 
-						dataGateway = createEmptyMock("cfmlDataMapper.model.gateways.data");
-						dataGateway.$( "readByJoinTable", querySim("") );
-						testClass.$property( propertyName="dataGateway", mock=dataGateway );
+						SQLService = createEmptyMock("cfmlDataMapper.model.services.sql");
+						SQLService.$( "readByJoin", querySim("") );
+						testClass.$property( propertyName="SQLService", mock=SQLService );
 
 						testClass.$( "getBeanName", "test" )
 							.$( "getForeignKeyId", 1 );
@@ -431,14 +435,14 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 					// clearCache()
 					it( "calls the cache service to clear the bean", function(){
-						var cacheService = createEmptyMock("cfmlDataMapper.model.services.cache");
-						cacheService.$( "clearBean" );
-						testClass.$property( propertyName="cacheService", mock=cacheService );
+						var CacheService = createEmptyMock("cfmlDataMapper.model.services.cache");
+						CacheService.$( "clearBean" );
+						testClass.$property( propertyName="CacheService", mock=CacheService );
 
 						testClass.clearCache();
 
 						expect( testClass.$once("getBeanName") ).toBeTrue();
-						expect( cacheService.$once("clearBean") ).toBeTrue();
+						expect( CacheService.$once("clearBean") ).toBeTrue();
 					});
 
 
@@ -447,7 +451,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						var result = testClass.getBeanMap();
 
 						expect( testClass.$once("getBeanName") ).toBeTrue();
-						expect( dataFactory.$once("getBeanMap") ).toBeTrue();
+						expect( DataFactory.$once("getBeanMap") ).toBeTrue();
 
 						expect( result ).toBeTypeOf( "struct" );
 						expect( result ).notToBeEmpty();
@@ -460,7 +464,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 						var result = testClass.getOneToManyValue( primarykey="id", relationship=beanmap.relationships.test );
 
-						expect( dataFactory.$once("list") ).toBeTrue();
+						expect( DataFactory.$once("list") ).toBeTrue();
 
 						expect( result ).toBeTypeOf( "array" );
 						expect( result ).toHaveLength( 1 );
@@ -473,7 +477,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 						var result = testClass.getOneToManyValue( primarykey="id", relationship=beanmap.relationships.test );
 
-						expect( dataFactory.$never("list") ).toBeTrue();
+						expect( DataFactory.$never("list") ).toBeTrue();
 
 						expect( result ).toBeTypeOf( "array" );
 						expect( result ).toBeEmpty();
@@ -486,8 +490,8 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 						var result = testClass.getManyToManyValue( primarykey="id", relationship=beanmap.relationships.test );
 
-						expect( dataGateway.$once("readByJoinTable") ).toBeTrue();
-						expect( dataFactory.$once("getBeans") ).toBeTrue();
+						expect( SQLService.$once("readByJoin") ).toBeTrue();
+						expect( DataFactory.$once("getBeans") ).toBeTrue();
 
 						expect( result ).toBeTypeOf( "array" );
 						expect( result ).toHaveLength( 1 );
@@ -500,8 +504,8 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 						var result = testClass.getManyToManyValue( primarykey="id", relationship=beanmap.relationships.test );
 
-						expect( dataGateway.$never("readByJoinTable") ).toBeTrue();
-						expect( dataFactory.$never("getBeans") ).toBeTrue();
+						expect( SQLService.$never("readByJoin") ).toBeTrue();
+						expect( DataFactory.$never("getBeans") ).toBeTrue();
 
 						expect( result ).toBeTypeOf( "array" );
 						expect( result ).toBeEmpty();
@@ -512,7 +516,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					it( "returns a bean for a one-to-one or many-to-one relationship", function(){
 						var result = testClass.getSingularBean( primarykey="id", relationship=beanmap.relationships.test );
 
-						expect( dataFactory.$once("get") ).toBeTrue();
+						expect( DataFactory.$once("get") ).toBeTrue();
 						expect( testClass.$once("getForeignKeyId") ).toBeTrue();
 
 						expect( result ).toBeTypeOf( "component" );
@@ -522,10 +526,10 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 					// getSingularSprocBean()
 					it( "returns a bean populated from the stored procedure query", function(){
-						var result = testClass.getSingularSprocBean( bean="test", qRecords=qRecords );
+						var result = testClass.getSingularSprocBean( beanname="test", qRecords=qRecords );
 
-						expect( dataFactory.$once("getBeans") ).toBeTrue();
-						expect( dataFactory.$never("get") ).toBeTrue();
+						expect( DataFactory.$once("getBeans") ).toBeTrue();
+						expect( DataFactory.$never("get") ).toBeTrue();
 
 						expect( result ).toBeTypeOf( "component" );
 						expect( result ).toBeInstanceOf( "model.beans.user" );
@@ -533,12 +537,12 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 
 					it( "returns an empty bean if the stored procedure query has no results", function(){
-						dataFactory.$( "getBeans", [] );
+						DataFactory.$( "getBeans", [] );
 
-						var result = testClass.getSingularSprocBean( bean="test", qRecords=querySim("") );
+						var result = testClass.getSingularSprocBean( beanname="test", qRecords=querySim("") );
 
-						expect( dataFactory.$once("getBeans") ).toBeTrue();
-						expect( dataFactory.$once("get") ).toBeTrue();
+						expect( DataFactory.$once("getBeans") ).toBeTrue();
+						expect( DataFactory.$once("get") ).toBeTrue();
 
 						expect( result ).toBeTypeOf( "component" );
 						expect( result ).toBeInstanceOf( "model.beans.user" );
@@ -554,10 +558,10 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 
 						it( "returns a bean from the stored procedure data if the joinType is one", function(){
-							var result = testClass.getSprocRelationship( bean="test", joinType="one", qRecords=qRecords );
+							var result = testClass.getSprocRelationship( beanname="test", joinType="one", qRecords=qRecords );
 
 							expect( testClass.$once("getSingularSprocBean") ).toBeTrue();
-							expect( dataFactory.$never("getBeans") ).toBeTrue();
+							expect( DataFactory.$never("getBeans") ).toBeTrue();
 
 							expect( result ).toBeTypeOf( "component" );
 							expect( result ).toBeInstanceOf( "model.beans.user" );
@@ -565,10 +569,10 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 
 						it( "returns an array from the stored procedure data if the joinType is many", function(){
-							var result = testClass.getSprocRelationship( bean="test", joinType="many", qRecords=qRecords );
+							var result = testClass.getSprocRelationship( beanname="test", joinType="many", qRecords=qRecords );
 
 							expect( testClass.$never("getSingularSprocBean") ).toBeTrue();
-							expect( dataFactory.$once("getBeans") ).toBeTrue();
+							expect( DataFactory.$once("getBeans") ).toBeTrue();
 
 							expect( result ).toBeTypeOf( "array" );
 							expect( result ).toHaveLength( 1 );
@@ -577,10 +581,10 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 
 						it( "returns an array from the stored procedure data if the joinType is one-to-many", function(){
-							var result = testClass.getSprocRelationship( bean="test", joinType="one-to-many", qRecords=qRecords );
+							var result = testClass.getSprocRelationship( beanname="test", joinType="one-to-many", qRecords=qRecords );
 
 							expect( testClass.$never("getSingularSprocBean") ).toBeTrue();
-							expect( dataFactory.$once("getBeans") ).toBeTrue();
+							expect( DataFactory.$once("getBeans") ).toBeTrue();
 
 							expect( result ).toBeTypeOf( "array" );
 							expect( result ).toHaveLength( 1 );
@@ -589,10 +593,10 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 
 						it( "returns an array from the stored procedure data if the joinType is many-to-many", function(){
-							var result = testClass.getSprocRelationship( bean="test", joinType="many-to-many", qRecords=qRecords );
+							var result = testClass.getSprocRelationship( beanname="test", joinType="many-to-many", qRecords=qRecords );
 
 							expect( testClass.$never("getSingularSprocBean") ).toBeTrue();
-							expect( dataFactory.$once("getBeans") ).toBeTrue();
+							expect( DataFactory.$once("getBeans") ).toBeTrue();
 
 							expect( result ).toBeTypeOf( "array" );
 							expect( result ).toHaveLength( 1 );
@@ -605,32 +609,44 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					describe("calls delete() and", function(){
 
 						beforeEach(function( currentSpec ){
-							dataGateway.$( "delete" );
+							SQLService.$( "delete" );
 
 							testClass.$( "getBeanMap", beanmap )
 								.$( "getBeanName", "test" );
 						});
 
 
+						afterEach(function( currentSpec ){
+							expect( deleteResult ).toBeTypeOf( "struct" );
+
+							expect( deleteResult ).toHaveKey( "success" );
+							expect( deleteResult.success ).toBeTypeOf( "boolean" );
+
+							expect( deleteResult ).toHaveKey( "code" );
+							expect( deleteResult.code ).toBeTypeOf( "numeric" );
+
+							expect( deleteResult ).toHaveKey( "messages" );
+							expect( deleteResult.messages ).toBeTypeOf( "array" );
+
+							for ( var key in deleteResult ) {
+								expect( key ).toBeWithCase( lCase(key) );
+							}
+						});
+
+
 						it( "deletes the record from the database", function(){
 							var result = testClass.delete();
 
+							expect( UtilityService.$once("getResultStruct") ).toBeTrue();
 							expect( testClass.$once("getBeanMap") ).toBeTrue();
-							expect( dataGateway.$once("delete") ).toBeTrue();
+							expect( SQLService.$once("delete") ).toBeTrue();
 							expect( testClass.$once("getBeanName") ).toBeTrue();
 
-							expect( result ).toBeTypeOf( "struct" );
-							expect( result ).toHaveKey( "success" );
-							expect( result.success ).toBeTypeOf( "boolean" );
 							expect( result.success ).toBeTrue();
-
-							expect( result ).toHaveKey( "code" );
-							expect( result.code ).toBeTypeOf( "numeric" );
 							expect( result.code ).toBe( 001 );
-
-							expect( result ).toHaveKey( "messages" );
-							expect( result.messages ).toBeTypeOf( "array" );
 							expect( result.messages ).toBeEmpty();
+
+							deleteResult = result;
 						});
 
 
@@ -639,27 +655,21 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 							var result = testClass.delete();
 
+							expect( UtilityService.$once("getResultStruct") ).toBeTrue();
 							expect( testClass.$once("getBeanMap") ).toBeTrue();
-							expect( dataGateway.$never("delete") ).toBeTrue();
+							expect( SQLService.$never("delete") ).toBeTrue();
 							expect( testClass.$once("getBeanName") ).toBeTrue();
 
-							expect( result ).toBeTypeOf( "struct" );
-							expect( result ).toHaveKey( "success" );
-							expect( result.success ).toBeTypeOf( "boolean" );
 							expect( result.success ).toBeFalse();
-
-							expect( result ).toHaveKey( "code" );
-							expect( result.code ).toBeTypeOf( "numeric" );
 							expect( result.code ).toBe( 500 );
-
-							expect( result ).toHaveKey( "messages" );
-							expect( result.messages ).toBeTypeOf( "array" );
 							expect( result.messages ).notToBeEmpty();
 
 							expect( result ).toHaveKey( "error" );
 							if ( structKeyExists(server, "lucee") ) {
 								expect( result.error ).toBeTypeOf( "struct" );
 							}
+
+							deleteResult = result;
 						});
 
 					});
@@ -778,14 +788,14 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 					// validate()
 					it( "returns an array from the validation service", function(){
-						var validationService = createEmptyMock("cfmlDataMapper.model.services.validation");
-						validationService.$( "validateBean", [] );
-						testClass.$property( propertyName="validationService", mock=validationService );
+						var ValidationService = createEmptyMock("cfmlDataMapper.model.services.validation");
+						ValidationService.$( "validateBean", [] );
+						testClass.$property( propertyName="ValidationService", mock=ValidationService );
 
 						var result = testClass.validate();
 
 						expect( testClass.$once("getBeanMap") ).toBeTrue();
-						expect( validationService.$once("validateBean") ).toBeTrue();
+						expect( ValidationService.$once("validateBean") ).toBeTrue();
 
 						expect( result ).toBeTypeOf( "array" );
 						expect( result ).toBeEmpty();
@@ -879,12 +889,12 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				});
 
 
-				describe("uses the beanFactory and", function(){
+				describe("uses the BeanFactory and", function(){
 
 					beforeEach(function( currentSpec ){
-						beanFactory = createEmptyMock("framework.ioc");
-						beanFactory.$( "injectProperties" );
-						testClass.$property( propertyName="beanFactory", mock=beanFactory );
+						BeanFactory = createEmptyMock("framework.ioc");
+						BeanFactory.$( "injectProperties" );
+						testClass.$property( propertyName="BeanFactory", mock=BeanFactory );
 					});
 
 
@@ -892,7 +902,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					it( "processes a query and injects it into the bean", function(){
 						testClass.populateBean( qRecord=qRecords );
 
-						expect( beanFactory.$once("injectProperties") ).toBeTrue();
+						expect( BeanFactory.$once("injectProperties") ).toBeTrue();
 					});
 
 
@@ -918,7 +928,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 							expect( testClass.$once("getSingularBean") ).toBeTrue();
 							expect( testClass.$never("getOneToManyValue") ).toBeTrue();
 							expect( testClass.$never("getManyToManyValue") ).toBeTrue();
-							expect( beanFactory.$once("injectProperties") ).toBeTrue();
+							expect( BeanFactory.$once("injectProperties") ).toBeTrue();
 						});
 
 
@@ -931,7 +941,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 							expect( testClass.$never("getSingularBean") ).toBeTrue();
 							expect( testClass.$once("getOneToManyValue") ).toBeTrue();
 							expect( testClass.$never("getManyToManyValue") ).toBeTrue();
-							expect( beanFactory.$once("injectProperties") ).toBeTrue();
+							expect( BeanFactory.$once("injectProperties") ).toBeTrue();
 						});
 
 
@@ -944,7 +954,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 							expect( testClass.$never("getSingularBean") ).toBeTrue();
 							expect( testClass.$never("getOneToManyValue") ).toBeTrue();
 							expect( testClass.$once("getManyToManyValue") ).toBeTrue();
-							expect( beanFactory.$once("injectProperties") ).toBeTrue();
+							expect( BeanFactory.$once("injectProperties") ).toBeTrue();
 						});
 
 
@@ -974,7 +984,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 							expect( testClass.$once("getBeanMap") ).toBeTrue();
 							expect( testClass.$once("populateBean") ).toBeTrue();
 							expect( testClass.$never("getSprocRelationship") ).toBeTrue();
-							expect( beanFactory.$never("injectProperties") ).toBeTrue();
+							expect( BeanFactory.$never("injectProperties") ).toBeTrue();
 						});
 
 
@@ -984,7 +994,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 							expect( testClass.$once("getBeanMap") ).toBeTrue();
 							expect( testClass.$never("populateBean") ).toBeTrue();
 							expect( testClass.$never("getSprocRelationship") ).toBeTrue();
-							expect( beanFactory.$never("injectProperties") ).toBeTrue();
+							expect( BeanFactory.$never("injectProperties") ).toBeTrue();
 						});
 
 
@@ -994,7 +1004,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 							expect( testClass.$once("getBeanMap") ).toBeTrue();
 							expect( testClass.$never("populateBean") ).toBeTrue();
 							expect( testClass.$once("getSprocRelationship") ).toBeTrue();
-							expect( beanFactory.$once("injectProperties") ).toBeTrue();
+							expect( BeanFactory.$once("injectProperties") ).toBeTrue();
 						});
 
 					});
@@ -1006,7 +1016,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				describe("calls save() and", function(){
 
 					beforeEach(function( currentSpec ){
-						dataGateway.$( "create", 1 )
+						SQLService.$( "create", 1 )
 							.$( "update" );
 
 						testClass.$( "clearCache" )
@@ -1019,83 +1029,83 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					});
 
 
+					afterEach(function( currentSpec ){
+						expect( saveResult ).toBeTypeOf( "struct" );
+
+						expect( saveResult ).toHaveKey( "success" );
+						expect( saveResult.success ).toBeTypeOf( "boolean" );
+
+						expect( saveResult ).toHaveKey( "code" );
+						expect( saveResult.code ).toBeTypeOf( "numeric" );
+
+						expect( saveResult ).toHaveKey( "messages" );
+						expect( saveResult.messages ).toBeTypeOf( "array" );
+
+						for ( var key in saveResult ) {
+							expect( key ).toBeWithCase( lCase(key) );
+						}
+					});
+
+
 					it( "successfully creates a bean", function(){
 						testClass.$property( propertyName="id", mock=0 );
 
 						var result = testClass.save( validate=true );
 
+						expect( UtilityService.$once("getResultStruct") ).toBeTrue();
 						expect( testClass.$once("getBeanName") ).toBeTrue();
 						expect( testClass.$once("getBeanMap") ).toBeTrue();
 						expect( testClass.$once("validate") ).toBeTrue();
-						expect( dataGateway.$never("update") ).toBeTrue();
-						expect( dataGateway.$once("create") ).toBeTrue();
+						expect( SQLService.$never("update") ).toBeTrue();
+						expect( SQLService.$once("create") ).toBeTrue();
 						expect( testClass.$once("setPrimaryKey") ).toBeTrue();
 						expect( testClass.$never("clearCache") ).toBeTrue();
 
-						expect( result ).toBeTypeOf( "struct" );
-						expect( result ).toHaveKey( "success" );
-						expect( result.success ).toBeTypeOf( "boolean" );
 						expect( result.success ).toBeTrue();
-
-						expect( result ).toHaveKey( "code" );
-						expect( result.code ).toBeTypeOf( "numeric" );
 						expect( result.code ).toBe( 001 );
+						expect( result.messages ).toBeEmpty();
 
-						expect( result ).toHaveKey( "message" );
-						expect( result.message ).toBeTypeOf( "array" );
-						expect( result.message ).toBeEmpty();
+						saveResult = result;
 					});
 
 
 					it( "successfully updates a bean", function(){
 						var result = testClass.save( validate=true );
 
+						expect( UtilityService.$once("getResultStruct") ).toBeTrue();
 						expect( testClass.$once("getBeanName") ).toBeTrue();
 						expect( testClass.$once("getBeanMap") ).toBeTrue();
 						expect( testClass.$once("validate") ).toBeTrue();
-						expect( dataGateway.$once("update") ).toBeTrue();
-						expect( dataGateway.$never("create") ).toBeTrue();
+						expect( SQLService.$once("update") ).toBeTrue();
+						expect( SQLService.$never("create") ).toBeTrue();
 						expect( testClass.$never("setPrimaryKey") ).toBeTrue();
 						expect( testClass.$never("clearCache") ).toBeTrue();
 
-						expect( result ).toBeTypeOf( "struct" );
-						expect( result ).toHaveKey( "success" );
-						expect( result.success ).toBeTypeOf( "boolean" );
 						expect( result.success ).toBeTrue();
-
-						expect( result ).toHaveKey( "code" );
-						expect( result.code ).toBeTypeOf( "numeric" );
 						expect( result.code ).toBe( 001 );
+						expect( result.messages ).toBeEmpty();
 
-						expect( result ).toHaveKey( "message" );
-						expect( result.message ).toBeTypeOf( "array" );
-						expect( result.message ).toBeEmpty();
+						saveResult = result;
 					});
 
 
 					it( "successfully updates a bean without validating it", function(){
 						var result = testClass.save( validate=false );
 
+						expect( UtilityService.$once("getResultStruct") ).toBeTrue();
 						expect( testClass.$once("getBeanName") ).toBeTrue();
 						expect( testClass.$once("getBeanMap") ).toBeTrue();
 						expect( testClass.$never("validate") ).toBeTrue();
-						expect( dataGateway.$once("update") ).toBeTrue();
-						expect( dataGateway.$never("create") ).toBeTrue();
+						expect( SQLService.$once("update") ).toBeTrue();
+						expect( SQLService.$never("create") ).toBeTrue();
 						expect( testClass.$never("setPrimaryKey") ).toBeTrue();
 						expect( testClass.$never("clearCache") ).toBeTrue();
 
-						expect( result ).toBeTypeOf( "struct" );
-						expect( result ).toHaveKey( "success" );
-						expect( result.success ).toBeTypeOf( "boolean" );
 						expect( result.success ).toBeTrue();
-
-						expect( result ).toHaveKey( "code" );
-						expect( result.code ).toBeTypeOf( "numeric" );
 						expect( result.code ).toBe( 001 );
+						expect( result.messages ).toBeEmpty();
 
-						expect( result ).toHaveKey( "message" );
-						expect( result.message ).toBeTypeOf( "array" );
-						expect( result.message ).toBeEmpty();
+						saveResult = result;
 					});
 
 
@@ -1104,26 +1114,20 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 						var result = testClass.save( validate=true );
 
+						expect( UtilityService.$once("getResultStruct") ).toBeTrue();
 						expect( testClass.$once("getBeanName") ).toBeTrue();
 						expect( testClass.$once("getBeanMap") ).toBeTrue();
 						expect( testClass.$once("validate") ).toBeTrue();
-						expect( dataGateway.$never("update") ).toBeTrue();
-						expect( dataGateway.$never("create") ).toBeTrue();
+						expect( SQLService.$never("update") ).toBeTrue();
+						expect( SQLService.$never("create") ).toBeTrue();
 						expect( testClass.$never("setPrimaryKey") ).toBeTrue();
 						expect( testClass.$never("clearCache") ).toBeTrue();
 
-						expect( result ).toBeTypeOf( "struct" );
-						expect( result ).toHaveKey( "success" );
-						expect( result.success ).toBeTypeOf( "boolean" );
 						expect( result.success ).toBeFalse();
-
-						expect( result ).toHaveKey( "code" );
-						expect( result.code ).toBeTypeOf( "numeric" );
 						expect( result.code ).toBe( 900 );
+						expect( result.messages ).notToBeEmpty();
 
-						expect( result ).toHaveKey( "message" );
-						expect( result.message ).toBeTypeOf( "array" );
-						expect( result.message ).notToBeEmpty();
+						saveResult = result;
 					});
 
 
@@ -1132,31 +1136,25 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 						var result = testClass.save( validate=true );
 
+						expect( UtilityService.$once("getResultStruct") ).toBeTrue();
 						expect( testClass.$count("getBeanName") ).toBe( 2 );
 						expect( testClass.$once("getBeanMap") ).toBeTrue();
 						expect( testClass.$never("validate") ).toBeTrue();
-						expect( dataGateway.$never("update") ).toBeTrue();
-						expect( dataGateway.$never("create") ).toBeTrue();
+						expect( SQLService.$never("update") ).toBeTrue();
+						expect( SQLService.$never("create") ).toBeTrue();
 						expect( testClass.$never("setPrimaryKey") ).toBeTrue();
 						expect( testClass.$never("clearCache") ).toBeTrue();
 
-						expect( result ).toBeTypeOf( "struct" );
-						expect( result ).toHaveKey( "success" );
-						expect( result.success ).toBeTypeOf( "boolean" );
 						expect( result.success ).toBeFalse();
-
-						expect( result ).toHaveKey( "code" );
-						expect( result.code ).toBeTypeOf( "numeric" );
 						expect( result.code ).toBe( 500 );
-
-						expect( result ).toHaveKey( "message" );
-						expect( result.message ).toBeTypeOf( "array" );
-						expect( result.message ).notToBeEmpty();
+						expect( result.messages ).notToBeEmpty();
 
 						expect( result ).toHaveKey( "error" );
 						if ( structKeyExists(server, "lucee") ) {
 							expect( result.error ).toBeTypeOf( "struct" );
 						}
+
+						saveResult = result;
 					});
 
 
@@ -1165,26 +1163,20 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 						var result = testClass.save( validate=true );
 
+						expect( UtilityService.$once("getResultStruct") ).toBeTrue();
 						expect( testClass.$once("getBeanName") ).toBeTrue();
 						expect( testClass.$once("getBeanMap") ).toBeTrue();
 						expect( testClass.$once("validate") ).toBeTrue();
-						expect( dataGateway.$once("update") ).toBeTrue();
-						expect( dataGateway.$never("create") ).toBeTrue();
+						expect( SQLService.$once("update") ).toBeTrue();
+						expect( SQLService.$never("create") ).toBeTrue();
 						expect( testClass.$never("setPrimaryKey") ).toBeTrue();
 						expect( testClass.$once("clearCache") ).toBeTrue();
 
-						expect( result ).toBeTypeOf( "struct" );
-						expect( result ).toHaveKey( "success" );
-						expect( result.success ).toBeTypeOf( "boolean" );
 						expect( result.success ).toBeTrue();
-
-						expect( result ).toHaveKey( "code" );
-						expect( result.code ).toBeTypeOf( "numeric" );
 						expect( result.code ).toBe( 001 );
+						expect( result.messages ).toBeEmpty();
 
-						expect( result ).toHaveKey( "message" );
-						expect( result.message ).toBeTypeOf( "array" );
-						expect( result.message ).toBeEmpty();
+						saveResult = result;
 					});
 
 				});
@@ -1196,8 +1188,8 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					beforeEach(function( currentSpec ){
 						makePublic( testClass, "populate" );
 
-						dataGateway.$( "read" ).$args( bean="test", params={ id = 1 } ).$results( qRecords );
-						dataGateway.$( "read" ).$args( bean="test", params={ id = 2 } ).$results( querySim("id") );
+						SQLService.$( "read" ).$args( beanname="test", methodname="populate", params={ id = 1 } ).$results( qRecords );
+						SQLService.$( "read" ).$args( beanname="test", methodname="populate", params={ id = 2 } ).$results( querySim("id") );
 
 						testClass.$( "getBeanName", "test" )
 							.$( "populateBean" )
@@ -1206,30 +1198,30 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 
 					it( "gets the bean record from the database and populates the data", function(){
-						testClass.populate( id=1, bean="test" );
+						testClass.populate( id=1, beanname="test" );
 
 						expect( testClass.$once("setBeanName") ).toBeTrue();
-						expect( dataGateway.$once("read") ).toBeTrue();
+						expect( SQLService.$once("read") ).toBeTrue();
 						expect( testClass.$once("getBeanName") ).toBeTrue();
 						expect( testClass.$once("populateBean") ).toBeTrue();
 					});
 
 
 					it( "doesn't get the bean record if the id is 0", function(){
-						testClass.populate( id=0, bean="test" );
+						testClass.populate( id=0, beanname="test" );
 
 						expect( testClass.$once("setBeanName") ).toBeTrue();
-						expect( dataGateway.$never("read") ).toBeTrue();
+						expect( SQLService.$never("read") ).toBeTrue();
 						expect( testClass.$never("getBeanName") ).toBeTrue();
 						expect( testClass.$never("populateBean") ).toBeTrue();
 					});
 
 
 					it( "doesn't populate the bean data if the there isn't a record", function(){
-						testClass.populate( id=2, bean="test" );
+						testClass.populate( id=2, beanname="test" );
 
 						expect( testClass.$once("setBeanName") ).toBeTrue();
-						expect( dataGateway.$once("read") ).toBeTrue();
+						expect( SQLService.$once("read") ).toBeTrue();
 						expect( testClass.$once("getBeanName") ).toBeTrue();
 						expect( testClass.$never("populateBean") ).toBeTrue();
 					});
@@ -1247,7 +1239,9 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 							_bean = qRecords
 						};
 
-						dataGateway.$( "readSproc", sprocData );
+						DataGateway = createEmptyMock("cfmlDataMapper.model.gateways.data");
+						DataGateway.$( "readSproc", sprocData );
+						testClass.$property( propertyName="DataGateway", mock=DataGateway );
 
 						testClass.$( "getPrimaryKeyFromSprocData", 0 )
 							.$( "getRelationshipKeys", [] )
@@ -1259,12 +1253,12 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 
 					it( "doesn't populate from a stored procedure if the primary key is 0 and there are no params", function(){
-						testClass.populateBySproc( sproc="getTest", id=0, bean="test", params=[], resultkeys=[] );
+						testClass.populateBySproc( sproc="getTest", id=0, beanname="test", params=[], resultkeys=[] );
 
 						expect( testClass.$once("getSprocContext") ).toBeTrue();
 						expect( testClass.$once("setBeanName") ).toBeTrue();
 						expect( testClass.$never("getRelationshipKeys") ).toBeTrue();
-						expect( dataGateway.$never("readSproc") ).toBeTrue();
+						expect( DataGateway.$never("readSproc") ).toBeTrue();
 						expect( testClass.$never("populateSprocData") ).toBeTrue();
 						expect( testClass.$never("getPrimaryKeyFromSprocData") ).toBeTrue();
 						expect( testClass.$once("setPrimaryKey") ).toBeTrue();
@@ -1272,12 +1266,12 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 
 					it( "doesn't populate from a stored procedure if the primary key is blank", function(){
-						testClass.populateBySproc( sproc="getTest", id="", bean="test", params=[], resultkeys=[] );
+						testClass.populateBySproc( sproc="getTest", id="", beanname="test", params=[], resultkeys=[] );
 
 						expect( testClass.$once("getSprocContext") ).toBeTrue();
 						expect( testClass.$once("setBeanName") ).toBeTrue();
 						expect( testClass.$never("getRelationshipKeys") ).toBeTrue();
-						expect( dataGateway.$never("readSproc") ).toBeTrue();
+						expect( DataGateway.$never("readSproc") ).toBeTrue();
 						expect( testClass.$never("populateSprocData") ).toBeTrue();
 						expect( testClass.$never("getPrimaryKeyFromSprocData") ).toBeTrue();
 						expect( testClass.$once("setPrimaryKey") ).toBeTrue();
@@ -1285,12 +1279,12 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 
 					it( "populates the data and relationships from a stored procedure", function(){
-						testClass.populateBySproc( sproc="getTest", id=1, bean="test", params=[], resultkeys=[] );
+						testClass.populateBySproc( sproc="getTest", id=1, beanname="test", params=[], resultkeys=[] );
 
 						expect( testClass.$once("getSprocContext") ).toBeTrue();
 						expect( testClass.$once("setBeanName") ).toBeTrue();
 						expect( testClass.$once("getRelationshipKeys") ).toBeTrue();
-						expect( dataGateway.$once("readSproc") ).toBeTrue();
+						expect( DataGateway.$once("readSproc") ).toBeTrue();
 						expect( testClass.$once("populateSprocData") ).toBeTrue();
 						expect( testClass.$once("getPrimaryKeyFromSprocData") ).toBeTrue();
 						expect( testClass.$once("setPrimaryKey") ).toBeTrue();
@@ -1298,12 +1292,12 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 
 					it( "populates the data and relationships from a stored procedure using params", function(){
-						testClass.populateBySproc( sproc="getTest", id=0, bean="test", params=[{ name="Test" }], resultkeys=[] );
+						testClass.populateBySproc( sproc="getTest", id=0, beanname="test", params=[{ name="Test" }], resultkeys=[] );
 
 						expect( testClass.$once("getSprocContext") ).toBeTrue();
 						expect( testClass.$once("setBeanName") ).toBeTrue();
 						expect( testClass.$once("getRelationshipKeys") ).toBeTrue();
-						expect( dataGateway.$once("readSproc") ).toBeTrue();
+						expect( DataGateway.$once("readSproc") ).toBeTrue();
 						expect( testClass.$once("populateSprocData") ).toBeTrue();
 						expect( testClass.$once("getPrimaryKeyFromSprocData") ).toBeTrue();
 						expect( testClass.$once("setPrimaryKey") ).toBeTrue();
@@ -1311,12 +1305,12 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 
 					it( "populates the data and relationships from a stored procedure using resultkeys", function(){
-						testClass.populateBySproc( sproc="getTest", id=1, bean="test", params=[], resultkeys=["test"] );
+						testClass.populateBySproc( sproc="getTest", id=1, beanname="test", params=[], resultkeys=["test"] );
 
 						expect( testClass.$once("getSprocContext") ).toBeTrue();
 						expect( testClass.$once("setBeanName") ).toBeTrue();
 						expect( testClass.$never("getRelationshipKeys") ).toBeTrue();
-						expect( dataGateway.$once("readSproc") ).toBeTrue();
+						expect( DataGateway.$once("readSproc") ).toBeTrue();
 						expect( testClass.$once("populateSprocData") ).toBeTrue();
 						expect( testClass.$once("getPrimaryKeyFromSprocData") ).toBeTrue();
 						expect( testClass.$once("setPrimaryKey") ).toBeTrue();
@@ -1347,7 +1341,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 
 				// setPrimaryKey()
-				it( "set's the bean's primary key when the dataFactory doesn't exist", function(){
+				it( "set's the bean's primary key when the DataFactory doesn't exist", function(){
 					testClass.setPrimaryKey( primarykey=1 );
 
 					expect( testClass.$never("getBeanMap") ).toBeTrue();
