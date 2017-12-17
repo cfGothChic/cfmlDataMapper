@@ -16,10 +16,10 @@ component {
 	this.mappings[ "/model" ] = expandPath("../model");
 
 	boolean function onApplicationStart() {
-		application.dataFactory = new cfmlDataMapper.factory({
+		application.DataFactory = new cfmlDataMapper.factory({
 			dsn = "usermanager",
 			locations = "/model",
-			reloadApplicationOnEveryRequest = true
+			reloadApplicationOnEveryRequest = false
 		});
 
 		return true;

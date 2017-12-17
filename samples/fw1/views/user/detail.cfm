@@ -25,13 +25,26 @@
 	</div>
 
 	<div class="row">
+		<div class="col-md-3"><strong>Type:</strong></div>
+		<div class="col-md-9">#rc.user.getUserType().getName()#</div>
+	</div>
+
+	<div class="row">
 		<div class="col-md-3"><strong>Department:</strong></div>
 		<div class="col-md-9">#rc.user.getDepartment().getName()#</div>
 	</div>
 
 	<div class="row">
-		<div class="col-md-3"><strong>Type:</strong></div>
-		<div class="col-md-9">#rc.user.getUserType().getName()#</div>
+		<div class="col-md-3"><strong>Roles:</strong></div>
+		<div class="col-md-9">
+			<cfif rc.user.hasRoles()>
+				<ul>
+					<cfloop array="#rc.user.getRoles()#" index="local.role">
+						<li>#local.role.getName()#</li>
+					</cfloop>
+				</ul>
+			</cfif>
+		</div>
 	</div>
 
 	<div class="row">

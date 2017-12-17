@@ -1,6 +1,6 @@
 component accessors="true" {
 
-	property dataFactory;
+	property DataFactory;
 
 	function init(fw) {
 		variables.framework = fw;
@@ -12,26 +12,29 @@ component accessors="true" {
 	}
 
 	function delete(rc) {
-		rc.user = variables.dataFactory.get(bean="user", id=rc.id);
+		rc.user = variables.DataFactory.get(bean="user", id=rc.id);
 
-		var success = ( rc.user.exists() ? true : false );
+		var result = {
+			success = rc.user.exists()
+		};
 
-		if ( success ) {
-			success = rc.user.delete();
+		if ( result.success ) {
+			result = rc.user.delete();
 		}
 
-		variables.framework.redirect( "user.list" );
+		rc.messages = result.messages;
+		variables.framework.redirect( action="user.list", preserve="messages" );
 	}
 
 	function detail(rc) {
-		rc.user = variables.dataFactory.get(bean="user", id=rc.id);
+		rc.user = variables.DataFactory.get(bean="user", id=rc.id);
 		rc.pageTitle = "User Detail";
 	}
 
 	function edit(rc) {
-		rc.user = variables.dataFactory.get(bean="user", id=rc.id);
-		rc.departments = variables.dataFactory.list(bean="department");
-		rc.types = variables.dataFactory.list(bean="usertype");
+		rc.user = variables.DataFactory.get(bean="user", id=rc.id);
+		rc.departments = variables.DataFactory.list(bean="department");
+		rc.types = variables.DataFactory.list(bean="usertype");
 
 		// form variables from validation errors
 		param name="rc.firstName" default=rc.user.getFirstName();
@@ -45,7 +48,8 @@ component accessors="true" {
     }
 
 	function list(rc) {
-		rc.users = variables.dataFactory.list(bean="user");
+		rc.users = variables.DataFactory.list( bean="user" );
+		rc.admins = variables.DataFactory.list( bean="adminuser", params={ userTypeId=1 } );
 
 		rc.pageTitle = "User List";
 	}
@@ -58,11 +62,11 @@ component accessors="true" {
 		param name="rc.departmentId" default="0";
 		param name="rc.userTypeId" default="0";
 
-		var user = variables.dataFactory.get(bean="user", id=rc.id);
+		var user = variables.DataFactory.get(bean="user", id=rc.id);
 		variables.framework.populate( cfc = user, trim = true );
 
 		var result = user.save();
-		rc.messages = result.message;
+		rc.messages = result.messages;
 
 		if ( arrayLen(rc.messages) ) {
 			variables.framework.redirect(action="user.edit",preserve="firstName,lastName,email,departmentId,userTypeId,messages",append="id");

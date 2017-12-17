@@ -10,11 +10,11 @@ component accessors="true" extends="cfmlDataMapper.model.base.bean"
 	property name="createDate" cfsqltype="timestamp" insert="false" default="";
 	property name="updateDate" cfsqltype="timestamp" default="";
 
-	function getCreateDate() {
+	public string function getCreateDate() {
 		return isDate(variables.createDate) ? variables.createDate : now();
 	}
 
-	function getUpdateDate() {
+	public string function getUpdateDate() {
 		return isDate(variables.updateDate) ? variables.updateDate : now();
 	}
 

@@ -1,11 +1,11 @@
 component accessors="true" extends="cfmlDataMapper.model.base.bean"
-    table="usertypes"
+    table="roles"
     primarykey="id"
     orderby="name"
     cached="true"
 {
 
-	property name="id" columnName="userTypeId" cfsqltype="integer" isidentity="true" default="0";
+	property name="id" columnName="roleId" cfsqltype="integer" isidentity="true" default="0";
 	property name="name" cfsqltype="varchar" maxlength="50" default="";
 	property name="createDate" cfsqltype="timestamp" insert="false" default="";
 	property name="updateDate" cfsqltype="timestamp" default="";

@@ -1,5 +1,6 @@
 <cfparam name="rc.pageTitle" default="" />
 <cfparam name="rc.messages" default="#[]#" />
+<cfparam name="rc.jsScripts" default="#[]#" />
 
 <cfoutput>
 	<!DOCTYPE html>
@@ -60,10 +61,10 @@
 
 		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
 		<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
-		<script src="assets/libs/bootbox.min.js"></script>
+		<script src="/samples/fw1/assets/libs/bootbox.min.js"></script>
 		<cfif arrayLen(rc.jsScripts)>
 			<cfloop array="#rc.jsScripts#" index="local.script">
-				<script src="assets/js/#local.script#"></script>
+				<script src="/samples/fw1/assets/js/#local.script#"></script>
 			</cfloop>
 		</cfif>
 

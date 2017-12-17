@@ -10,6 +10,19 @@
 		<div class="col-md-12 text-right"><a href="#buildUrl('user.edit')#"><i class="fa fa-plus"></i> Add</a></div>
 	</div>
 
+	<cfif arrayLen(rc.admins)>
+		<div class="row">
+			<div class="col-md-12">
+				<p>Administrators:
+					<cfloop array="#rc.admins#" index="local.adminuser">
+						<cfif rc.admins[1].getId() is not local.adminuser.getId()>, </cfif>
+						#local.adminuser.getName()#
+					</cfloop>
+				</p>
+			</div>
+		</div>
+	</cfif>
+
 	<cfif !arrayLen(rc.users)>
 		<div class="row">
 			<div class="col-md-12">No users exist but <a href="#buildUrl('user.edit')#">new ones can be added</a>.</div>

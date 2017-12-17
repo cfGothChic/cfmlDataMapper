@@ -1,35 +1,35 @@
 ﻿component accessors=true {
 
-	property beanFactory;
-	property cacheService;
-	property dataGateway;
-	property utilityService;
+	property BeanFactory;
+	property CacheService;
+	property SQLService;
+	property UtilityService;
 
 	variables.moduleCache = [];
 	variables.beanmaps = {};
 
-	public any function init( fw, utilityService ) {
+	public any function init( fw, UtilityService ) {
 		variables.fw = arguments.fw;
-		variables.utilityService = arguments.utilityService;
+		variables.UtilityService = arguments.UtilityService;
 		lock timeout="10" scope="application" type="exclusive" {
 			cacheBeanMetadata();
 		}
 		return this;
 	}
 
-	public any function get(
+	public component function get(
 		required string bean,
 		string id=0,
 		struct params={}
 	) {
-		var result = variables.cacheService.get(bean=arguments.bean, id=trim(val(arguments.id)), params=arguments.params);
+		var result = variables.CacheService.get( beanname=arguments.bean, id=trim(val(arguments.id)), params=arguments.params );
 
 		if ( result.success ) {
 			return result.bean;
-		} else if ( !val(arguments.id) && !structIsEmpty(arguments.params) ) {
-			return getByParams(arguments.bean, arguments.params);
+		} else if ( !val(arguments.id) && structCount(arguments.params) ) {
+			return getByParams( beanname=arguments.bean, methodname="get", params=arguments.params );
 		} else {
-			return getModuleBean(arguments.bean).init(argumentCollection=arguments);
+			return getModuleBean( arguments.bean ).init( argumentCollection=arguments );
 		}
 	}
 
@@ -55,7 +55,7 @@
 						properties[columnname] = arguments.qRecords[columnname][i];
 					}
 
-					variables.beanFactory.injectProperties(recordbean, properties);
+					variables.BeanFactory.injectProperties(recordbean, properties);
 
 					arrayAppend(beans,recordbean);
 				}
@@ -68,7 +68,7 @@
 						properties[columnname] = arguments.qRecords[columnname][i];
 					}
 
-					variables.beanFactory.injectProperties(recordbean, properties);
+					variables.BeanFactory.injectProperties(recordbean, properties);
 
 					arrayAppend(beans,recordbean);
 				}
@@ -87,14 +87,14 @@
 
 				for ( var beandata in arguments.beansArray ) {
 					var recordbean = structcopy(recordbeantemplate);
-					variables.beanFactory.injectProperties(recordbean, beandata);
+					variables.BeanFactory.injectProperties(recordbean, beandata);
 					arrayAppend(beans,recordbean);
 				}
 
 			} else {
 				for ( var beandata in arguments.beansArray ) {
 					var recordbean = getModuleBean(arguments.bean);
-					variables.beanFactory.injectProperties(recordbean, beandata);
+					variables.BeanFactory.injectProperties(recordbean, beandata);
 					arrayAppend(beans,recordbean);
 				}
 			}
@@ -120,7 +120,7 @@
 						properties[columnname] = arguments.qRecords[columnname][i];
 					}
 
-					variables.beanFactory.injectProperties(recordbean, properties);
+					variables.BeanFactory.injectProperties(recordbean, properties);
 
 					beans[ recordbean.getPropertyValue(beanmap.primarykey) ] = recordbean;
 				}
@@ -133,7 +133,7 @@
 						properties[columnname] = arguments.qRecords[columnname][i];
 					}
 
-					variables.beanFactory.injectProperties(recordbean, properties);
+					variables.BeanFactory.injectProperties(recordbean, properties);
 
 					beans[ recordbean.getId() ] = recordbean;
 				}
@@ -161,13 +161,20 @@
 		string orderby=""
 	) {
 		if ( structKeyExists(arguments,"singular") ) {
-			throw("The singular argument of dataFactory.list() is deprecated. Use get() with the params argument instead.");
+			throw("The singular argument of DataFactory.list() is deprecated. Use get() with the params argument instead.");
 		}
-		var result = variables.cacheService.list(argumentCollection=arguments);
+
+		arguments.beanname = arguments.bean;
+		var result = variables.CacheService.list( argumentCollection=arguments );
 
 		if ( !result.success ) {
-			var qRecords = variables.dataGateway.read(arguments.bean, arguments.params, arguments.orderby);
-			result.beans = getBeans(arguments.bean, qRecords);
+			var qRecords = variables.SQLService.read(
+				beanname=arguments.bean,
+				methodname="list",
+				params=arguments.params,
+				orderby=arguments.orderby
+			);
+			result.beans = getBeans( bean=arguments.bean, qRecords=qRecords );
 		}
 		return result.beans;
 	}
@@ -222,12 +229,14 @@
 					structDelete(beanmap.properties,prop.name);
 				}
 
-				beanmap.relationships[ prop.name ] = getRelationshipMetadata(prop);
+				beanmap.relationships[ prop.name ] = getRelationshipMetadata( prop=prop, beanname=beanmap.bean );
 				if ( !structCount( beanmap.relationships[ prop.name ] ) ) {
 					structDelete(beanmap.relationships,prop.name);
 				}
 			}
 		}
+
+		// todo: make sure the primarykey property exists
 
 		variables.beanmaps[ beanmap.bean ] = beanmap;
 	}
@@ -264,10 +273,10 @@
 		return beanmap;
 	}
 
-	private function getByParams( beanname, params ) {
+	private component function getByParams( required string beanname, required string methodname, requires struct params ) {
 		checkBeanExists(arguments.beanname);
-		var qRecord = variables.dataGateway.read(arguments.beanname, arguments.params);
-		var bean = get(arguments.beanname);
+		var qRecord = variables.SQLService.read( beanname=arguments.beanname, methodname=arguments.methodname, params=arguments.params);
+		var bean = get( bean=arguments.beanname );
 		if ( qRecord.recordCount ) {
 			bean.populateBean(qRecord);
 		}
@@ -279,7 +288,7 @@
 		return ( findNoCase("cf_sql_",arguments.sqltype) ? arguments.sqltype : "cf_sql_" & arguments.sqltype );
 	}
 
-	private string function getDatatype(valtype,sqltype){
+	private string function getDatatype( required string valtype, required string sqltype ){
 		var datatype = "any";
 
 		if( len(trim(arguments.valtype)) ){
@@ -328,7 +337,7 @@
 		if ( len(modulename) ) {
 			return variables.fw.getSubsystemBeanFactory(modulename).getBean( beanname & "Bean" );
 		} else {
-			//return variables.beanFactory.getBean( beanname & "Bean" );
+			//return variables.BeanFactory.getBean( beanname & "Bean" );
 			return variables.fw.getDefaultBeanFactory().getBean( beanname & "Bean" );
 		}
 	}
@@ -338,7 +347,7 @@
 		if ( structKeyExists(prop,"cfsqltype") ) {
 			metadata.name = prop.name;
 			metadata.defaultvalue = ( structKeyExists(prop,"default") ? prop.default : "" );
-			metadata.displayname = ( structKeyExists(prop,"displayname") ? prop.displayname : variables.utilityService.upperFirst(prop.name) );
+			metadata.displayname = ( structKeyExists(prop,"displayname") ? prop.displayname : variables.UtilityService.upperFirst(prop.name) );
 			metadata.columnName = ( structKeyExists(prop,"columnName") ? prop.columnName : "" );
 			metadata.insert = ( structKeyExists(prop,"insert") ? prop.insert : true );
 			metadata.isidentity = ( structKeyExists(prop,"isidentity") ? prop.isidentity : false );
@@ -358,7 +367,7 @@
 		return metadata;
 	}
 
-	private struct function getRelationshipMetadata( prop ) {
+	private struct function getRelationshipMetadata( required struct prop, required string beanname ) {
 		var metadata = {};
 		if ( structKeyExists(prop,"bean") ) {
 			metadata.name = prop.name;
@@ -371,6 +380,8 @@
 			metadata.joinSchema = ( structKeyExists(prop,"joinSchema") ? prop.joinSchema : "" );
 			metadata.joinTable = ( structKeyExists(prop,"joinTable") ? prop.joinTable : "" );
 			metadata.joinColumn = ( structKeyExists(prop,"joinColumn") ? prop.joinColumn : "" );
+
+			validateRelationshipMetadata( relationship=metadata, beanname=arguments.beanname );
 		}
 		return metadata;
 	}
@@ -430,6 +441,24 @@
 			throw("The 'regex' attribute is required with the 'regexlabel' attribute" & message);
 		}
 
+	}
+
+	private void function validateRelationshipMetadata( required struct relationship, required string beanname ) {
+		switch ( arguments.relationship.joinType ) {
+			// todo: add validation for one and one-to-many relationships
+
+			case "many-to-many":
+				if (
+					!len(arguments.relationship.fkColumn)
+					|| !len(arguments.relationship.fksqltype)
+					|| !len(arguments.relationship.joinColumn)
+					|| !len(arguments.relationship.joinTable)
+				) {
+					throw( arguments.beanname & " bean is missing required bean map variables for the " & arguments.relationship.name & " relationship join table: fkColumn, fksqltype, joinColumn, joinTable" );
+				}
+				break;
+
+		}
 	}
 
 }
