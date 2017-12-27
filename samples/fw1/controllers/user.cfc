@@ -15,7 +15,8 @@ component accessors="true" {
 		rc.user = variables.DataFactory.get(bean="user", id=rc.id);
 
 		var result = {
-			success = rc.user.exists()
+			success = rc.user.exists(),
+			messages = []
 		};
 
 		if ( result.success ) {

@@ -37,7 +37,7 @@ component accessors="true" extends="cfmlDataMapper.model.base.bean"
 	}
 
 	public component function getDepartment() {
-		super.populateRelationship("departmentBean");
+		variables.BeanService.populateRelationship(this,"departmentBean");
 		return variables.departmentBean;
 	}
 
@@ -46,7 +46,7 @@ component accessors="true" extends="cfmlDataMapper.model.base.bean"
 	}
 
   public array function getRoles(){
-      super.populateRelationship("roleBeans");
+      variables.BeanService.populateRelationship(this,"roleBeans");
       return variables.roleBeans;
   }
 
@@ -63,7 +63,7 @@ component accessors="true" extends="cfmlDataMapper.model.base.bean"
 	}
 
 	public component function getUserType() {
-		super.populateRelationship("userTypeBean");
+		variables.BeanService.populateRelationship(this,"userTypeBean");
 		return variables.userTypeBean;
 	}
 

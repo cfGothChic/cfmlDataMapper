@@ -12,7 +12,7 @@
 	variables.result = variables.user.save();
 	variables.id = variables.user.getId();
 
-	if ( arrayLen(variables.result.message) ) {
+	if ( arrayLen(variables.result.messages) ) {
 		session.redirect = duplicate(form);
 		session.redirect.messages = variables.result.messages;
 		location(url="useredit.cfm?id=#variables.id#",addtoken=false);

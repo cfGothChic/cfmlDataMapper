@@ -228,7 +228,7 @@ component accessors="true" {
 			var checkbean = beanData.beans[primarykey];
 			var check = 0;
 			for ( var item in arguments.params ) {
-				var value = checkbean.getPropertyValue(item);
+				var value = checkbean.getPropertyValue( propertyname=item );
 				if ( value == arguments.params[item] ) {
 					check++;
 				}

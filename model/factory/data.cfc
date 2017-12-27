@@ -1,6 +1,7 @@
 ﻿component accessors=true {
 
 	property BeanFactory;
+	property BeanService;
 	property CacheService;
 	property SQLService;
 	property UtilityService;
@@ -122,7 +123,7 @@
 
 					variables.BeanFactory.injectProperties(recordbean, properties);
 
-					beans[ recordbean.getPropertyValue(beanmap.primarykey) ] = recordbean;
+					beans[ recordbean.getPropertyValue( propertyname=beanmap.primarykey ) ] = recordbean;
 				}
 			} else {
 				for ( var i=1; i lte arguments.qRecords.recordCount; i++ ) {
@@ -274,11 +275,11 @@
 	}
 
 	private component function getByParams( required string beanname, required string methodname, requires struct params ) {
-		checkBeanExists(arguments.beanname);
+		checkBeanExists( beanname=arguments.beanname );
 		var qRecord = variables.SQLService.read( beanname=arguments.beanname, methodname=arguments.methodname, params=arguments.params);
 		var bean = get( bean=arguments.beanname );
 		if ( qRecord.recordCount ) {
-			bean.populateBean(qRecord);
+			variables.BeanService.populateByQuery( bean=bean, qRecord=qRecord );
 		}
 		return bean;
 	}
