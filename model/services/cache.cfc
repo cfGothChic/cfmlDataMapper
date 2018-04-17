@@ -214,7 +214,7 @@ component accessors="true" {
 			var cachedbean = structCopy(arguments.beanData.beans[ arguments.primarykey ]);
 		} else {
 			var thisbean = arguments.beanData.beans[ arguments.primarykey ];
-			var cachedStruct = thisbean.getSessionData();
+			var cachedStruct = thisbean.getMemento();
 			var cachedbean = variables.DataFactory.get( bean=arguments.beanname );
 			variables.BeanFactory.injectProperties(cachedbean, cachedStruct);
 		}
