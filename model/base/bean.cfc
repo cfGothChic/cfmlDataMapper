@@ -62,7 +62,7 @@
 		return value;
 	}
 
-	public struct function getPropertyData( struct data={} ) {
+	public struct function getProperties( struct data={} ) {
 		var beanmap = getBeanMap();
 
 		for ( var prop in beanmap.properties ) {

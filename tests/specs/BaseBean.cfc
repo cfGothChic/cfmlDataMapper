@@ -836,8 +836,8 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					});
 
 
-					// getPropertyData()
-					describe("calls getPropertyData() and", function(){
+					// getProperties()
+					describe("calls getProperties() and", function(){
 
 						beforeEach(function( currentSpec ){
 							testClass.$( "getDerivedFields", "" );
@@ -848,7 +848,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 
 						it( "returns a structure of the bean's property values", function(){
-							var result = testClass.getPropertyData( data={} );
+							var result = testClass.getProperties( data={} );
 
 							expect( testClass.$once("getBeanMap") ).toBeTrue();
 							expect( testClass.$once("getPropertyValue") ).toBeTrue();
@@ -862,7 +862,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						it( "returns a structure of the bean's property values and derived fields", function(){
 							testClass.$( "getDerivedFields", "user" );
 
-							var result = testClass.getPropertyData( data={} );
+							var result = testClass.getProperties( data={} );
 
 							expect( testClass.$once("getBeanMap") ).toBeTrue();
 							expect( testClass.$count("getPropertyValue") ).toBe( 2 );
@@ -874,7 +874,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 
 						it( "returns a structure of the bean's property values appended to the data structure", function(){
-							var result = testClass.getPropertyData( data={ "foo"="bar" } );
+							var result = testClass.getProperties( data={ "foo"="bar" } );
 
 							expect( testClass.$once("getBeanMap") ).toBeTrue();
 							expect( testClass.$once("getPropertyValue") ).toBeTrue();
