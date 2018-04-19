@@ -62,7 +62,7 @@
 		return value;
 	}
 
-	public struct function getMemento( struct data={} ) {
+	public struct function getPropertyData( struct data={} ) {
 		var beanmap = getBeanMap();
 
 		for ( var prop in beanmap.properties ) {

@@ -7,7 +7,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 		userBean = createMock("model.beans.user");
 		userBean.$( "getPropertyValue" ).$args( item="id" ).$results( 1 );
 		userBean.$( "getPropertyValue" ).$args( item="isDeleted" ).$results( 1 );
-		userBean.$( "getMemento", {} );
+		userBean.$( "getPropertyData", {} );
 
 		userTypeBean = createMock("model.beans.userType");
 		userTypeBean.$( "getPropertyValue" ).$args( item="id" ).$results( 2 );
