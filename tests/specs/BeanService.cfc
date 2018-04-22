@@ -310,7 +310,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 
 						it( "populates a one-to-one or many-to-one relationship", function(){
-							testClass.populateRelationship( bean=BaseBean, relationshipName="test" );
+							var result = testClass.populateRelationship( bean=BaseBean, relationshipName="test" );
 
 							expect( BaseBean.$count("getPropertyValue") ).toBe( 2 );
 							expect( BaseBean.$once("getBeanMap") ).toBeTrue();
@@ -318,13 +318,15 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 							expect( testClass.$never("getOneToManyRelationship") ).toBeTrue();
 							expect( testClass.$never("getManyToManyRelationship") ).toBeTrue();
 							expect( BeanFactory.$once("injectProperties") ).toBeTrue();
+
+							expect( result ).toBeComponent();
 						});
 
 
 						it( "populates a one-to-many relationship", function(){
 							beanmap.relationships.test.joinType = "one-to-many";
 
-							testClass.populateRelationship( bean=BaseBean, relationshipName="test" );
+							var result = testClass.populateRelationship( bean=BaseBean, relationshipName="test" );
 
 							expect( BaseBean.$count("getPropertyValue") ).toBe( 2 );
 							expect( BaseBean.$once("getBeanMap") ).toBeTrue();
@@ -332,13 +334,15 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 							expect( testClass.$once("getOneToManyRelationship") ).toBeTrue();
 							expect( testClass.$never("getManyToManyRelationship") ).toBeTrue();
 							expect( BeanFactory.$once("injectProperties") ).toBeTrue();
+
+							expect( result ).toBeArray();
 						});
 
 
 						it( "populates a many-to-many relationship", function(){
 							beanmap.relationships.test.joinType = "many-to-many";
 
-							testClass.populateRelationship( bean=BaseBean, relationshipName="test" );
+							var result = testClass.populateRelationship( bean=BaseBean, relationshipName="test" );
 
 							expect( BaseBean.$count("getPropertyValue") ).toBe( 2 );
 							expect( BaseBean.$once("getBeanMap") ).toBeTrue();
@@ -346,6 +350,8 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 							expect( testClass.$never("getOneToManyRelationship") ).toBeTrue();
 							expect( testClass.$once("getManyToManyRelationship") ).toBeTrue();
 							expect( BeanFactory.$once("injectProperties") ).toBeTrue();
+
+							expect( result ).toBeArray();
 						});
 
 

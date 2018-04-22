@@ -14,19 +14,20 @@ component accessors="true" extends="cfmlDataMapper.model.base.bean"
 
   // many-to-one relationships
 	property name="departmentId" cfsqltype="integer" null="true" default="0";
-	property name="departmentBean" bean="department" joinType="one" fkName="departmentId";
+	property name="department" bean="department" joinType="one" fkName="departmentId" default="";
 
 	property name="userTypeId" cfsqltype="integer" null="true" default="0";
-	property name="userTypeBean" bean="userType" joinType="one" fkName="userTypeId";
+	property name="userType" bean="userType" joinType="one" fkName="userTypeId" default="";
 
   // many-to-many relationships
-  property name="roleBeans"
+  property name="roles"
     bean="role"
     joinType="many-to-many"
     joinTable="users_roles"
     joinColumn="roleId"
     fkColumn="userId"
-    fksqltype="integer";
+    fksqltype="integer"
+    default="";
 
 	public string function getCreateDate() {
 		return isDate(variables.createDate) ? variables.createDate : now();
@@ -37,8 +38,7 @@ component accessors="true" extends="cfmlDataMapper.model.base.bean"
 	}
 
 	public component function getDepartment() {
-		variables.BeanService.populateRelationship(this,"departmentBean");
-		return variables.departmentBean;
+    return super.getRelationship( name="department" );
 	}
 
   public string function getName() {
@@ -46,8 +46,7 @@ component accessors="true" extends="cfmlDataMapper.model.base.bean"
 	}
 
   public array function getRoles(){
-      variables.BeanService.populateRelationship(this,"roleBeans");
-      return variables.roleBeans;
+    return super.getRelationship( name="roles" );
   }
 
 	public string function getSortName() {
@@ -63,12 +62,11 @@ component accessors="true" extends="cfmlDataMapper.model.base.bean"
 	}
 
 	public component function getUserType() {
-		variables.BeanService.populateRelationship(this,"userTypeBean");
-		return variables.userTypeBean;
+    return super.getRelationship( name="userType" );
 	}
 
   public boolean function hasRoles() {
-      return ( arrayLen( getRoles() ) ? true : false );
+      return super.hasRelationship( name="roles" );
   }
 
 	public struct function save() {

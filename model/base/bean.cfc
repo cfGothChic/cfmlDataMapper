@@ -203,4 +203,22 @@
 		return value;
 	}
 
+	private any function getRelationship( required string name ) {
+		return variables.BeanService.populateRelationship( bean=this, relationshipName=arguments.name );
+  }
+
+	private boolean function hasRelationship( required string name ){
+		var value = getRelationship( name=arguments.name );
+		var success = false;
+
+		if ( isObject(value) ) {
+			success = value.exists() ? true : false;
+		}
+		else if ( isArray(value) ) {
+			success = arrayLen(value) ? true : false;
+		}
+
+		return success;
+	}
+
 }

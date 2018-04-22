@@ -836,7 +836,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				});
 
 				xit( "errors if populateById() throws an error", function(){
-					BeanService.$( "populateById" ).$throws( type="application", message="This is an error." );
+					BeanService.$( "populateById" ).$throws( type="application" );
 					testClass.$property( propertyName="BeanService", mock=BeanService );
 
 					expect( function(){ testClass.init( id=0 ); } )

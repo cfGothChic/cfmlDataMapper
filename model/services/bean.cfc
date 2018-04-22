@@ -88,10 +88,10 @@ component accessors="true" output="false" {
 		arguments.bean.setPrimaryKey( primarykey=arguments.id );
 	}
 
-  public void function populateRelationship( required component bean, required string relationshipName ) {
-    var checkvalue = arguments.bean.getPropertyValue( propertyname=arguments.relationshipName );
+  public any function populateRelationship( required component bean, required string relationshipName ) {
+    var value = arguments.bean.getPropertyValue( propertyname=arguments.relationshipName );
 
-		if ( isSimpleValue(checkvalue) ) {
+		if ( isSimpleValue(value) ) {
 			var beanmap = arguments.bean.getBeanMap();
 
 			if (
@@ -104,7 +104,6 @@ component accessors="true" output="false" {
 			var relationship = beanmap.relationships[ arguments.relationshipName ];
       var primarykeyid = arguments.bean.getPropertyValue( propertyname=beanmap.primarykey );
 
-			var value = "";
 			switch ( relationship.joinType ) {
 				case "one":
 					value = getRelationshipBean( bean=arguments.bean, relationship=relationship );
@@ -121,6 +120,8 @@ component accessors="true" output="false" {
 				variables.BeanFactory.injectProperties(arguments.bean, { "#arguments.relationshipName#" = value });
 			}
 		}
+
+    return value;
 	}
 
   private array function getManyToManyRelationship( required numeric primarykeyid, required struct relationship ) {
