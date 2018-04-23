@@ -452,6 +452,96 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				});
 
 
+				describe("uses the BeanService and", function(){
+
+					beforeEach(function( currentSpec ){
+						makePublic( testClass, "getRelationship" );
+
+						BeanService.$( "populateRelationship", userBean );
+					});
+
+					// getRelationship()
+					it( "gets a bean's relationship", function(){
+						var result = testClass.getRelationship( name="user" );
+
+						expect( result ).toBeComponent();
+						expect( result ).toBeInstanceOf("model.beans.user");
+
+						expect( BeanService.$once("populateRelationship") ).toBeTrue();
+					});
+
+					// hasRelationship()
+					describe("uses a relationship and", function(){
+
+						beforeEach(function( currentSpec ){
+							makePublic( testClass, "hasRelationship" );
+
+							userBean.$( "exists", true );
+
+							testClass.$( "getRelationship", userBean );
+						});
+
+						afterEach(function( currentSpec ){
+							expect( testClass.$once("getRelationship") ).toBeTrue();
+						});
+
+						it( "returns true if the relationship is an object and it exists", function(){
+							var result = testClass.hasRelationship( name="user" );
+
+							expect( result ).toBeBoolean();
+							expect( result ).toBeTrue();
+
+							expect( userBean.$once("exists") ).toBeTrue();
+						});
+
+						it( "returns false if the relationship is an object and it doesn't exist", function(){
+							userBean.$( "exists", false );
+
+							var result = testClass.hasRelationship( name="user" );
+
+							expect( result ).toBeBoolean();
+							expect( result ).toBeFalse();
+
+							expect( userBean.$once("exists") ).toBeTrue();
+						});
+
+						it( "returns true if the relationship is an array and it has a length", function(){
+							testClass.$( "getRelationship", [userBean] );
+
+							var result = testClass.hasRelationship( name="user" );
+
+							expect( result ).toBeBoolean();
+							expect( result ).toBeTrue();
+
+							expect( userBean.$never("exists") ).toBeTrue();
+						});
+
+						it( "returns false if the relationship is an array and its empty", function(){
+							testClass.$( "getRelationship", [] );
+
+							var result = testClass.hasRelationship( name="user" );
+
+							expect( result ).toBeBoolean();
+							expect( result ).toBeFalse();
+
+							expect( userBean.$never("exists") ).toBeTrue();
+						});
+
+						it( "returns false if the relationship isn't an object or an array", function(){
+							testClass.$( "getRelationship", "" );
+
+							var result = testClass.hasRelationship( name="user" );
+
+							expect( result ).toBeBoolean();
+							expect( result ).toBeFalse();
+
+							expect( userBean.$never("exists") ).toBeTrue();
+						});
+
+					});
+
+				});
+
 				describe("uses the beanmap and", function(){
 
 					beforeEach(function( currentSpec ){
