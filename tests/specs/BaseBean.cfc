@@ -1,7 +1,12 @@
 component accessors="true" extends="testbox.system.BaseSpec"{
 
 	function beforeAll(){
-		testClass = createMock("cfmlDataMapper.model.base.bean");
+		userBean = createMock("model.beans.user");
+
+		BeanService = createEmptyMock("cfmlDataMapper.model.services.bean");
+		DataFactory = createEmptyMock("cfmlDataMapper.model.factory.data");
+		SQLService = createEmptyMock("cfmlDataMapper.model.services.sql");
+		UtilityService = createEmptyMock("cfmlDataMapper.model.services.utility");
 	}
 
 	function run() {
@@ -9,6 +14,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 		describe("The Base Bean", function(){
 
 			beforeEach(function( currentSpec ){
+				testClass = createMock("cfmlDataMapper.model.base.bean");
 
 				beanmap = {
 					name = "test",
@@ -32,9 +38,13 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					qRecords = querySim("id
 						1");
 
-					UtilityService = createEmptyMock("cfmlDataMapper.model.services.utility");
 					UtilityService.$( "getResultStruct", { "success"=true, "code"=001, "messages"=[] } );
-					testClass.$property( propertyName="UtilityService", mock=UtilityService );
+
+					testClass
+						.$property( propertyName="BeanService", mock=BeanService )
+						.$property( propertyName="DataFactory", mock=DataFactory )
+						.$property( propertyName="SQLService", mock=SQLService )
+						.$property( propertyName="UtilityService", mock=UtilityService );
 				});
 
 
@@ -100,8 +110,6 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 					beforeEach(function( currentSpec ){
 						makePublic( testClass, "getBeanPropertyValue" );
-
-						userBean = createMock("model.beans.user");
 					});
 
 
@@ -354,17 +362,12 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					beforeEach(function( currentSpec ){
 						makePublic( testClass, "clearCache" );
 
-						DataFactory = createEmptyMock("cfmlDataMapper.model.factory.data");
-
 						DataFactory.$( "get", userBean )
 							.$( "getBeanMap", beanmap )
 							.$( "getBeans", [userBean] )
 							.$( "list", [userBean] );
-						testClass.$property( propertyName="DataFactory", mock=DataFactory );
 
-						SQLService = createEmptyMock("cfmlDataMapper.model.services.sql");
 						SQLService.$( "readByJoin", querySim("") );
-						testClass.$property( propertyName="SQLService", mock=SQLService );
 
 						testClass.$( "getBeanName", "test" );
 					});
@@ -402,41 +405,24 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 							SQLService.$( "delete" );
 
 							testClass.$( "getBeanMap", beanmap )
-								.$( "getBeanName", "test" );
-						});
-
-
-						afterEach(function( currentSpec ){
-							expect( deleteResult ).toBeTypeOf( "struct" );
-
-							expect( deleteResult ).toHaveKey( "success" );
-							expect( deleteResult.success ).toBeTypeOf( "boolean" );
-
-							expect( deleteResult ).toHaveKey( "code" );
-							expect( deleteResult.code ).toBeTypeOf( "numeric" );
-
-							expect( deleteResult ).toHaveKey( "messages" );
-							expect( deleteResult.messages ).toBeTypeOf( "array" );
-
-							for ( var key in deleteResult ) {
-								expect( key ).toBeWithCase( lCase(key) );
-							}
+								.$( "getBeanName", "test" )
+								.$( "getBeanPropertyValue", 1 );
 						});
 
 
 						it( "deletes the record from the database", function(){
 							var result = testClass.delete();
 
+							testResultStruct( result=result );
+							expect( result.success ).toBeTrue();
+							expect( result.code ).toBe( 001 );
+							expect( result.messages ).toBeEmpty();
+
 							expect( UtilityService.$once("getResultStruct") ).toBeTrue();
 							expect( testClass.$once("getBeanMap") ).toBeTrue();
 							expect( SQLService.$once("delete") ).toBeTrue();
 							expect( testClass.$once("getBeanName") ).toBeTrue();
 
-							expect( result.success ).toBeTrue();
-							expect( result.code ).toBe( 001 );
-							expect( result.messages ).toBeEmpty();
-
-							deleteResult = result;
 						});
 
 
@@ -445,11 +431,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 							var result = testClass.delete();
 
-							expect( UtilityService.$once("getResultStruct") ).toBeTrue();
-							expect( testClass.$once("getBeanMap") ).toBeTrue();
-							expect( SQLService.$never("delete") ).toBeTrue();
-							expect( testClass.$once("getBeanName") ).toBeTrue();
-
+							testResultStruct( result=result );
 							expect( result.success ).toBeFalse();
 							expect( result.code ).toBe( 500 );
 							expect( result.messages ).notToBeEmpty();
@@ -459,7 +441,10 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 								expect( result.error ).toBeTypeOf( "struct" );
 							}
 
-							deleteResult = result;
+							expect( UtilityService.$once("getResultStruct") ).toBeTrue();
+							expect( testClass.$once("getBeanMap") ).toBeTrue();
+							expect( SQLService.$never("delete") ).toBeTrue();
+							expect( testClass.$once("getBeanName") ).toBeTrue();
 						});
 
 					});
@@ -629,28 +614,15 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					});
 
 
-					afterEach(function( currentSpec ){
-						expect( saveResult ).toBeTypeOf( "struct" );
-
-						expect( saveResult ).toHaveKey( "success" );
-						expect( saveResult.success ).toBeTypeOf( "boolean" );
-
-						expect( saveResult ).toHaveKey( "code" );
-						expect( saveResult.code ).toBeTypeOf( "numeric" );
-
-						expect( saveResult ).toHaveKey( "messages" );
-						expect( saveResult.messages ).toBeTypeOf( "array" );
-
-						for ( var key in saveResult ) {
-							expect( key ).toBeWithCase( lCase(key) );
-						}
-					});
-
-
 					it( "successfully creates a bean", function(){
 						testClass.$property( propertyName="id", mock=0 );
 
 						var result = testClass.save( validate=true );
+
+						testResultStruct( result=result );
+						expect( result.success ).toBeTrue();
+						expect( result.code ).toBe( 001 );
+						expect( result.messages ).toBeEmpty();
 
 						expect( UtilityService.$once("getResultStruct") ).toBeTrue();
 						expect( testClass.$once("getBeanName") ).toBeTrue();
@@ -660,17 +632,16 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						expect( SQLService.$once("create") ).toBeTrue();
 						expect( testClass.$once("setPrimaryKey") ).toBeTrue();
 						expect( testClass.$never("clearCache") ).toBeTrue();
-
-						expect( result.success ).toBeTrue();
-						expect( result.code ).toBe( 001 );
-						expect( result.messages ).toBeEmpty();
-
-						saveResult = result;
 					});
 
 
 					it( "successfully updates a bean", function(){
 						var result = testClass.save( validate=true );
+
+						testResultStruct( result=result );
+						expect( result.success ).toBeTrue();
+						expect( result.code ).toBe( 001 );
+						expect( result.messages ).toBeEmpty();
 
 						expect( UtilityService.$once("getResultStruct") ).toBeTrue();
 						expect( testClass.$once("getBeanName") ).toBeTrue();
@@ -680,17 +651,16 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						expect( SQLService.$never("create") ).toBeTrue();
 						expect( testClass.$never("setPrimaryKey") ).toBeTrue();
 						expect( testClass.$never("clearCache") ).toBeTrue();
-
-						expect( result.success ).toBeTrue();
-						expect( result.code ).toBe( 001 );
-						expect( result.messages ).toBeEmpty();
-
-						saveResult = result;
 					});
 
 
 					it( "successfully updates a bean without validating it", function(){
 						var result = testClass.save( validate=false );
+
+						testResultStruct( result=result );
+						expect( result.success ).toBeTrue();
+						expect( result.code ).toBe( 001 );
+						expect( result.messages ).toBeEmpty();
 
 						expect( UtilityService.$once("getResultStruct") ).toBeTrue();
 						expect( testClass.$once("getBeanName") ).toBeTrue();
@@ -700,12 +670,6 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						expect( SQLService.$never("create") ).toBeTrue();
 						expect( testClass.$never("setPrimaryKey") ).toBeTrue();
 						expect( testClass.$never("clearCache") ).toBeTrue();
-
-						expect( result.success ).toBeTrue();
-						expect( result.code ).toBe( 001 );
-						expect( result.messages ).toBeEmpty();
-
-						saveResult = result;
 					});
 
 
@@ -714,6 +678,11 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 						var result = testClass.save( validate=true );
 
+						testResultStruct( result=result );
+						expect( result.success ).toBeFalse();
+						expect( result.code ).toBe( 900 );
+						expect( result.messages ).notToBeEmpty();
+
 						expect( UtilityService.$once("getResultStruct") ).toBeTrue();
 						expect( testClass.$once("getBeanName") ).toBeTrue();
 						expect( testClass.$once("getBeanMap") ).toBeTrue();
@@ -722,12 +691,6 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						expect( SQLService.$never("create") ).toBeTrue();
 						expect( testClass.$never("setPrimaryKey") ).toBeTrue();
 						expect( testClass.$never("clearCache") ).toBeTrue();
-
-						expect( result.success ).toBeFalse();
-						expect( result.code ).toBe( 900 );
-						expect( result.messages ).notToBeEmpty();
-
-						saveResult = result;
 					});
 
 
@@ -736,15 +699,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 						var result = testClass.save( validate=true );
 
-						expect( UtilityService.$once("getResultStruct") ).toBeTrue();
-						expect( testClass.$count("getBeanName") ).toBe( 2 );
-						expect( testClass.$once("getBeanMap") ).toBeTrue();
-						expect( testClass.$never("validate") ).toBeTrue();
-						expect( SQLService.$never("update") ).toBeTrue();
-						expect( SQLService.$never("create") ).toBeTrue();
-						expect( testClass.$never("setPrimaryKey") ).toBeTrue();
-						expect( testClass.$never("clearCache") ).toBeTrue();
-
+						testResultStruct( result=result );
 						expect( result.success ).toBeFalse();
 						expect( result.code ).toBe( 500 );
 						expect( result.messages ).notToBeEmpty();
@@ -754,7 +709,14 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 							expect( result.error ).toBeTypeOf( "struct" );
 						}
 
-						saveResult = result;
+						expect( UtilityService.$once("getResultStruct") ).toBeTrue();
+						expect( testClass.$count("getBeanName") ).toBe( 2 );
+						expect( testClass.$once("getBeanMap") ).toBeTrue();
+						expect( testClass.$never("validate") ).toBeTrue();
+						expect( SQLService.$never("update") ).toBeTrue();
+						expect( SQLService.$never("create") ).toBeTrue();
+						expect( testClass.$never("setPrimaryKey") ).toBeTrue();
+						expect( testClass.$never("clearCache") ).toBeTrue();
 					});
 
 
@@ -762,6 +724,11 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						beanmap.cached = true;
 
 						var result = testClass.save( validate=true );
+
+						testResultStruct( result=result );
+						expect( result.success ).toBeTrue();
+						expect( result.code ).toBe( 001 );
+						expect( result.messages ).toBeEmpty();
 
 						expect( UtilityService.$once("getResultStruct") ).toBeTrue();
 						expect( testClass.$once("getBeanName") ).toBeTrue();
@@ -771,12 +738,6 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						expect( SQLService.$never("create") ).toBeTrue();
 						expect( testClass.$never("setPrimaryKey") ).toBeTrue();
 						expect( testClass.$once("clearCache") ).toBeTrue();
-
-						expect( result.success ).toBeTrue();
-						expect( result.code ).toBe( 001 );
-						expect( result.messages ).toBeEmpty();
-
-						saveResult = result;
 					});
 
 				});
@@ -787,7 +748,6 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 			describe("on initialization", function(){
 
 				beforeEach(function( currentSpec ){
-					BeanService = createEmptyMock("cfmlDataMapper.model.services.bean");
 					BeanService.$( "populateById" );
 
 					testClass.$( "getBeanMap", beanmap );
@@ -848,5 +808,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 		});
 
 	}
+
+	include template="/cfmlDataMapper/tests/helpers/testResultStruct.cfm";
 
 }

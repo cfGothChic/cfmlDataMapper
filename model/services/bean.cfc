@@ -1,15 +1,15 @@
 component accessors="true" output="false" {
 
-  property BeanFactory;
-  property DataFactory;
-  property DataGateway;
-  property SQLService;
+	property BeanFactory;
+	property DataFactory;
+	property DataGateway;
+	property SQLService;
 
 	public component function init() {
 		return this;
 	}
 
-  public void function populateById( required component bean, numeric id=0, string beanname="" ) {
+	public void function populateById( required component bean, numeric id=0, string beanname="" ) {
 		if ( !isNumeric(arguments.id) ) {
 			arguments.id = 0;
 		}
@@ -24,7 +24,8 @@ component accessors="true" output="false" {
 
 			if ( qRecord.recordCount ) {
 				populateByQuery( bean=arguments.bean, qRecord=qRecord );
-			} else {
+			}
+			else {
 				arguments.id = 0;
 			}
 		}
@@ -33,7 +34,7 @@ component accessors="true" output="false" {
 		// todo: arguments.bean.setPrimaryKey(arguments.id);
 	}
 
-  public void function populateByQuery( required component bean, required query qRecord ) {
+	public void function populateByQuery( required component bean, required query qRecord ) {
 		var columns = listToArray(qRecord.columnList);
 
 		var properties = {};
@@ -44,25 +45,25 @@ component accessors="true" output="false" {
 		variables.BeanFactory.injectProperties(arguments.bean, properties);
 	}
 
-  public void function populateBySproc(
-    required component bean,
-    required string sproc,
+	public void function populateBySproc(
+		required component bean,
+		required string sproc,
 		string id="",
 		string beanname="",
 		array params=[],
 		array resultkeys=[],
-    string context
+		string context
 	) {
 		if ( !isNumeric(arguments.id) ) {
 			arguments.id = 0;
 		}
-    arguments.bean.setBeanName( beanname=arguments.beanname );
+		arguments.bean.setBeanName( beanname=arguments.beanname );
 
-    // only pass arguments.context if it exists
+		// only pass arguments.context if it exists
 		arguments.context = getSprocContext( argumentCollection=arguments );
 
 		if ( arguments.id || arrayLen(arguments.params) ) {
-  		var beanmap = arguments.bean.getBeanMap();
+			var beanmap = arguments.bean.getBeanMap();
 
 			if ( arguments.id ) {
 				arrayAppend(arguments.params, { value=arguments.id, cfsqltype="cf_sql_integer" });
@@ -76,10 +77,10 @@ component accessors="true" output="false" {
 			}
 
 			var sprocData = variables.DataGateway.readSproc(
-        sprocname=arguments.sproc,
-        params=arguments.params,
-        resultkeys=arguments.resultkeys
-      );
+				sprocname=arguments.sproc,
+				params=arguments.params,
+				resultkeys=arguments.resultkeys
+			);
 			populateSprocData( bean=arguments.bean, beanmap=beanmap, data=sprocData, resultkeys=arguments.resultkeys );
 
 			arguments.id = getPrimaryKeyFromSprocData( bean=arguments.bean, primarykey=beanmap.primarykey, data=sprocData );
@@ -88,21 +89,21 @@ component accessors="true" output="false" {
 		arguments.bean.setPrimaryKey( primarykey=arguments.id );
 	}
 
-  public any function populateRelationship( required component bean, required string relationshipName ) {
-    var value = arguments.bean.getPropertyValue( propertyname=arguments.relationshipName );
+	public any function populateRelationship( required component bean, required string relationshipName ) {
+		var value = arguments.bean.getPropertyValue( propertyname=arguments.relationshipName );
 
 		if ( isSimpleValue(value) ) {
 			var beanmap = arguments.bean.getBeanMap();
 
 			if (
-        !structKeyExists(beanmap,"relationships")
-        || !structKeyExists(beanmap.relationships,arguments.relationshipName)
-      ) {
+				!structKeyExists(beanmap,"relationships")
+				|| !structKeyExists(beanmap.relationships,arguments.relationshipName)
+			) {
 				throw ("A " & arguments.relationshipName & " relationship is not defined in the " & beanmap.name & " bean map.");
 			}
 
 			var relationship = beanmap.relationships[ arguments.relationshipName ];
-      var primarykeyid = arguments.bean.getPropertyValue( propertyname=beanmap.primarykey );
+			var primarykeyid = arguments.bean.getPropertyValue( propertyname=beanmap.primarykey );
 
 			switch ( relationship.joinType ) {
 				case "one":
@@ -121,50 +122,53 @@ component accessors="true" output="false" {
 			}
 		}
 
-    return value;
+		return value;
 	}
 
-  private array function getManyToManyRelationship( required numeric primarykeyid, required struct relationship ) {
+	private array function getManyToManyRelationship( required numeric primarykeyid, required struct relationship ) {
 		if ( arguments.primarykeyid ) {
 			var qRecords = variables.SQLService.readByJoin(
 				beanid = arguments.primarykeyid,
 				relationship = arguments.relationship
 			);
 			return variables.DataFactory.getBeans( bean=arguments.relationship.bean, qRecords=qRecords );
-		} else {
+		}
+		else {
 			return [];
 		}
 	}
 
-  private array function getOneToManyRelationship( required numeric primarykeyid, required struct relationship ) {
+	private array function getOneToManyRelationship( required numeric primarykeyid, required struct relationship ) {
 		if ( arguments.primarykeyid ) {
 			return variables.DataFactory.list(
 				bean = arguments.relationship.bean,
 				params = { "#arguments.relationship.fkName#" = arguments.primarykeyid }
 			);
-		} else {
+		}
+		else {
 			return [];
 		}
 	}
 
-  private numeric function getPrimaryKeyFromSprocData(
-    required component bean,
-    required string primarykey,
-    required struct data
-  ) {
+	private numeric function getPrimaryKeyFromSprocData(
+		required component bean,
+		required string primarykey,
+		required struct data
+	) {
 		if ( arguments.data._bean.recordCount ) {
 			return arguments.bean.getPropertyValue( propertyname=arguments.primarykey );
-		} else {
+		}
+		else {
 			return 0;
 		}
 	}
 
-  private component function getRelationshipBean( required component bean, required struct relationship ) {
-    var fkid = arguments.bean.getPropertyValue( propertyname=arguments.relationship.fkName );
+	private component function getRelationshipBean( required component bean, required struct relationship ) {
+		var fkid = arguments.bean.getPropertyValue( propertyname=arguments.relationship.fkName );
 		return variables.DataFactory.get( bean=arguments.relationship.bean, id=fkid );
 	}
 
-  private array function getRelationshipKeys( required struct beanmap, string context="" ) {
+	private array function getRelationshipKeys( required struct beanmap, string context="" ) {
 		var relationshipkeys = [];
 		arrayAppend(relationshipkeys,"_bean");
 
@@ -181,7 +185,7 @@ component accessors="true" output="false" {
 		return relationshipkeys;
 	}
 
-  private string function getSprocContext( string context ) {
+	private string function getSprocContext( string context ) {
 		if ( structKeyExists(arguments, "context") && !len(arguments.context) ) {
 			return "_bean";
 		}
@@ -193,27 +197,28 @@ component accessors="true" output="false" {
 		}
 	}
 
-  private any function getSprocRelationship(
-    required string beanname,
-    required string joinType,
-    required query qRecords
-  ) {
+	private any function getSprocRelationship(
+		required string beanname,
+		required string joinType,
+		required query qRecords
+	) {
 		var isSingular = ( arguments.joinType == "one" );
 		if ( isSingular ) {
-      var bean = variables.DataFactory.get( bean=arguments.beanname );
-      populateByQuery( bean=bean, qRecords=arguments.qRecords );
-      return bean;
-		} else {
+			var bean = variables.DataFactory.get( bean=arguments.beanname );
+			populateByQuery( bean=bean, qRecords=arguments.qRecords );
+			return bean;
+		}
+		else {
 			return variables.DataFactory.getBeans( bean=arguments.beanname, qRecords=arguments.qRecords );
 		}
 	}
 
-  private void function populateSprocData(
-    required component bean,
-    required struct beanmap,
-    required struct data,
-    required array resultkeys
-  ) {
+	private void function populateSprocData(
+		required component bean,
+		required struct beanmap,
+		required struct data,
+		required array resultkeys
+	) {
 		var properties = {};
 		for ( var relationship in arguments.resultkeys ) {
 

@@ -1,8 +1,8 @@
 component accessors="true" extends="cfmlDataMapper.model.base.bean"
-    table="usertypes"
-    primarykey="id"
-    orderby="name"
-    cached="true"
+	table="usertypes"
+	primarykey="id"
+	orderby="name"
+	cached="true"
 {
 
 	property name="id" columnName="userTypeId" cfsqltype="integer" isidentity="true" default="0";

@@ -27,7 +27,8 @@
 		var result = variables.UtilityService.getResultStruct();
 		try {
 			var beanmap = getBeanMap();
-			variables.SQLService.delete( beanname=getBeanName(), id=variables[ beanmap.primaryKey ] );
+			var id = getBeanPropertyValue( propertyname=beanmap.primaryKey );
+			variables.SQLService.delete( beanname=getBeanName(), id=id );
 		} catch (any e) {
 			arrayAppend(result.messages,"There was an issue deleting the " & getBeanName() & ".");
 			result.success = false;
@@ -117,8 +118,9 @@
 				if( result.success ){
 					if ( variables[ beanmap.primarykey ] ) {
 						variables.SQLService.update( beanname=beanname, bean=this );
-					} else {
-						var newid = variables.SQLService.create( beanname=beanname, bean=this);
+					}
+					else {
+						var newid = variables.SQLService.create( beanname=beanname, bean=this );
 						setPrimaryKey(newid);
 					}
 
@@ -148,14 +150,15 @@
 		if ( isNull(variables.DataFactory) ) {
 			// todo: make this dynamic so that the primary key does not have to be id for the pk to default to 0
 			variables.id = arguments.primarykey;
-		} else {
+		}
+		else {
 			var beanmap = getBeanMap();
 			variables[ beanmap.primarykey ] = arguments.primarykey;
 		}
 	}
 
 	/**
-	 * @hint Validates an object based on the properties metadata
+	 * @hint Validates an object based on the property's metadata
 	 */
 	public array function validate() {
 		var beanMap = getBeanMap();
@@ -205,7 +208,7 @@
 
 	private any function getRelationship( required string name ) {
 		return variables.BeanService.populateRelationship( bean=this, relationshipName=arguments.name );
-  }
+	}
 
 	private boolean function hasRelationship( required string name ){
 		var value = getRelationship( name=arguments.name );
