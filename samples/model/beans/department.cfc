@@ -1,8 +1,8 @@
 component accessors="true" extends="cfmlDataMapper.model.base.bean"
-    table="departments"
-    primarykey="id"
-    orderby="name"
-    cached="true"
+	table="departments"
+	primarykey="id"
+	orderby="name"
+	cached="true"
 {
 
 	property name="id" columnName="departmentId" cfsqltype="integer" isidentity="true" default="0";

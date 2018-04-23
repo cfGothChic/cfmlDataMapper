@@ -2,27 +2,28 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 
 	function beforeAll() {
-		testClass = createMock("cfmlDataMapper.model.factory.data");
+		BeanService = createEmptyMock("cfmlDataMapper.model.services.bean");
+		BeanService.$( "populateById" )
+			.$( "populateByQuery" );
+
+		CacheService = createEmptyMock("cfmlDataMapper.model.services.cache");
+		SQLService = createEmptyMock("cfmlDataMapper.model.gateways.data");
+
+		UtilityService = createEmptyMock("cfmlDataMapper.model.services.utility");
+		UtilityService.$( "upperFirst", "Test" );
 
 		departmentBean = createMock("model.beans.department");
+
 		userBean = createMock("model.beans.user");
+		userBean.$property( propertyName="BeanService", mock=BeanService );
+
 		userTypeBean = createMock("model.beans.userType");
+		userTypeBean.$property( propertyName="BeanService", mock=BeanService );
 
 		BeanFactory = createEmptyMock("framework.ioc");
 		BeanFactory.$( "getBean" ).$args( "departmentBean" ).$results( departmentBean )
 			.$( "getBean" ).$args( "userBean" ).$results( userBean )
 			.$( "getBean" ).$args( "userTypeBean" ).$results( userTypeBean );
-		testClass.$property( propertyName="BeanFactory", mock=BeanFactory );
-
-		CacheService = createEmptyMock("cfmlDataMapper.model.services.cache");
-		testClass.$property( propertyName="CacheService", mock=CacheService );
-
-		SQLService = createEmptyMock("cfmlDataMapper.model.gateways.data");
-		testClass.$property( propertyName="SQLService", mock=SQLService );
-
-		UtilityService = createEmptyMock("cfmlDataMapper.model.services.utility");
-		UtilityService.$( "upperFirst", "Test" );
-		testClass.$property( propertyName="UtilityService", mock=UtilityService );
 	}
 
 	function run() {
@@ -31,6 +32,14 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 			beforeEach(function( currentSpec ){
 				frameworkone = createEmptyMock("framework.one");
+
+				testClass = createMock("cfmlDataMapper.model.factory.data");
+
+				testClass.$property( propertyName="BeanService", mock=BeanService );
+				testClass.$property( propertyName="CacheService", mock=CacheService );
+				testClass.$property( propertyName="SQLService", mock=SQLService );
+				testClass.$property( propertyName="UtilityService", mock=UtilityService );
+				testClass.$property( propertyName="BeanFactory", mock=BeanFactory );
 			});
 
 
@@ -186,54 +195,6 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				});
 
 
-				// getByParams()
-				describe("calls getByParams() and", function(){
-
-					beforeEach(function( currentSpec ){
-						makePublic( testClass, "getByParams" );
-
-						CacheService.$( "get", { success = false });
-
-						testClass.$( "checkBeanExists", true );
-					});
-
-
-					it( "returns an empty bean when nothing matches the param criteria", function(){
-						SQLService.$( "read", querySim("") );
-
-						var result = testClass.getByParams( beanname="user", methodname="test", params={} );
-
-						expect( testClass.$once("checkBeanExists") ).toBeTrue();
-						expect( SQLService.$once("read") ).toBeTrue();
-
-						expect( result ).toBeTypeOf( "component" );
-						expect( result ).toBeInstanceOf( "model.beans.user" );
-					});
-
-
-					it( "returns a populated bean that meets the param criteria", function(){
-						SQLService.$( "read", querySim("id
-							1") );
-
-						userTypeBean.$( "populateBean" );
-						CacheService.$( "get", {
-							success = true,
-							bean = userTypeBean
-						});
-
-						var result = testClass.getByParams( beanname="userType", methodname="test", params={} );
-
-						expect( testClass.$once("checkBeanExists") ).toBeTrue();
-						expect( SQLService.$once("read") ).toBeTrue();
-						expect( userTypeBean.$once("populateBean") ).toBeTrue();
-
-						expect( result ).toBeTypeOf( "component" );
-						expect( result ).toBeInstanceOf( "model.beans.userType" );
-					});
-
-				});
-
-
 				// get()
 				describe("calls get() and", function(){
 
@@ -285,6 +246,52 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 						expect( result ).toBeTypeOf( "component" );
 						expect( result ).toBeInstanceOf( "model.beans.user" );
+					});
+
+				});
+
+
+				// getByParams()
+				describe("calls getByParams() and", function(){
+
+					beforeEach(function( currentSpec ){
+						makePublic( testClass, "getByParams" );
+
+						testClass.$( "checkBeanExists", true )
+							.$( "get", userBean );
+					});
+
+
+					it( "returns an empty bean when nothing matches the param criteria", function(){
+						SQLService.$( "read", querySim("") );
+
+						var result = testClass.getByParams( beanname="user", methodname="test", params={} );
+
+						expect( testClass.$once("checkBeanExists") ).toBeTrue();
+						expect( SQLService.$once("read") ).toBeTrue();
+						expect( testClass.$once("get") ).toBeTrue();
+						expect( BeanService.$never("populateByQuery") ).toBeTrue();
+
+						expect( result ).toBeTypeOf( "component" );
+						expect( result ).toBeInstanceOf( "model.beans.user" );
+					});
+
+
+					it( "returns a populated bean that meets the param criteria", function(){
+						SQLService.$( "read", querySim("id
+							1") );
+
+						testClass.$( "get", userTypeBean );
+
+						var result = testClass.getByParams( beanname="userType", methodname="test", params={} );
+
+						expect( testClass.$once("checkBeanExists") ).toBeTrue();
+						expect( SQLService.$once("read") ).toBeTrue();
+						expect( testClass.$once("get") ).toBeTrue();
+						expect( BeanService.$once("populateByQuery") ).toBeTrue();
+
+						expect( result ).toBeTypeOf( "component" );
+						expect( result ).toBeInstanceOf( "model.beans.userType" );
 					});
 
 				});
@@ -404,6 +411,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						joinTable = "test"
 					};
 
+					makePublic( testClass, "addInheritanceMapping" );
 					makePublic( testClass, "createBeanMap" );
 					makePublic( testClass, "getBeanMapMetadata" );
 					makePublic( testClass, "getCfSqlType" );
