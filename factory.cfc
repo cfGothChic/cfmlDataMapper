@@ -10,7 +10,11 @@ component accessors="true" output="false" {
 
   public cfmlDataMapper.model.factory.data function getFactory() {
     _get_framework_one().onRequestStart("");
-    return _get_framework_one().getDefaultBeanFactory().getBean("DataFactory");
+    return getBeanFactory().getBean("DataFactory");
+  }
+
+  public component function getBeanFactory() {
+    return _get_framework_one().getDefaultBeanFactory();
   }
 
   private component function _get_framework_one() {
@@ -69,33 +73,37 @@ component accessors="true" output="false" {
     setFactoryConfig(config);
   }
 
-  // data factory function passthroughs
+  // data mapper function passthroughs
 
-  public function get() {
+  public component function get() {
 		return getFactory().get( argumentCollection=arguments );
 	}
 
-	public function getBeanMap() {
+	public struct function getBeanMap() {
     return getFactory().getBeanMap( argumentCollection=arguments );
 	}
 
-	public function getBeans() {
+	public array function getBeans() {
     return getFactory().getBeans( argumentCollection=arguments );
 	}
 
-	public function getBeansFromArray() {
+	public array function getBeansFromArray() {
     return getFactory().getBeansFromArray( argumentCollection=arguments );
 	}
 
-	public function getBeanStruct() {
+	public struct function getBeanStruct() {
     return getFactory().getBeanStruct( argumentCollection=arguments );
 	}
 
-	public function hasBean() {
+  public struct function getResultStruct() {
+    return getBeanFactory().getUtilityService().getResultStruct( argumentCollection=arguments );
+  }
+
+	public boolean function hasBean() {
     return getFactory().hasBean( argumentCollection=arguments );
 	}
 
-	public function list() {
+	public array function list() {
     return getFactory().list( argumentCollection=arguments );
 	}
 
@@ -105,7 +113,7 @@ component accessors="true" output="false" {
 
   // fw1 functionality to use with beans
 
-  public function populate() {
+  public void function populate() {
     _get_framework_one().onRequestStart("");
     return _get_framework_one().populate( argumentCollection=arguments );
   }

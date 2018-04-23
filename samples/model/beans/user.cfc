@@ -38,7 +38,7 @@ component accessors="true" extends="cfmlDataMapper.model.base.bean"
 	}
 
 	public component function getDepartment() {
-		return super.getRelationship( name="department" );
+		return getRelationship( name="department" );
 	}
 
 	public string function getName() {
@@ -46,7 +46,7 @@ component accessors="true" extends="cfmlDataMapper.model.base.bean"
 	}
 
 	public array function getRoles(){
-		return super.getRelationship( name="roles" );
+		return getRelationship( name="roles" );
 	}
 
 	public string function getSortName() {
@@ -62,11 +62,11 @@ component accessors="true" extends="cfmlDataMapper.model.base.bean"
 	}
 
 	public component function getUserType() {
-		return super.getRelationship( name="userType" );
+		return getRelationship( name="userType" );
 	}
 
 	public boolean function hasRoles() {
-		return super.hasRelationship( name="roles" );
+		return hasRelationship( name="roles" );
 	}
 
 	public struct function save() {
