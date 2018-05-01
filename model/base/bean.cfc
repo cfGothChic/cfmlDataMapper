@@ -75,21 +75,25 @@
 		return value;
 	}
 
-	public struct function getProperties( struct data={} ) {
+	public struct function getProperties() {
+		var data = {};
 		var beanmap = getBeanMap();
 
 		for ( var prop in beanmap.properties ) {
-			arguments.data[ prop ] = getPropertyValue( propertyname=prop );
+			data[ prop ] = getPropertyValue( propertyname=prop );
 		}
 
-		if ( len(getDerivedFields()) ) {
-			var derivedfields = listToArray(getDerivedFields());
-			for ( var field in derivedfields ) {
-				arguments.data[ field ] = getPropertyValue( propertyname=field );
-			}
-		}
+		return data;
+	}
 
-		return arguments.data;
+	public any function getRelationshipProperties( required string name ) {
+		var relationship = getRelationship( name=arguments.name );
+		if ( isArray(relationship) ) {
+			return variables.dataFactory.getBeanListProperties( beans=relationship );
+		}
+		else {
+			return relationship.getProperties();
+		}
 	}
 
 	public void function onMissingMethod( required string missingMethodName, required struct missingMethodArguments ){
@@ -191,10 +195,6 @@
 		}
 
 		return isSimpleValue(value) ? trim(value) : value;
-	}
-
-	private string function getDerivedFields() {
-		return "";
 	}
 
 	private any function getPropertyDefault( required string propertyname ) {

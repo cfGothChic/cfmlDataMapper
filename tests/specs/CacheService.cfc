@@ -61,7 +61,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				it( "caches a bean list by default params and sort order", function(){
 					makePublic( testClass, "cacheDefaultParams" );
 
-					DataFactory.$( "getBeanStruct", {
+					DataFactory.$( "getBeansFromQueryAsStruct", {
 						"1" = {
 							id = 1
 						}
@@ -70,7 +70,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					testClass.cacheDefaultParams( beanname="user", methodname="test", beanmap=beanmap );
 
 					expect( SQLService.$once("read") ).toBeTrue();
-					expect( DataFactory.$once("getBeanStruct") ).toBeTrue();
+					expect( DataFactory.$once("getBeansFromQueryAsStruct") ).toBeTrue();
 				});
 
 

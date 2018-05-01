@@ -33,8 +33,6 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 			describe("initializes and", function(){
 
 				beforeEach(function( currentSpec ){
-					makePublic( testClass, "getDerivedFields" );
-
 					qRecords = querySim("id
 						1");
 
@@ -45,15 +43,6 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						.$property( propertyName="DataFactory", mock=DataFactory )
 						.$property( propertyName="SQLService", mock=SQLService )
 						.$property( propertyName="UtilityService", mock=UtilityService );
-				});
-
-
-				// getDerivedFields()
-				it( "returns an empty string of derived fields", function(){
-					var result = testClass.getDerivedFields();
-
-					expect( result ).toBeTypeOf( "string" );
-					expect( result ).toBeEmpty();
 				});
 
 
@@ -470,13 +459,15 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						expect( BeanService.$once("populateRelationship") ).toBeTrue();
 					});
 
-					// hasRelationship()
 					describe("uses a relationship and", function(){
 
 						beforeEach(function( currentSpec ){
 							makePublic( testClass, "hasRelationship" );
 
-							userBean.$( "exists", true );
+							DataFactory.$( "getBeanListProperties", [{}] );
+
+							userBean.$( "exists", true )
+								.$( "getProperties", {} );
 
 							testClass.$( "getRelationship", userBean );
 						});
@@ -485,6 +476,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 							expect( testClass.$once("getRelationship") ).toBeTrue();
 						});
 
+						// hasRelationship()
 						it( "returns true if the relationship is an object and it exists", function(){
 							var result = testClass.hasRelationship( name="user" );
 
@@ -536,6 +528,28 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 							expect( result ).toBeFalse();
 
 							expect( userBean.$never("exists") ).toBeTrue();
+						});
+
+						// getRelationshipProperties()
+						it( "returns an array of bean property structures if the relationship is an array", function(){
+							testClass.$( "getRelationship", [userBean] );
+
+							var result = testClass.getRelationshipProperties( name="user" );
+
+							expect( result ).toBeArray();
+							expect( result[1] ).toBeStruct();
+
+							expect( DataFactory.$once("getBeanListProperties") ).toBeTrue();
+							expect( userBean.$never("getProperties") ).toBeTrue();
+						});
+
+						it( "returns a structure with the bean properties", function(){
+							var result = testClass.getRelationshipProperties( name="user" );
+
+							expect( result ).toBeStruct();
+
+							expect( DataFactory.$never("getBeanListProperties") ).toBeTrue();
+							expect( userBean.$once("getProperties") ).toBeTrue();
 						});
 
 					});
@@ -638,8 +652,6 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					describe("calls getProperties() and", function(){
 
 						beforeEach(function( currentSpec ){
-							testClass.$( "getDerivedFields", "" );
-
 							testClass.$( "getPropertyValue" ).$args( propertyname="test" ).$results( "test" );
 							testClass.$( "getPropertyValue" ).$args( propertyname="user" ).$results( userBean );
 						});
@@ -650,24 +662,9 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 							expect( testClass.$once("getBeanMap") ).toBeTrue();
 							expect( testClass.$once("getPropertyValue") ).toBeTrue();
-							expect( testClass.$once("getDerivedFields") ).toBeTrue();
 
 							expect( result ).toBeTypeOf( "struct" );
 							expect( result ).toHaveLength( 1 );
-						});
-
-
-						it( "returns a structure of the bean's property values and derived fields", function(){
-							testClass.$( "getDerivedFields", "user" );
-
-							var result = testClass.getProperties( data={} );
-
-							expect( testClass.$once("getBeanMap") ).toBeTrue();
-							expect( testClass.$count("getPropertyValue") ).toBe( 2 );
-							expect( testClass.$count("getDerivedFields") ).toBe( 2 );
-
-							expect( result ).toBeTypeOf( "struct" );
-							expect( result ).toHaveLength( 2 );
 						});
 
 
@@ -676,10 +673,9 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 							expect( testClass.$once("getBeanMap") ).toBeTrue();
 							expect( testClass.$once("getPropertyValue") ).toBeTrue();
-							expect( testClass.$once("getDerivedFields") ).toBeTrue();
 
 							expect( result ).toBeTypeOf( "struct" );
-							expect( result ).toHaveLength( 2 );
+							expect( result ).toHaveLength( 1 );
 						});
 
 					});

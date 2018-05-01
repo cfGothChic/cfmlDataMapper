@@ -131,7 +131,7 @@ component accessors="true" output="false" {
 				beanid = arguments.primarykeyid,
 				relationship = arguments.relationship
 			);
-			return variables.DataFactory.getBeans( bean=arguments.relationship.bean, qRecords=qRecords );
+			return variables.DataFactory.getBeansFromQuery( bean=arguments.relationship.bean, qRecords=qRecords );
 		}
 		else {
 			return [];
@@ -209,7 +209,7 @@ component accessors="true" output="false" {
 			return bean;
 		}
 		else {
-			return variables.DataFactory.getBeans( bean=arguments.beanname, qRecords=arguments.qRecords );
+			return variables.DataFactory.getBeansFromQuery( bean=arguments.beanname, qRecords=arguments.qRecords );
 		}
 	}
 

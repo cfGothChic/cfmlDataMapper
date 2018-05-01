@@ -1,121 +1,130 @@
 component accessors="true" output="false" {
 
-  property struct factoryConfig;
+	property struct factoryConfig;
 
-  public component function init(struct config={}) {
-    setFactoryConfig(arguments.config);
-    validateConfig();
-    return this;
-  }
+	public component function init(struct config={}) {
+		setFactoryConfig(arguments.config);
+		validateConfig();
+		return this;
+	}
 
-  public cfmlDataMapper.model.factory.data function getFactory() {
-    _get_framework_one().onRequestStart("");
-    return getBeanFactory().getBean("DataFactory");
-  }
+	public cfmlDataMapper.model.factory.data function getFactory() {
+		return getBeanFactory().getBean("DataFactory");
+	}
 
-  public component function getBeanFactory() {
-    return _get_framework_one().getDefaultBeanFactory();
-  }
+	public component function getBeanFactory() {
+		_get_framework_one().onRequestStart("");
+		return _get_framework_one().getDefaultBeanFactory();
+	}
 
-  private component function _get_framework_one() {
+	private component function _get_framework_one() {
 		if ( !structKeyExists( request, '_framework_one' ) ) {
 			request._framework_one = new framework.one(getFrameworkConfig());
 		}
 		return request._framework_one;
+	}		
+
+	private struct function getConstants() {
+		var config = getFactoryConfig();
+
+		var contants = {
+			dsn = config.dsn,
+			dataFactoryConfig = {
+				serverType = config.serverType
+			}
+		};
+
+		return contants;
 	}
 
-  private struct function getConstants() {
-    var config = getFactoryConfig();
+	private struct function getFactoryConfig() {
+		return variables.factoryConfig;
+	}
 
-    var contants = {
-      dsn = config.dsn,
-      dataFactoryConfig = {
-        serverType = config.serverType
-      }
-    };
+	private struct function getFrameworkConfig() {
+		return {
+			applicationKey = 'framework.one',
+			diConfig = {
+				constants = getConstants()
+			},
+			diLocations = getLocations(),
+			reloadApplicationOnEveryRequest = getFactoryConfig().reloadApplicationOnEveryRequest
+		};
+	}
 
-    return contants;
-  }
+	private string function getLocations() {
+		var locations = "/cfmlDataMapper/model";
+		locations = listAppend(locations, getFactoryConfig().locations);
+		return locations;
+	}
 
-  private struct function getFactoryConfig() {
-    return variables.factoryConfig;
-  }
+	private void function validateConfig() {
+		var config = getFactoryConfig();
 
-  private struct function getFrameworkConfig() {
-    return {
-      diConfig = {
-        constants = getConstants()
-      },
-      diLocations = getLocations(),
-      reloadApplicationOnEveryRequest = getFactoryConfig().reloadApplicationOnEveryRequest
-    };
-  }
+		if ( !structKeyExists(config, "dsn") || !len(config.dsn) ) {
+			throw("The cfmlDataMapper Factory requires the dsn config variable.");
+		}
+		if ( !structKeyExists(config, "locations") || !len(config.locations) ) {
+			throw("The cfmlDataMapper Factory requires the locations config variable.");
+		}
 
-  private string function getLocations() {
-    var locations = "/cfmlDataMapper/model";
-    locations = listAppend(locations, getFactoryConfig().locations);
-    return locations;
-  }
+		param name="config.reloadApplicationOnEveryRequest" default="false";
+		param name="config.serverType" default="";
 
-  private void function validateConfig() {
-    var config = getFactoryConfig();
+		setFactoryConfig(config);
+	}
 
-    if ( !structKeyExists(config, "dsn") || !len(config.dsn) ) {
-      throw("The cfmlDataMapper Factory requires the dsn config variable.");
-    }
-    if ( !structKeyExists(config, "locations") || !len(config.locations) ) {
-      throw("The cfmlDataMapper Factory requires the locations config variable.");
-    }
+	// data mapper function passthroughs
 
-    param name="config.reloadApplicationOnEveryRequest" default="false";
-    param name="config.serverType" default="";
-
-    setFactoryConfig(config);
-  }
-
-  // data mapper function passthroughs
-
-  public component function get() {
+	public component function get() {
 		return getFactory().get( argumentCollection=arguments );
 	}
 
 	public struct function getBeanMap() {
-    return getFactory().getBeanMap( argumentCollection=arguments );
+		return getFactory().getBeanMap( argumentCollection=arguments );
 	}
 
-	public array function getBeans() {
-    return getFactory().getBeans( argumentCollection=arguments );
+	public array function getBeansFromQuery() {
+		return getFactory().getBeansFromQuery( argumentCollection=arguments );
+	}
+
+	public struct function getBeansFromQueryAsStruct() {
+		return getFactory().getBeansFromQueryAsStruct( argumentCollection=arguments );
 	}
 
 	public array function getBeansFromArray() {
-    return getFactory().getBeansFromArray( argumentCollection=arguments );
+		return getFactory().getBeansFromArray( argumentCollection=arguments );
 	}
 
-	public struct function getBeanStruct() {
-    return getFactory().getBeanStruct( argumentCollection=arguments );
+	public array function getBeanListProperties() {
+		return getFactory().getBeanListProperties( argumentCollection=arguments );
 	}
 
-  public struct function getResultStruct() {
-    return getBeanFactory().getUtilityService().getResultStruct( argumentCollection=arguments );
-  }
+	public struct function getResultStruct() {
+		return getBeanFactory().getUtilityService().getResultStruct( argumentCollection=arguments );
+	}
 
 	public boolean function hasBean() {
-    return getFactory().hasBean( argumentCollection=arguments );
+		return getFactory().hasBean( argumentCollection=arguments );
 	}
 
 	public array function list() {
-    return getFactory().list( argumentCollection=arguments );
+		return getFactory().list( argumentCollection=arguments );
 	}
 
-  public void function setFactoryConfig(factoryConfig){
-    variables.factoryConfig = arguments.factoryConfig;
-  }
+	public array function listWithProperties() {
+		return getFactory().listWithProperties( argumentCollection=arguments );
+	}
 
-  // fw1 functionality to use with beans
+	public void function setFactoryConfig(factoryConfig){
+		variables.factoryConfig = arguments.factoryConfig;
+	}
 
-  public void function populate() {
-    _get_framework_one().onRequestStart("");
-    return _get_framework_one().populate( argumentCollection=arguments );
-  }
+	// fw1 functionality to use with beans
+
+	public void function populate() {
+		_get_framework_one().onRequestStart("");
+		return _get_framework_one().populate( argumentCollection=arguments );
+	}
 
 }

@@ -130,7 +130,7 @@ component accessors="true" {
 				params=arguments.beanmap.cacheparams[1]
 			);
 
-			var beanStruct = variables.DataFactory.getBeanStruct( bean=arguments.beanname, qRecords=qRecords );
+			var beanStruct = variables.DataFactory.getBeansFromQueryAsStruct( bean=arguments.beanname, qRecords=qRecords );
 
 			// todo: figure out a better way to do this
 			var idlist = evaluate("valueList(qRecords.#arguments.beanmap.primarykey#)");

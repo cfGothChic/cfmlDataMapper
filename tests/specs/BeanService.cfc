@@ -96,7 +96,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 						DataFactory.$( "get", BaseBean )
 							.$( "getBeanMap", beanmap )
-							.$( "getBeans", [BaseBean] )
+							.$( "getBeansFromQuery", [BaseBean] )
 							.$( "list", [BaseBean] );
 						testClass.$property( propertyName="DataFactory", mock=DataFactory );
 
@@ -135,7 +135,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						var result = testClass.getManyToManyRelationship( primarykeyid=1, relationship=beanmap.relationships.test );
 
 						expect( SQLService.$once("readByJoin") ).toBeTrue();
-						expect( DataFactory.$once("getBeans") ).toBeTrue();
+						expect( DataFactory.$once("getBeansFromQuery") ).toBeTrue();
 
 						expect( result ).toBeTypeOf( "array" );
 						expect( result ).toHaveLength( 1 );
@@ -147,7 +147,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						var result = testClass.getManyToManyRelationship( primarykeyid=0, relationship=beanmap.relationships.test );
 
 						expect( SQLService.$never("readByJoin") ).toBeTrue();
-						expect( DataFactory.$never("getBeans") ).toBeTrue();
+						expect( DataFactory.$never("getBeansFromQuery") ).toBeTrue();
 
 						expect( result ).toBeTypeOf( "array" );
 						expect( result ).toBeEmpty();
@@ -179,7 +179,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 							expect( DataFactory.$once("get") ).toBeTrue();
 							expect( testClass.$once("populateByQuery") ).toBeTrue();
-							expect( DataFactory.$never("getBeans") ).toBeTrue();
+							expect( DataFactory.$never("getBeansFromQuery") ).toBeTrue();
 
 							expect( result ).toBeTypeOf( "component" );
 							expect( result ).toBeInstanceOf( "cfmlDataMapper.model.base.bean" );
@@ -191,7 +191,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 							expect( DataFactory.$never("get") ).toBeTrue();
 							expect( testClass.$never("populateByQuery") ).toBeTrue();
-							expect( DataFactory.$once("getBeans") ).toBeTrue();
+							expect( DataFactory.$once("getBeansFromQuery") ).toBeTrue();
 
 							expect( result ).toBeTypeOf( "array" );
 							expect( result ).toHaveLength( 1 );
@@ -204,7 +204,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 							expect( DataFactory.$never("get") ).toBeTrue();
 							expect( testClass.$never("populateByQuery") ).toBeTrue();
-							expect( DataFactory.$once("getBeans") ).toBeTrue();
+							expect( DataFactory.$once("getBeansFromQuery") ).toBeTrue();
 
 							expect( result ).toBeTypeOf( "array" );
 							expect( result ).toHaveLength( 1 );
@@ -217,7 +217,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 							expect( DataFactory.$never("get") ).toBeTrue();
 							expect( testClass.$never("populateByQuery") ).toBeTrue();
-							expect( DataFactory.$once("getBeans") ).toBeTrue();
+							expect( DataFactory.$once("getBeansFromQuery") ).toBeTrue();
 
 							expect( result ).toBeTypeOf( "array" );
 							expect( result ).toHaveLength( 1 );

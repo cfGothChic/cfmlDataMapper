@@ -1,6 +1,5 @@
 component accessors="true" extends="testbox.system.BaseSpec"{
 
-
 	function beforeAll() {
 		BeanService = createEmptyMock("cfmlDataMapper.model.services.bean");
 		BeanService.$( "populateById" )
@@ -143,9 +142,9 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						});
 
 
-						// getBeans()
+						// getBeansFromQuery()
 						it( "returns an array of beans", function(){
-							var result = testClass.getBeans( bean="user", qRecords=qRecords );
+							var result = testClass.getBeansFromQuery( bean="user", qRecords=qRecords );
 
 							expect( testClass.$once("getModuleBean") ).toBeTrue();
 							expect( BeanFactory.$atLeast(1, "injectProperties") ).toBeTrue();
@@ -156,9 +155,9 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						});
 
 
-						// getBeanStruct() {
+						// getBeansFromQueryAsStruct() {
 						it( "returns a structure by id of beans", function(){
-							var result = testClass.getBeanStruct( bean="user", qRecords=qRecords );
+							var result = testClass.getBeansFromQueryAsStruct( bean="user", qRecords=qRecords );
 
 							expect( testClass.$once("getModuleBean") ).toBeTrue();
 							expect( BeanFactory.$atLeast(1, "injectProperties") ).toBeTrue();
@@ -171,6 +170,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					});
 
 
+					// getBeansFromArray()
 					describe("an array of structures and", function(){
 
 						beforeEach(function( currentSpec ){
@@ -178,7 +178,6 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						});
 
 
-						// getBeansFromArray()
 						it( "returns an array of beans", function(){
 							var result = testClass.getBeansFromArray( bean="user", beansArray=beansArray );
 
@@ -188,6 +187,40 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 							expect( result ).toBeTypeOf( "array" );
 							expect( result ).toHaveLength( 1 );
 							expect( result[1] ).toBeInstanceOf( "model.beans.user" );
+						});
+
+					});
+
+					// getBeanListProperties()
+					describe("an array of beans and", function(){
+
+						beforeEach(function( currentSpec ){
+							userBean.$( "getProperties", {} );
+							beans = [userBean];
+						});
+
+						it( "returns an array of bean property structures", function(){
+							var result = testClass.getBeanListProperties( beans=beans, eagerFetch=false );
+
+							expect( result ).toBeArray();
+							expect( result ).toHaveLength( 1 );
+							expect( result[1] ).toBeStruct();
+
+							expect( userBean.$once("getProperties") ).toBeTrue();
+						});
+
+						it( "errors if the array doesn't contain objects", function(){
+							expect( function(){
+								testClass.getBeanListProperties( beans=[1], eagerFetch=false );
+							})
+								.toThrow(type="application", regex="(beans)");
+						});
+
+						it( "errors if the array doesn't contain data factory beans", function(){
+							expect( function(){
+								testClass.getBeanListProperties( beans=[createStub()], eagerFetch=false );
+							})
+								.toThrow(regex="(beans)");
 						});
 
 					});
@@ -303,7 +336,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					beforeEach(function( currentSpec ){
 						SQLService.$( "read", querySim("") );
 
-						testClass.$( "getBeans", [userBean] );
+						testClass.$( "getBeansFromQuery", [userBean] );
 					});
 
 
@@ -322,7 +355,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						var result = testClass.list( bean="userType" );
 
 						expect( CacheService.$once("list") ).toBeTrue();
-						expect( testClass.$once("getBeans") ).toBeFalse();
+						expect( testClass.$once("getBeansFromQuery") ).toBeFalse();
 
 						expect( result ).toBeTypeOf( "array" );
 						expect( result ).toHaveLength( 1 );
@@ -336,7 +369,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						var result = testClass.list( bean="userType" );
 
 						expect( CacheService.$once("list") ).toBeTrue();
-						expect( testClass.$once("getBeans") ).toBeTrue();
+						expect( testClass.$once("getBeansFromQuery") ).toBeTrue();
 
 						expect( result ).toBeTypeOf( "array" );
 						expect( result ).toHaveLength( 1 );
@@ -345,6 +378,26 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 				});
 
+				// listWithProperties()
+				describe("gets a list of beans and", function(){
+
+					beforeEach(function( currentSpec ){
+						testClass.$( "getBeanListProperties", [{}] )
+							.$( "list", [userBean] );
+					});
+
+					it( "returns an array of bean property structures", function(){
+						var result = testClass.listWithProperties( bean="beanname" );
+
+						expect( result ).toBeArray();
+						expect( result ).toHaveLength( 1 );
+						expect( result[1] ).toBeStruct();
+
+						expect( testClass.$once("list") ).toBeTrue();
+						expect( testClass.$once("getBeanListProperties") ).toBeTrue();
+					});
+
+				});
 
 				// hasBean()
 				describe("calls hasBean() and", function(){

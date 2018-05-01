@@ -9,7 +9,7 @@
 	variables.moduleCache = [];
 	variables.beanmaps = {};
 
-	public any function init( fw, UtilityService ) {
+	public component function init( required component fw, required component UtilityService ) {
 		variables.fw = arguments.fw;
 		variables.UtilityService = arguments.UtilityService;
 		lock timeout="10" scope="application" type="exclusive" {
@@ -40,7 +40,19 @@
 		return variables.beanmaps[ arguments.bean ];
 	}
 
-	public array function getBeans( required string bean, required query qRecords ) {
+	public array function getBeanListProperties( required array beans, boolean eagerFetch=false ) {
+		var result = [];
+		arguments.beans.each(function(bean){
+			if ( !isObject(bean) || !structKeyExists(bean, "getBeanMap") ) {
+				throw("The beans array must contain data factory beans.");
+			}
+			var beanProps = bean.getProperties( eagerFetch=eagerFetch );
+			result.append(beanProps);
+		});
+		return result;
+	}
+
+	public array function getBeansFromQuery( required string bean, required query qRecords ) {
 		var beans = [];
 		var columns = listToArray(arguments.qRecords.columnList);
 
@@ -104,7 +116,7 @@
 		return beans;
 	}
 
-	public struct function getBeanStruct( required string bean, required query qRecords ) {
+	public struct function getBeansFromQueryAsStruct( required string bean, required query qRecords ) {
 		var beans = {};
 		var columns = listToArray(arguments.qRecords.columnList);
 		var beanmap = getBeanMap(arguments.bean);
@@ -175,12 +187,23 @@
 				params=arguments.params,
 				orderby=arguments.orderby
 			);
-			result.beans = getBeans( bean=arguments.bean, qRecords=qRecords );
+			result.beans = getBeansFromQuery( bean=arguments.bean, qRecords=qRecords );
 		}
 		return result.beans;
 	}
 
-	private void function addInheritanceMapping( bean ) {
+	public array function listWithProperties(
+		required string bean,
+		boolean eagerFetch=false,
+		struct params={},
+		string orderby=""
+	) {
+		arguments.beanname = arguments.bean;
+		var beans = list( argumentCollection=arguments );
+		return getBeanListProperties( beans=beans, eagerFetch=arguments.eagerFetch );
+	}
+
+	private void function addInheritanceMapping( required string bean ) {
 		var beanmap = variables.beanmaps[ arguments.bean ];
 		if (
 			!structKeyExists(beanmap,"table")
@@ -205,14 +228,14 @@
 		}
 	}
 
-	private boolean function checkBeanExists( beanname ) {
+	private boolean function checkBeanExists( required string beanname ) {
 		if ( !hasBean(arguments.beanname) ) {
 			throw ("Bean does not exist for: " & arguments.beanname);
 		}
 		return true;
 	}
 
-	private void function createBeanMap( name, metadata ) {
+	private void function createBeanMap( required string name, required struct metadata ) {
 		var beanmap = getBeanMapMetadata(arguments.metadata);
 		beanmap.bean = ( structKeyExists(arguments.metadata,"bean") ? arguments.metadata.bean : arguments.name );
 		beanmap.inherits = getInheritanceMetadata(arguments.metadata);
@@ -242,7 +265,7 @@
 		variables.beanmaps[ beanmap.bean ] = beanmap;
 	}
 
-	private struct function getBeanMapMetadata( metadata ) {
+	private struct function getBeanMapMetadata( required struct metadata ) {
 		var beanmap = {};
 		if ( structKeyExists(arguments.metadata,"table") && structKeyExists(arguments.metadata,"primarykey") ) {
 			beanmap.table = arguments.metadata.table;
@@ -274,7 +297,7 @@
 		return beanmap;
 	}
 
-	private component function getByParams( required string beanname, required string methodname, requires struct params ) {
+	private component function getByParams( required string beanname, required string methodname, required struct params ) {
 		checkBeanExists( beanname=arguments.beanname );
 		var qRecord = variables.SQLService.read( beanname=arguments.beanname, methodname=arguments.methodname, params=arguments.params);
 		var bean = get( bean=arguments.beanname );
@@ -284,7 +307,7 @@
 		return bean;
 	}
 
-	private string function getCfSqlType( sqltype ) {
+	private string function getCfSqlType( required string sqltype ) {
 		arguments.sqltype = listLast(arguments.sqltype,"_") == "int" ? "integer" : arguments.sqltype;
 		return ( findNoCase("cf_sql_",arguments.sqltype) ? arguments.sqltype : "cf_sql_" & arguments.sqltype );
 	}
@@ -317,7 +340,7 @@
 		return datatype;
 	}
 
-	private string function getInheritanceMetadata( metadata ) {
+	private string function getInheritanceMetadata( required struct metadata ) {
 		var inherits = "";
 		if ( !findNoCase("model.base",arguments.metadata.extends.fullname) ) {
 			if ( listFirst(arguments.metadata.extends.fullname,".") != "model" ) {
@@ -328,7 +351,7 @@
 		return inherits;
 	}
 
-	private function getModuleBean( bean ) {
+	private component function getModuleBean( required string bean ) {
 		checkBeanExists(arguments.bean);
 
 		var temp = listToArray(arguments.bean,".");
@@ -387,7 +410,7 @@
 		return metadata;
 	}
 
-	private void function readBeanDirectory( beanpath, modulename="" ) {
+	private void function readBeanDirectory( required string beanpath, string modulename="" ) {
 		var cfcbeanpath = replace(right(arguments.beanpath,len(arguments.beanpath)-1),"/",".","all");
 		var modelpath = findNoCase("newmodel",arguments.beanpath) ? "newmodel" : "model";
 		var modulepath = ( len(arguments.modulename) ? arguments.modulename & "." : "" );
