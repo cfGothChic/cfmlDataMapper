@@ -22,7 +22,8 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					cached = false,
 					properties = {
 						test = {
-							defaultvalue = "test"
+							defaultvalue = "test",
+							datatype = "string"
 						}
 					}
 				};
@@ -652,30 +653,36 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					describe("calls getProperties() and", function(){
 
 						beforeEach(function( currentSpec ){
-							testClass.$( "getPropertyValue" ).$args( propertyname="test" ).$results( "test" );
-							testClass.$( "getPropertyValue" ).$args( propertyname="user" ).$results( userBean );
+							testClass
+								.$( "getPropertyValue" ).$args( propertyname="isbit" ).$results( 1 )
+								.$( "getPropertyValue" ).$args( propertyname="test" ).$results( "test" );
 						});
-
 
 						it( "returns a structure of the bean's property values", function(){
-							var result = testClass.getProperties( data={} );
+							var result = testClass.getProperties();
 
 							expect( testClass.$once("getBeanMap") ).toBeTrue();
 							expect( testClass.$once("getPropertyValue") ).toBeTrue();
 
-							expect( result ).toBeTypeOf( "struct" );
-							expect( result ).toHaveLength( 1 );
+							expect( result ).toBeStruct();
+							expect( result ).toHaveLength(1);
 						});
 
+						it( "returns a structure of the bean's property values with a formatted boolean", function(){
+							beanmap.properties.isbit = {
+								defaultvalue = 1,
+								datatype = "boolean"
+							};
 
-						it( "returns a structure of the bean's property values appended to the data structure", function(){
-							var result = testClass.getProperties( data={ "foo"="bar" } );
+							var result = testClass.getProperties();
 
 							expect( testClass.$once("getBeanMap") ).toBeTrue();
-							expect( testClass.$once("getPropertyValue") ).toBeTrue();
+							expect( testClass.$count("getPropertyValue") ).toBe(2);
 
-							expect( result ).toBeTypeOf( "struct" );
-							expect( result ).toHaveLength( 1 );
+							expect( result ).toBeStruct();
+							expect( result ).toHaveLength(2);
+							expect( result ).toHaveKey( "isbit" );
+							expect( result.isbit ).toBe( "true" );
 						});
 
 					});

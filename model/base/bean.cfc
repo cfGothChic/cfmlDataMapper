@@ -80,7 +80,11 @@
 		var beanmap = getBeanMap();
 
 		for ( var prop in beanmap.properties ) {
-			data[ prop ] = getPropertyValue( propertyname=prop );
+			var value = getPropertyValue( propertyname=prop );
+			if ( beanmap.properties[prop].datatype == "boolean" ) {
+				value = val(value) ? true : false;
+			}
+			data[ prop ] = value;
 		}
 
 		return data;
