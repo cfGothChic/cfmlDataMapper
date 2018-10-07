@@ -12,11 +12,17 @@
 	property UtilityService;
 	property ValidationService;
 
-	public component function init( string id ) {
+	public component function init( string id, string context="" ) {
 		try {
-			variables.BeanService.populateById( bean=this, id=arguments.id );
+			var beanmap = getBeanMap();
+			if ( len(beanmap.sproc) ) {
+				variables.BeanService.populateBySproc( bean=this, id=arguments.id, sproc=beanmap.sproc, context=arguments.context);
+			}
+			else {
+				variables.BeanService.populateById( bean=this, id=arguments.id );
+			}
 		} catch (any e) {
-			if ( !findNoCase("BeanService", e.message) ) {
+			if ( !findNoCase("DataFactory", e.message) ) {
 				rethrow;
 			}
 		}

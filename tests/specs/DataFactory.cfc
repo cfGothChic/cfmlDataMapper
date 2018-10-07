@@ -826,9 +826,10 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					var result = testClass.getBeanMapMetadata( metadata=metadata );
 
 					expect( result ).toBeTypeOf( "struct" );
-					expect( structCount(result) ).toBe( 8 );
+					expect( structCount(result) ).toBe( 9 );
 					expect( result ).toHaveKey( "table" );
 					expect( result ).toHaveKey( "primarykey" );
+					expect( result ).toHaveKey( "sproc" );
 					expect( result ).toHaveKey( "orderby" );
 					expect( result ).toHaveKey( "schema" );
 					expect( result ).toHaveKey( "cached" );
