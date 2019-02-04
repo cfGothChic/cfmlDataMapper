@@ -17,7 +17,7 @@ component accessors="true" {
 				continue;
 			}
 
-			var value = arguments.bean.getPropertyValue(propertyname=name);
+			var value = arguments.bean.getPropertyValue( propertyname=name );
 
 			errors = validateBeanProperty( value=value, beanProperty=beanProperty );
 		}

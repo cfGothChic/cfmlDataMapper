@@ -130,7 +130,7 @@ component accessors="true" {
 				params=arguments.beanmap.cacheparams[1]
 			);
 
-			var beanStruct = variables.DataFactory.getBeanStruct( bean=arguments.beanname, qRecords=qRecords );
+			var beanStruct = variables.DataFactory.getBeansFromQueryAsStruct( bean=arguments.beanname, qRecords=qRecords );
 
 			// todo: figure out a better way to do this
 			var idlist = evaluate("valueList(qRecords.#arguments.beanmap.primarykey#)");
@@ -214,7 +214,7 @@ component accessors="true" {
 			var cachedbean = structCopy(arguments.beanData.beans[ arguments.primarykey ]);
 		} else {
 			var thisbean = arguments.beanData.beans[ arguments.primarykey ];
-			var cachedStruct = thisbean.getSessionData();
+			var cachedStruct = thisbean.getProperties();
 			var cachedbean = variables.DataFactory.get( bean=arguments.beanname );
 			variables.BeanFactory.injectProperties(cachedbean, cachedStruct);
 		}
@@ -228,7 +228,7 @@ component accessors="true" {
 			var checkbean = beanData.beans[primarykey];
 			var check = 0;
 			for ( var item in arguments.params ) {
-				var value = checkbean.getPropertyValue(item);
+				var value = checkbean.getPropertyValue( propertyname=item );
 				if ( value == arguments.params[item] ) {
 					check++;
 				}

@@ -5,16 +5,27 @@
 	property beanName;
 
 	// dependencies
-	property BeanFactory;
+	property BeanService;
 	property CacheService;
 	property DataFactory;
-	property DataGateway;
 	property SQLService;
 	property UtilityService;
 	property ValidationService;
 
-	public component function init( string id=0 ) {
-		populate( id=arguments.id );
+	public component function init( string id, string context="" ) {
+		try {
+			var beanmap = getBeanMap();
+			if ( len(beanmap.sproc) ) {
+				variables.BeanService.populateBySproc( bean=this, id=arguments.id, sproc=beanmap.sproc, context=arguments.context);
+			}
+			else {
+				variables.BeanService.populateById( bean=this, id=arguments.id );
+			}
+		} catch (any e) {
+			if ( !findNoCase("DataFactory", e.message) ) {
+				rethrow;
+			}
+		}
 		return this;
 	}
 
@@ -22,7 +33,8 @@
 		var result = variables.UtilityService.getResultStruct();
 		try {
 			var beanmap = getBeanMap();
-			variables.SQLService.delete( beanname=getBeanName(), id=variables[ beanmap.primaryKey ] );
+			var id = getBeanPropertyValue( propertyname=beanmap.primaryKey );
+			variables.SQLService.delete( beanname=getBeanName(), id=id );
 		} catch (any e) {
 			arrayAppend(result.messages,"There was an issue deleting the " & getBeanName() & ".");
 			result.success = false;
@@ -38,10 +50,17 @@
 
 	public struct function getBeanMap() {
 		if ( isNull(variables.beanMap) ) {
-			var bean = getBeanName();
-			variables.beanMap = variables.DataFactory.getBeanMap(bean);
+			var beanname = getBeanName();
+			variables.beanMap = variables.DataFactory.getBeanMap( bean=beanname );
 		}
 		return variables.beanMap;
+	}
+
+	public string function getBeanName() {
+		if ( isNull(variables.beanname) ) {
+			variables.beanname = getBeanMetaDataName();
+		}
+		return variables.beanname;
 	}
 
 	public numeric function getId(){
@@ -62,38 +81,35 @@
 		return value;
 	}
 
-	public struct function getSessionData( struct data={} ) {
+	public struct function getProperties() {
+		var data = {};
 		var beanmap = getBeanMap();
 
 		for ( var prop in beanmap.properties ) {
-			arguments.data[ prop ] = getPropertyValue(propertyname=prop);
-		}
-
-		if ( len(getDerivedFields()) ) {
-			var derivedfields = listToArray(getDerivedFields());
-			for ( var field in derivedfields ) {
-				arguments.data[ field ] = getPropertyValue(propertyname=field);
+			var value = getPropertyValue( propertyname=prop );
+			if ( beanmap.properties[prop].datatype == "boolean" ) {
+				value = val(value) ? true : false;
 			}
+			data[ prop ] = value;
 		}
 
-		return arguments.data;
+		return data;
+	}
+
+	public any function getRelationshipProperties( required string name ) {
+		var relationship = getRelationship( name=arguments.name );
+		if ( isArray(relationship) ) {
+			return variables.dataFactory.getBeanListProperties( beans=relationship );
+		}
+		else {
+			return relationship.getProperties();
+		}
 	}
 
 	public void function onMissingMethod( required string missingMethodName, required struct missingMethodArguments ){
 		if ( left(arguments.missingMethodName,3) != "set" ) {
 			throw(message="Method '" & arguments.missingMethodName & "' not defined in bean " & getBeanName() );
 		}
-	}
-
-	public void function populateBean( required query qRecord ) {
-		var columns = listToArray(qRecord.columnList);
-
-		var properties = {};
-		for ( var columnname in columns ) {
-			properties[columnname] = qRecord[columnname][1];
-		}
-
-		variables.BeanFactory.injectProperties(this, properties);
 	}
 
 	public struct function save( validate=true ) {
@@ -116,8 +132,9 @@
 				if( result.success ){
 					if ( variables[ beanmap.primarykey ] ) {
 						variables.SQLService.update( beanname=beanname, bean=this );
-					} else {
-						var newid = variables.SQLService.create( beanname=beanname, bean=this);
+					}
+					else {
+						var newid = variables.SQLService.create( beanname=beanname, bean=this );
 						setPrimaryKey(newid);
 					}
 
@@ -139,8 +156,23 @@
 		return result;
 	}
 
+	public void function setBeanName( string beanname="" ) {
+		variables.beanname = ( len(arguments.beanname) ? arguments.beanname : getBeanMetaDataName() );
+	}
+
+	public void function setPrimaryKey( required string primarykey ) {
+		if ( isNull(variables.DataFactory) ) {
+			// todo: make this dynamic so that the primary key does not have to be id for the pk to default to 0
+			variables.id = arguments.primarykey;
+		}
+		else {
+			var beanmap = getBeanMap();
+			variables[ beanmap.primarykey ] = arguments.primarykey;
+		}
+	}
+
 	/**
-	 * @hint Validates an object based on the properties metadata
+	 * @hint Validates an object based on the property's metadata
 	 */
 	public array function validate() {
 		var beanMap = getBeanMap();
@@ -155,13 +187,6 @@
 	private string function getBeanMetaDataName() {
 		var metadata = getMetaData(this);
 		return structKeyExists(metadata,"bean") ? metadata.bean : listLast(metadata.name, ".");
-	}
-
-	private string function getBeanName() {
-		if ( isNull(variables.beanname) ) {
-			variables.beanname = getBeanMetaDataName();
-		}
-		return variables.beanname;
 	}
 
 	private any function getBeanPropertyValue( required string propertyname ) {
@@ -182,52 +207,6 @@
 		return isSimpleValue(value) ? trim(value) : value;
 	}
 
-	private string function getDerivedFields() {
-		return "";
-	}
-
-	private numeric function getForeignKeyId( required string fkName ) {
-		return (
-			(
-				structKeyExists(variables,arguments.fkName)
-				&& isValid("integer", variables[ arguments.fkName ])
-			)
-			? variables[ arguments.fkName ] : 0
-		);
-	}
-
-	private array function getManyToManyValue( required string primarykey, required struct relationship ) {
-		if ( variables[ arguments.primarykey ] ) {
-			var qRecords = variables.SQLService.readByJoin(
-				beanid = variables[ arguments.primarykey ],
-				relationship = arguments.relationship
-			);
-			return variables.DataFactory.getBeans(arguments.relationship.bean, qRecords);
-		} else {
-			return [];
-		}
-	}
-
-	private array function getOneToManyValue( required string primarykey, required struct relationship ) {
-		if ( variables[ arguments.primarykey ] ) {
-			return variables.DataFactory.list(
-				bean = arguments.relationship.bean,
-				params = { "#relationship.fkName#" = variables[ arguments.primarykey ] }
-			);
-		} else {
-			return [];
-		}
-	}
-
-	private numeric function getPrimaryKeyFromSprocData( required struct sprocData ) {
-		if ( arguments.sprocData._bean.recordCount ) {
-			var beanmap = getBeanMap();
-			return variables[ beanmap.primarykey ];
-		} else {
-			return 0;
-		}
-	}
-
 	private any function getPropertyDefault( required string propertyname ) {
 		var value = "";
 		var beanmap = getBeanMap();
@@ -237,187 +216,22 @@
 		return value;
 	}
 
-	private array function getRelationshipKeys( string context="" ) {
-		var relationshipkeys = [];
-		arrayAppend(relationshipkeys,"_bean");
-
-		var beanmap = getBeanMap();
-
-		if ( len(arguments.context) && arguments.context != "_bean" && structCount(beanmap.relationships) ) {
-			for ( var key in beanmap.relationships ) {
-				var contexts = beanmap.relationships[key].contexts;
-				if ( !arrayLen(contexts) || arrayFindNoCase(contexts,arguments.context) ) {
-					arrayAppend(relationshipkeys,key);
-				}
-			}
-			arraySort(relationshipkeys,"textnocase");
-		}
-
-		return relationshipkeys;
+	private any function getRelationship( required string name ) {
+		return variables.BeanService.populateRelationship( bean=this, relationshipName=arguments.name );
 	}
 
-	private component function getSingularBean( required string primarykey, required struct relationship ) {
-		return variables.DataFactory.get(
-			bean = arguments.relationship.bean,
-			id = getForeignKeyId(arguments.relationship.fkName)
-		);
-	}
+	private boolean function hasRelationship( required string name ){
+		var value = getRelationship( name=arguments.name );
+		var success = false;
 
-	private component function getSingularSprocBean( required string beanname, required query qRecords ) {
-		var beans = variables.DataFactory.getBeans( bean=arguments.beanname, qRecords=arguments.qRecords );
-		if ( arrayLen(beans) ) {
-			return beans[1];
-		} else {
-			return variables.DataFactory.get( bean=arguments.beanname );
+		if ( isObject(value) ) {
+			success = value.exists() ? true : false;
 		}
-	}
-
-	private string function getSprocContext() {
-		if ( structKeyExists(arguments, "context") && !len(arguments.context) ) {
-			return "_bean";
-		}
-		else if ( !structKeyExists(arguments, "context") ) {
-			return "";
-		}
-		else {
-			return arguments.context;
-		}
-	}
-
-	private any function getSprocRelationship( required string beanname, required string joinType, required query qRecords ) {
-		var isSingular = ( arguments.joinType == "one" );
-		if ( isSingular ) {
-			return getSingularSprocBean( beanname=arguments.beanname, qRecords=arguments.qRecords );
-		} else {
-			return variables.DataFactory.getBeans( bean=arguments.beanname, qRecords=arguments.qRecords );
-		}
-	}
-
-	private void function populate( numeric id=0, string beanname="" ) {
-		if ( !isNumeric(arguments.id) ) {
-			arguments.id = 0;
-		}
-		setBeanName( beanname=arguments.beanname );
-
-		if ( arguments.id ) {
-			var qRecord = variables.SQLService.read(
-				beanname=getBeanName(),
-				methodname="populate",
-				params={ id = arguments.id }
-			);
-
-			if ( qRecord.recordCount ) {
-				populateBean(qRecord);
-			} else {
-				arguments.id = 0;
-			}
+		else if ( isArray(value) ) {
+			success = arrayLen(value) ? true : false;
 		}
 
-		variables.id = arguments.id;
-		// todo: setPrimaryKey(arguments.id);
-	}
-
-	private void function populateBySproc(
-		required string sproc,
-		string id="",
-		string beanname="",
-		array params=[],
-		array resultkeys=[]
-	) {
-		if ( !isNumeric(arguments.id) ) {
-			arguments.id = 0;
-		}
-		arguments.context = getSprocContext( argumentCollection=arguments );
-		setBeanName( beanname=arguments.beanname );
-
-		if ( arguments.id || arrayLen(arguments.params) ) {
-
-			if ( arguments.id ) {
-				arrayAppend(arguments.params, { value=arguments.id, cfsqltype="cf_sql_integer" });
-			}
-			if ( len(arguments.context) && arguments.context != "default" ) {
-				arrayAppend(arguments.params, { value=arguments.context, cfsqltype="cf_sql_varchar" });
-			}
-
-			if ( !arrayLen(arguments.resultkeys) ) {
-				arguments.resultkeys = getRelationshipKeys(arguments.context);
-			}
-
-			var sprocData = variables.DataGateway.readSproc(arguments.sproc, arguments.params, arguments.resultkeys);
-			populateSprocData(sprocData, arguments.resultkeys);
-
-			arguments.id = getPrimaryKeyFromSprocData( sprocData=sprocData );
-		}
-
-		setPrimaryKey(arguments.id);
-	}
-
-	private void function populateRelationship( required string relationshipName ) {
-		if ( isNull( evaluate("get" & arguments.relationshipName & "()") ) ) {
-			var beanmap = getBeanMap();
-
-			if ( !structKeyExists(beanmap,"relationships") || !structKeyExists(beanmap.relationships,arguments.relationshipName) ) {
-				throw ("A " & arguments.relationshipName & " relationship is not defined in the " & beanmap.name & " bean map.");
-			}
-
-			var relationship = beanmap.relationships[ arguments.relationshipName ];
-
-			var value = "";
-			switch ( relationship.joinType ) {
-				case "one":
-					value = getSingularBean(beanmap.primarykey, relationship);
-					break;
-				case "one-to-many":
-					value = getOneToManyValue(beanmap.primarykey, relationship);
-					break;
-				case "many-to-many":
-					value = getManyToManyValue(beanmap.primarykey, relationship);
-					break;
-			}
-
-			if ( !isSimpleValue(value) ) {
-				variables.BeanFactory.injectProperties(this, { "#arguments.relationshipName#" = value });
-			}
-		}
-	}
-
-	private void function populateSprocData( required struct data, required array resultkeys ) {
-		var beanmap = getBeanMap();
-		var properties = {};
-		for ( var relationship in arguments.resultkeys ) {
-
-			if ( relationship == "_bean" ) {
-				if ( arguments.data._bean.recordCount ) {
-					populateBean(arguments.data._bean);
-				}
-			}
-
-			else {
-				properties[relationship] = getSprocRelationship(
-					beanname=beanmap.relationships[relationship].bean,
-					joinType=beanmap.relationships[relationship].joinType,
-					qRecords=arguments.data[relationship]
-				);
-			}
-		}
-
-		if ( structCount(properties) ) {
-			variables.BeanFactory.injectProperties(this, properties);
-		}
-	}
-
-	private void function setBeanName( string beanname="" ) {
-		variables.beanname = ( len(arguments.beanname) ? arguments.beanname : getBeanMetaDataName() );
-	}
-
-	private void function setPrimaryKey( required string primarykey ) {
-		if ( isNull(variables.DataFactory) ) {
-			// todo: make this dynamic so that the primary key does not have to be id for the pk to default to 0
-			variables.id = arguments.primarykey;
-		} else {
-			var beanmap = getBeanMap();
-			variables[ beanmap.primarykey ] = arguments.primarykey;
-		}
+		return success;
 	}
 
 }

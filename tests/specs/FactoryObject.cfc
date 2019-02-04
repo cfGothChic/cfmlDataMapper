@@ -1,6 +1,5 @@
 component accessors="true" extends="testbox.system.BaseSpec"{
 
-
 	function beforeAll(){
 		testClass = createMock("cfmlDataMapper.factory");
 	}
@@ -50,9 +49,13 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 					var result = testClass.getFrameworkConfig();
 
-					expect( result ).toBeTypeOf( "struct" );
+					expect( result ).toBeStruct();
+					expect( result ).toHaveLength(4);
+					expect( result ).toHaveKey( "applicationKey" );
 					expect( result ).toHaveKey( "diConfig" );
+					expect( result.diConfig ).toBeStruct();
 					expect( result.diConfig ).toHaveKey( "constants" );
+					expect( result.diConfig.constants ).toBeStruct();
 					expect( result.diConfig.constants ).toHaveKey( "dsn" );
 					expect( result ).toHaveKey( "diLocations" );
 					expect( result ).toHaveKey( "reloadApplicationOnEveryRequest" );
@@ -76,29 +79,39 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					beforeEach(function( currentSpec ){
 						frameworkone = createEmptyMock("framework.one");
 						frameworkone.$( "onRequestStart", true );
+
+						BeanFactory = createEmptyMock("framework.ioc");
 					});
 
 
-					// getFactory()
-					it( "returns the model factory object", function(){
-						var BeanFactory = createEmptyMock("framework.ioc");
-						var DataFactory = createEmptyMock("cfmlDataMapper.model.factory.data");
-
-						frameworkone.$( "getDefaultBeanFactory", BeanFactory )
-							.getDefaultBeanFactory().$( "getBean", DataFactory );
+					// getBeanFactory()
+					it( "returns the bean factory object", function(){
+						frameworkone.$( "getDefaultBeanFactory", BeanFactory );
 						testClass.$( "_get_framework_one", frameworkone );
 
-						var result = testClass.getFactory();
+						var result = testClass.getBeanFactory();
 
 						expect( testClass.$times(2,"_get_framework_one") ).toBeTrue();
 						expect( frameworkone.$once("onRequestStart") ).toBeTrue();
 						expect( frameworkone.$atLeast(1, "getDefaultBeanFactory") ).toBeTrue();
-						expect( frameworkone.getDefaultBeanFactory().$once("getBean") ).toBeTrue();
+
+						expect( result ).toBeTypeOf( "component" );
+					});
+
+					// getFactory()
+					it( "returns the data factory object", function(){
+						var DataFactory = createEmptyMock("cfmlDataMapper.model.factory.data");
+						BeanFactory.$( "getBean", DataFactory );
+						testClass.$( "getBeanFactory", BeanFactory );
+
+						var result = testClass.getFactory();
 
 						expect( result ).toBeTypeOf( "component" );
 						expect( result ).toBeInstanceOf( "cfmlDataMapper.model.factory.data" );
-					});
 
+						expect( testClass.$once("getBeanFactory") ).toBeTrue();
+						expect( BeanFactory.$once("getBean") ).toBeTrue();
+					});
 
 					// populate()
 					it( "calls the fw1 populate function", function(){
@@ -124,7 +137,6 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						testClass.$( "getFactory", DataFactory );
 					});
 
-
 					// get()
 					it( "returns a transient bean", function(){
 						DataFactory.$( "get", userTypeBean );
@@ -133,22 +145,17 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 						expect( result ).toBeTypeOf( "component" );
 						expect( DataFactory.$once("get") ).toBeTrue();
-						expect( result ).toBeInstanceOf( "model.beans.userType" );
 					});
-
 
 					// list()
 					it( "returns an array of transient beans", function(){
-						DataFactory.$( "list", [userTypeBean] );
+						DataFactory.$( "list", [] );
 
 						var result = testClass.list( bean="userType" );
 
+						expect( result ).toBeArray();
 						expect( DataFactory.$once("list") ).toBeTrue();
-						expect( result ).toBeTypeOf( "array" );
-						expect( result ).toHaveLength( 1 );
-						expect( result[1] ).toBeInstanceOf( "model.beans.userType" );
 					});
-
 
 					// hasBean()
 					it( "returns a boolean when checking if a bean exists in the model", function(){
@@ -156,59 +163,68 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 						var result = testClass.hasBean( bean="userType" );
 
+						expect( result ).toBeBoolean();
 						expect( DataFactory.$once("hasBean") ).toBeTrue();
-						expect( result ).toBeTypeOf( "boolean" );
 					});
-
 
 					// getBeanMap()
 					it( "returns a structure of metadata related to a transient bean", function(){
-						DataFactory.$( "getBeanMap", { table="usertypes" } );
+						DataFactory.$( "getBeanMap", {} );
 
 						var result = testClass.getBeanMap( bean="userType" );
 
+						expect( result ).toBeStruct();
 						expect( DataFactory.$once("getBeanMap") ).toBeTrue();
-						expect( result ).toBeTypeOf( "struct" );
-						expect( result ).toHaveKey( "table" );
 					});
 
-
-					// getBeans()
+					// getBeansFromQuery()
 					it( "returns an array of transient beans from a custom query", function(){
-						DataFactory.$( "getBeans", [userTypeBean] );
+						DataFactory.$( "getBeansFromQuery", [] );
 
-						var result = testClass.getBeans( bean="userType", qRecords = querySim("") );
+						var result = testClass.getBeansFromQuery( bean="userType", qRecords = querySim("") );
 
-						expect( DataFactory.$once("getBeans") ).toBeTrue();
-						expect( result ).toBeTypeOf( "array" );
-						expect( result ).toHaveLength( 1 );
-						expect( result[1] ).toBeInstanceOf( "model.beans.userType" );
+						expect( result ).toBeArray();
+						expect( DataFactory.$once("getBeansFromQuery") ).toBeTrue();
 					});
-
 
 					// getBeansFromArray()
 					it( "returns an array of transient beans from an array of structures", function(){
-						DataFactory.$( "getBeansFromArray", [userTypeBean] );
+						DataFactory.$( "getBeansFromArray", [] );
 
 						var result = testClass.getBeansFromArray( bean="userType", beansArray = [{ id = 1 }] );
 
+						expect( result ).toBeArray();
 						expect( DataFactory.$once("getBeansFromArray") ).toBeTrue();
-						expect( result ).toBeTypeOf( "array" );
-						expect( result ).toHaveLength( 1 );
-						expect( result[1] ).toBeInstanceOf( "model.beans.userType" );
 					});
 
-
-					// getBeanStruct() {
+					// getBeansFromQueryAsStruct() {
 					it( "returns a structure by id of transient beans from a custom query", function(){
-						DataFactory.$( "getBeanStruct", { 1 = userTypeBean } );
+						DataFactory.$( "getBeansFromQueryAsStruct", {} );
 
-						var result = testClass.getBeanStruct( bean="userType", qRecords = querySim("") );
+						var result = testClass.getBeansFromQueryAsStruct( bean="userType", qRecords = querySim("") );
 
-						expect( DataFactory.$once("getBeanStruct") ).toBeTrue();
-						expect( result ).toBeTypeOf( "struct" );
-						expect( structCount(result) ).toBe( 1 );
-						expect( result[1] ).toBeInstanceOf( "model.beans.userType" );
+						expect( result ).toBeStruct();
+						expect( DataFactory.$once("getBeansFromQueryAsStruct") ).toBeTrue();
+					});
+
+					// getBeanListProperties()
+					it( "returns an array of bean property structures from an array of beans", function(){
+						DataFactory.$( "getBeanListProperties", [] );
+
+						var result = testClass.getBeanListProperties( beans=[userTypeBean] );
+
+						expect( result ).toBeArray();
+						expect( DataFactory.$once("getBeanListProperties") ).toBeTrue();
+					});
+
+					// listWithProperties()
+					it( "returns an array of bean property structures", function(){
+						DataFactory.$( "listWithProperties", [] );
+
+						var result = testClass.listWithProperties( bean="userType" );
+
+						expect( result ).toBeArray();
+						expect( DataFactory.$once("listWithProperties") ).toBeTrue();
 					});
 
 				});
