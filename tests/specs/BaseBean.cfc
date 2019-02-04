@@ -19,16 +19,17 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				beanmap = {
 					name = "test",
 					primarykey = "id",
+					sproc = "",
 					cached = false,
 					properties = {
 						test = {
-							defaultvalue = "test"
+							defaultvalue = "test",
+							datatype = "string"
 						}
 					}
 				};
 
 			});
-
 
 			describe("initializes and", function(){
 
@@ -44,7 +45,6 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						.$property( propertyName="SQLService", mock=SQLService )
 						.$property( propertyName="UtilityService", mock=UtilityService );
 				});
-
 
 				describe("uses bean metadata and", function(){
 
@@ -93,7 +93,6 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					});
 
 				});
-
 
 				describe("uses bean properties and", function(){
 
@@ -345,7 +344,6 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 				});
 
-
 				describe("uses the DataFactory and", function(){
 
 					beforeEach(function( currentSpec ){
@@ -439,7 +437,6 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					});
 
 				});
-
 
 				describe("uses the BeanService and", function(){
 
@@ -566,7 +563,6 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						testClass.$( "getBeanMap", beanmap );
 					});
 
-
 					// getPropertyDefault()
 					it( "returns the property default defined in the beanmap", function(){
 						var result = testClass.getPropertyDefault( propertyname="test" );
@@ -576,7 +572,6 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						expect( result ).toBeTypeOf( "string" );
 						expect( result ).toBe( "test" );
 					});
-
 
 					it( "returns an empty string if the property doesn't have a default defined in the beanmap", function(){
 						beanmap.properties.test.defaultvalue = "";
@@ -589,14 +584,12 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						expect( result ).toBeEmpty();
 					});
 
-
 					// setPrimaryKey()
 					it( "set's the bean's primary key from the bean map data", function(){
 						testClass.setPrimaryKey( primarykey=1 );
 
 						expect( testClass.$once("getBeanMap") ).toBeTrue();
 					});
-
 
 					// validate()
 					it( "returns an array from the validation service", function(){
@@ -621,7 +614,6 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 								.$( "getPropertyDefault", "user" );
 						});
 
-
 						it( "returns the value of the property", function(){
 							var result = testClass.getPropertyValue( propertyname="test" );
 
@@ -631,7 +623,6 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 							expect( result ).toBeTypeOf( "string" );
 							expect( result ).toBe( "test" );
 						});
-
 
 						it( "returns the default value of the property if the bean property is empty", function(){
 							testClass.$( "getBeanPropertyValue", "" );
@@ -647,35 +638,40 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 					});
 
-
 					// getProperties()
 					describe("calls getProperties() and", function(){
 
 						beforeEach(function( currentSpec ){
-							testClass.$( "getPropertyValue" ).$args( propertyname="test" ).$results( "test" );
-							testClass.$( "getPropertyValue" ).$args( propertyname="user" ).$results( userBean );
+							testClass
+								.$( "getPropertyValue" ).$args( propertyname="isbit" ).$results( 1 )
+								.$( "getPropertyValue" ).$args( propertyname="test" ).$results( "test" );
 						});
-
 
 						it( "returns a structure of the bean's property values", function(){
-							var result = testClass.getProperties( data={} );
+							var result = testClass.getProperties();
 
 							expect( testClass.$once("getBeanMap") ).toBeTrue();
 							expect( testClass.$once("getPropertyValue") ).toBeTrue();
 
-							expect( result ).toBeTypeOf( "struct" );
-							expect( result ).toHaveLength( 1 );
+							expect( result ).toBeStruct();
+							expect( result ).toHaveLength(1);
 						});
 
+						it( "returns a structure of the bean's property values with a formatted boolean", function(){
+							beanmap.properties.isbit = {
+								defaultvalue = 1,
+								datatype = "boolean"
+							};
 
-						it( "returns a structure of the bean's property values appended to the data structure", function(){
-							var result = testClass.getProperties( data={ "foo"="bar" } );
+							var result = testClass.getProperties();
 
 							expect( testClass.$once("getBeanMap") ).toBeTrue();
-							expect( testClass.$once("getPropertyValue") ).toBeTrue();
+							expect( testClass.$count("getPropertyValue") ).toBe(2);
 
-							expect( result ).toBeTypeOf( "struct" );
-							expect( result ).toHaveLength( 1 );
+							expect( result ).toBeStruct();
+							expect( result ).toHaveLength(2);
+							expect( result ).toHaveKey( "isbit" );
+							expect( result.isbit ).toBe( "true" );
 						});
 
 					});
@@ -699,7 +695,6 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						testClass.$property( propertyName="id", mock=1 );
 					});
 
-
 					it( "successfully creates a bean", function(){
 						testClass.$property( propertyName="id", mock=0 );
 
@@ -720,7 +715,6 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						expect( testClass.$never("clearCache") ).toBeTrue();
 					});
 
-
 					it( "successfully updates a bean", function(){
 						var result = testClass.save( validate=true );
 
@@ -739,7 +733,6 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						expect( testClass.$never("clearCache") ).toBeTrue();
 					});
 
-
 					it( "successfully updates a bean without validating it", function(){
 						var result = testClass.save( validate=false );
 
@@ -757,7 +750,6 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						expect( testClass.$never("setPrimaryKey") ).toBeTrue();
 						expect( testClass.$never("clearCache") ).toBeTrue();
 					});
-
 
 					it( "is unsuccessful if the bean validation process errors", function(){
 						testClass.$( "validate", ["error"] );
@@ -778,7 +770,6 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						expect( testClass.$never("setPrimaryKey") ).toBeTrue();
 						expect( testClass.$never("clearCache") ).toBeTrue();
 					});
-
 
 					it( "is unsuccessful if the save process errors", function(){
 						testClass.$( "getBeanMap" ).$throws( type="application" );
@@ -805,7 +796,6 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						expect( testClass.$never("clearCache") ).toBeTrue();
 					});
 
-
 					it( "clears the bean from the cache service if it is defined as cached", function(){
 						beanmap.cached = true;
 
@@ -830,63 +820,80 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 			});
 
-
 			describe("on initialization", function(){
 
 				beforeEach(function( currentSpec ){
-					BeanService.$( "populateById" );
-
-					testClass.$( "getBeanMap", beanmap );
+					BeanService.$( "populateById" )
+						.$( "populateBySproc" );
 				});
-
 
 				// onMissingMethod()
 				it( "ignores function names starting with 'set' if the method doesn't exist", function(){
 					testClass.onMissingMethod( missingMethodName="setLastName", missingMethodArguments={} );
 				});
 
-
 				it( "errors if the function doesn't exist and it's name does not start with 'set'", function(){
 					expect( function(){ testClass.onMissingMethod( missingMethodName="getLastName", missingMethodArguments={} ); } )
 						.toThrow(type="application", regex="(getLastName)");
 				});
 
-
 				// setPrimaryKey()
 				it( "set's the bean's primary key when the DataFactory doesn't exist", function(){
+					testClass.$( "getBeanMap", beanmap );
+
 					testClass.setPrimaryKey( primarykey=1 );
 
 					expect( testClass.$never("getBeanMap") ).toBeTrue();
 				});
 
-
 				// init()
 				it( "doesn't populate the bean on the initial DI/1 call", function(){
 					var result = testClass.init();
 
+					expect( BeanService.$once("populateBySproc") ).toBeFalse();
 					expect( BeanService.$once("populateById") ).toBeFalse();
 
 					expect( result ).toBeTypeOf( "component" );
 					expect( result ).toBeInstanceOf( "cfmlDataMapper.model.base.bean" );
 				});
 
-				it( "populates the bean", function(){
-					testClass.$property( propertyName="BeanService", mock=BeanService );
+				xdescribe("after the initial DI/1 call", function(){
 
-					var result = testClass.init( id=0 );
+					beforeEach(function( currentSpec ){
+						testClass.$( "getBeanMap", beanmap );
 
-					expect( BeanService.$once("populateById") ).toBeTrue();
+						testClass.$property( propertyName="BeanService", mock=BeanService );
+					});
 
-					expect( result ).toBeTypeOf( "component" );
-					expect( result ).toBeInstanceOf( "cfmlDataMapper.model.base.bean" );
-				});
+					it( "populates the bean by the id", function(){
+						var result = testClass.init( id=0 );
 
-				xit( "errors if populateById() throws an error", function(){
-					BeanService.$( "populateById" ).$throws( type="application" );
-					testClass.$property( propertyName="BeanService", mock=BeanService );
+						expect( BeanService.$never("populateBySproc") ).toBeTrue();
+						expect( BeanService.$once("populateById") ).toBeTrue();
 
-					expect( function(){ testClass.init( id=0 ); } )
-						.toThrow( type="application" );
+						expect( result ).toBeTypeOf( "component" );
+						expect( result ).toBeInstanceOf( "cfmlDataMapper.model.base.bean" );
+					});
+
+					it( "populates the bean by a stored procedure", function(){
+						beanmap.sproc = "testsproc";
+
+						var result = testClass.init( id=0 );
+
+						expect( BeanService.$once("populateBySproc") ).toBeTrue();
+						expect( BeanService.$never("populateById") ).toBeTrue();
+
+						expect( result ).toBeTypeOf( "component" );
+						expect( result ).toBeInstanceOf( "cfmlDataMapper.model.base.bean" );
+					});
+
+					xit( "errors if populateById() throws an error", function(){
+						BeanService.$( "populateById" ).$throws( type="application" );
+
+						expect( function(){ testClass.init( id=0 ); } )
+							.toThrow( type="application" );
+					});
+
 				});
 
 			});

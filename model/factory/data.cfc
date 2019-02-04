@@ -270,6 +270,7 @@
 		if ( structKeyExists(arguments.metadata,"table") && structKeyExists(arguments.metadata,"primarykey") ) {
 			beanmap.table = arguments.metadata.table;
 			beanmap.primarykey = arguments.metadata.primarykey;
+			beanmap.sproc = ( structKeyExists(arguments.metadata,"sproc") ? arguments.metadata.sproc : "" );
 			beanmap.orderby = ( structKeyExists(arguments.metadata,"orderby") ? arguments.metadata.orderby : "" );
 			beanmap.schema = ( structKeyExists(arguments.metadata,"schema") ? arguments.metadata.schema : "" );
 			beanmap.cached = ( structKeyExists(arguments.metadata,"cached") && isBoolean(arguments.metadata.cached) ? arguments.metadata.cached : false );
