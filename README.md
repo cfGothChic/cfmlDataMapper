@@ -58,7 +58,7 @@ this.mappings[ "/framework" ] = expandPath("../libs/framework/");
 
 # FW/1 Integration
 
-The Data Mapper can be seamlessly integrated into a FW/1 applicaion by updating the DI/1 locations to add the factory's model folder in the Application.cfc.
+The Data Mapper can be seamlessly integrated into a FW/1 application by updating the DI/1 locations to add the factory's model folder in the Application.cfc.
 
 Add the factory's model folder to the list of DI/1 locations:
 
