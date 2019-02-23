@@ -22,19 +22,23 @@ component accessors="true" output="false" {
 			request._framework_one = new framework.one(getFrameworkConfig());
 		}
 		return request._framework_one;
-	}		
+	}
 
 	private struct function getConstants() {
 		var config = getFactoryConfig();
 
-		var contants = {
+		var constants = {
 			dsn = config.dsn,
 			dataFactoryConfig = {
 				serverType = config.serverType
 			}
 		};
 
-		return contants;
+		if ( config.keyExists("constants") ) {
+			constants.append(config.constants);
+		}
+
+		return constants;
 	}
 
 	private struct function getFactoryConfig() {

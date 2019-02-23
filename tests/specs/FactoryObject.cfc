@@ -1,20 +1,21 @@
 component accessors="true" extends="testbox.system.BaseSpec"{
 
-	function beforeAll(){
-		testClass = createMock("cfmlDataMapper.factory");
-	}
-
-
 	function run() {
 
 		describe("The Factory Object", function(){
 
+			beforeEach(function( currentSpec ){
+				testClass = createMock("cfmlDataMapper.factory");
+			});
+
 			describe("initializes and", function(){
 
 				beforeEach(function( currentSpec ){
+					makePublic( testClass, "getConstants" );
+
 					beanModalLocation = "/model";
 
-					var config = {
+					config = {
 						dsn = "test",
 						locations = beanModalLocation
 					};
@@ -34,12 +35,29 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 				// getConstants()
 				it( "returns a structure of constants for the framework config", function(){
-					makePublic( testClass, "getConstants" );
 
 					var result = testClass.getConstants();
 
-					expect( result ).toBeTypeOf( "struct" );
-					expect( result ).toHaveKey( "dsn" );
+					expect( result ).toBeStruct();
+					expect( result ).toHaveLength(2);
+					expect( result ).toHaveKey("dsn");
+					expect( result ).toHaveKey("dataFactoryConfig");
+					expect( result.dataFactoryConfig ).toBeStruct();
+					expect( result.dataFactoryConfig ).toHaveKey("serverType");
+				});
+
+				it( "returns a structure of constants with supplied config for the framework config", function(){
+					config.constants = { "foo"="bar" };
+					testClass.init(config);
+
+					var result = testClass.getConstants();
+
+					expect( result ).toBeStruct();
+					expect( result ).toHaveLength(3);
+					expect( result ).toHaveKey("dsn");
+					expect( result ).toHaveKey("dataFactoryConfig");
+					expect( result ).toHaveKey("foo");
+					expect( result.foo ).toBe("bar");
 				});
 
 
