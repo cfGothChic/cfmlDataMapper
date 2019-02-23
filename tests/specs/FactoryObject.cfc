@@ -68,8 +68,9 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					var result = testClass.getFrameworkConfig();
 
 					expect( result ).toBeStruct();
-					expect( result ).toHaveLength(4);
+					expect( result ).toHaveLength(5);
 					expect( result ).toHaveKey( "applicationKey" );
+					expect( result ).toHaveKey( "usingSubsystems" );
 					expect( result ).toHaveKey( "diConfig" );
 					expect( result.diConfig ).toBeStruct();
 					expect( result.diConfig ).toHaveKey( "constants" );

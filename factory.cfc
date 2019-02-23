@@ -48,6 +48,7 @@ component accessors="true" output="false" {
 	private struct function getFrameworkConfig() {
 		return {
 			applicationKey = 'framework.one',
+			usingSubsystems = true,
 			diConfig = {
 				constants = getConstants()
 			},
