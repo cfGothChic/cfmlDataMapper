@@ -902,6 +902,6 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 	}
 
-	include template="/cfmlDataMapper/tests/helpers/testResultStruct.cfm";
+	include "/cfmlDataMapper/tests/helpers/testResultStruct.cfm";
 
 }

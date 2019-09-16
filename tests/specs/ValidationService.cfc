@@ -1,8 +1,7 @@
 component accessors="true" extends="testbox.system.BaseSpec"{
 
 	function beforeAll(){
-		testClass = new cfmlDataMapper.model.services.validation();
-		prepareMock( testClass );
+		testClass = createMock("cfmlDataMapper.model.services.validation");
 	}
 
 	function run() {

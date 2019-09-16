@@ -1,8 +1,7 @@
 component accessors="true" extends="testbox.system.BaseSpec"{
 
 	function beforeAll(){
-		testClass = new cfmlDataMapper.model.services.cache();
-		prepareMock( testClass );
+		testClass = createMock("cfmlDataMapper.model.services.cache");
 
 		userBean = createMock("model.beans.user");
 		userBean.$( "getPropertyValue" ).$args( item="id" ).$results( 1 );
