@@ -359,7 +359,7 @@
 		var modulename = ( arrayLen(temp) == 2 ? temp[1] : "" );
 		var beanname = ( arrayLen(temp) == 2 ? temp[2] : arguments.bean );
 
-		if ( len(modulename) ) {
+		if ( len(modulename) && modulename != "core" ) {
 			return variables.fw.getSubsystemBeanFactory(modulename).getBean( beanname & "Bean" );
 		} else {
 			//return variables.BeanFactory.getBean( beanname & "Bean" );
