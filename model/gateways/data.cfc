@@ -7,28 +7,34 @@ component accessors=true {
 		return this;
 	}
 
-	public numeric function create( required string sql, required struct sqlparams ) {
-		var querycfc = new query( datasource=variables.dsn, sql=arguments.sql );
+	public numeric function create( required string sql, required struct sqlparams, string dsn="" ) {
+		var querycfc = new query( datasource=getDSN(arguments.dsn), sql=arguments.sql );
 		addParams( querycfc=querycfc, sqlparams=arguments.sqlparams );
 
 		var qRecord = querycfc.execute().getResult();
 		return qRecord.newid;
 	}
 
-	public void function delete( required string sql, required string primarykey, required numeric id ) {
-		var querycfc = new query( datasource=variables.dsn, sql=arguments.sql );
+	public void function delete( required string sql, required string primarykey, required numeric id, string dsn="" ) {
+		var querycfc = new query( datasource=getDSN(arguments.dsn), sql=arguments.sql );
 		querycfc.addParam( name=arguments.primarykey, value=arguments.id, cfsqltype="cf_sql_integer" );
 		querycfc.execute();
 	}
 
-	public void function deleteByNotIn( required string sql, required string key, required string list, required string sqltype ) {
-		var querycfc = new query( datasource=variables.dsn, sql=arguments.sql );
+	public void function deleteByNotIn(
+		required string sql,
+		required string key,
+		required string list,
+		required string sqltype,
+		string dsn=""
+	) {
+		var querycfc = new query( datasource=getDSN(arguments.dsn), sql=arguments.sql );
 		querycfc.addParam( name=arguments.key, value=arguments.list, cfsqltype=arguments.sqltype, list=true );
 		querycfc.execute().getResult();
 	}
 
-	public query function read( required string sql, required struct sqlparams ) {
-		var querycfc = new query( datasource=variables.dsn, sql=arguments.sql );
+	public query function read( required string sql, required struct sqlparams, string dsn="" ) {
+		var querycfc = new query( datasource=getDSN(arguments.dsn), sql=arguments.sql );
 		addParams( querycfc=querycfc, sqlparams=arguments.sqlparams );
 		return querycfc.execute().getResult();
 	}
@@ -37,14 +43,15 @@ component accessors=true {
 		required string sql,
 		required numeric beanid,
 		required string fkColumn,
-		required string fksqltype
+		required string fksqltype,
+		string dsn=""
 	) {
-		var querycfc = new query( datasource=variables.dsn, sql=arguments.sql );
+		var querycfc = new query( datasource=getDSN(arguments.dsn), sql=arguments.sql );
 		querycfc.addParam( name=arguments.fkColumn, value=arguments.beanid, cfsqltype=arguments.fksqltype );
 		return querycfc.execute().getResult();
 	}
 
-	public struct function readSproc( required string sprocname, array params=[], array resultkeys=[] ) {
+	public struct function readSproc( required string sprocname, array params=[], array resultkeys=[], string dsn="" ) {
 		var result = {};
 
 			// because "new storedproc()" doesn't exist in railo and the railo script version causes a syntax error in cf9
@@ -53,7 +60,7 @@ component accessors=true {
 
 		} else {
 			var sproc = new storedproc();
-			sproc.setDatasource(variables.dsn);
+			sproc.setDatasource(getDSN(arguments.dsn));
 			sproc.setProcedure(arguments.sprocname);
 
 			for ( var param in arguments.params ) {
@@ -73,8 +80,8 @@ component accessors=true {
 		return result;
 	}
 
-	public void function update( required string sql, required struct sqlparams ) {
-		var querycfc = new query( datasource=variables.dsn, sql=arguments.sql );
+	public void function update( required string sql, required struct sqlparams, string dsn="" ) {
+		var querycfc = new query( datasource=getDSN(arguments.dsn), sql=arguments.sql );
 		addParams( querycfc=querycfc, sqlparams=arguments.sqlparams );
 		querycfc.execute();
 	}
@@ -84,6 +91,10 @@ component accessors=true {
 			var field = arguments.sqlparams[ fieldkey ];
 			arguments.querycfc.addParam( name=fieldkey, value=field.value, null=field.null, cfsqltype=field.cfsqltype );
 		}
+	}
+
+	private string function getDSN( string dsn="" ) {
+		return len(arguments.dsn) ? arguments.dsn : variables.dsn;
 	}
 
 }

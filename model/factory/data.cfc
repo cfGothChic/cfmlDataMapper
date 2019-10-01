@@ -1,4 +1,4 @@
-component accessors=true {
+﻿component accessors=true {
 
 	property BeanFactory;
 	property BeanService;
@@ -271,6 +271,7 @@ component accessors=true {
 			beanmap.append({
 				"table" = arguments.metadata.table,
 				"primarykey" = arguments.metadata.primarykey,
+				"dsn" = ( structKeyExists(arguments.metadata,"dsn") ? arguments.metadata.dsn : "" ),
 				"sproc" = ( structKeyExists(arguments.metadata,"sproc") ? arguments.metadata.sproc : "" ),
 				"orderby" = ( structKeyExists(arguments.metadata,"orderby") ? arguments.metadata.orderby : "" ),
 				"schema" = ( structKeyExists(arguments.metadata,"schema") ? arguments.metadata.schema : "" ),

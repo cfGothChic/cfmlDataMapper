@@ -16,21 +16,27 @@
 		var beanmap = variables.DataFactory.getBeanMap( bean=arguments.beanname );
 		var sql = createSQL( beanmap=beanmap );
 		var sqlparams = getPropertyParams( bean=arguments.bean, beanmap=beanmap, includepk=0 );
-		var newid = variables.DataGateway.create( sql=sql, sqlparams=sqlparams );
+		var newid = variables.DataGateway.create( sql=sql, sqlparams=sqlparams, dsn=beanmap.dsn );
 		return newid;
 	}
 
 	public void function delete( required string beanname, required numeric id ) {
 		var beanmap = variables.DataFactory.getBeanMap( bean=arguments.beanname );
 		var sql = deleteSQL( beanmap=beanmap );
-		variables.DataGateway.delete( sql=sql, primarykey=beanmap.primarykey, id=arguments.id );
+		variables.DataGateway.delete( sql=sql, primarykey=beanmap.primarykey, id=arguments.id, dsn=beanmap.dsn );
 	}
 
 	public void function deleteByNotIn( required string beanname, required string key, required string list ) {
 		var beanmap = variables.DataFactory.getBeanMap( bean=arguments.beanname );
 		var pkproperty = beanmap.properties[ arguments.key ];
 		var sql = deleteByNotInSQL( beanmap=beanmap, pkproperty=pkproperty );
-		variables.DataGateway.deleteByNotIn( sql=sql, key=arguments.key, list=arguments.list, sqltype=pkproperty.sqltype );
+		variables.DataGateway.deleteByNotIn(
+			sql=sql,
+			key=arguments.key,
+			list=arguments.list,
+			sqltype=pkproperty.sqltype,
+			dsn=beanmap.dsn
+		);
 	}
 
 	public string function getServerType() {
@@ -92,7 +98,7 @@
 			pkOnly=arguments.pkOnly
 		);
 
-		var qRecords = variables.DataGateway.read( sql=sql, sqlparams=sqlparams, beanmap=beanmap );
+		var qRecords = variables.DataGateway.read( sql=sql, sqlparams=sqlparams, beanmap=beanmap, dsn=beanmap.dsn );
 		return qRecords;
 	}
 
@@ -105,7 +111,8 @@
 			sql=sql,
 			beanid=arguments.beanid,
 			fkColumn=arguments.relationship.fkColumn,
-			fksqltype=arguments.relationship.fksqltype
+			fksqltype=arguments.relationship.fksqltype,
+			dsn=beanmap.dsn
 		);
 
 		return qRecords;
@@ -115,7 +122,7 @@
 		var beanmap = variables.DataFactory.getBeanMap( arguments.beanname );
 		var sql = updateSQL( beanmap=beanmap );
 		var sqlparams = getPropertyParams( bean=arguments.bean, beanmap=beanmap );
-		variables.DataGateway.update( sql=sql, sqlparams=sqlparams );
+		variables.DataGateway.update( sql=sql, sqlparams=sqlparams, dsn=beanmap.dsn );
 	}
 
 	/* raw sql building functions */
