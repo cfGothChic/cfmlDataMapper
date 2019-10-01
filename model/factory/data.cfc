@@ -1,4 +1,4 @@
-﻿component accessors=true {
+component accessors=true {
 
 	property BeanFactory;
 	property BeanService;
@@ -237,11 +237,11 @@
 
 	private void function createBeanMap( required string name, required struct metadata ) {
 		var beanmap = getBeanMapMetadata(arguments.metadata);
-		beanmap.bean = ( structKeyExists(arguments.metadata,"bean") ? arguments.metadata.bean : arguments.name );
-		beanmap.inherits = getInheritanceMetadata(arguments.metadata);
+		beanmap["bean"] = ( structKeyExists(arguments.metadata,"bean") ? arguments.metadata.bean : arguments.name );
+		beanmap["inherits"] = getInheritanceMetadata(arguments.metadata);
 
-		beanmap.properties = {};
-		beanmap.relationships = {};
+		beanmap["properties"] = {};
+		beanmap["relationships"] = {};
 
 		if ( structKeyExists(arguments.metadata,"properties") ) {
 			var proplen = arrayLen(arguments.metadata.properties);
@@ -268,21 +268,23 @@
 	private struct function getBeanMapMetadata( required struct metadata ) {
 		var beanmap = {};
 		if ( structKeyExists(arguments.metadata,"table") && structKeyExists(arguments.metadata,"primarykey") ) {
-			beanmap.table = arguments.metadata.table;
-			beanmap.primarykey = arguments.metadata.primarykey;
-			beanmap.sproc = ( structKeyExists(arguments.metadata,"sproc") ? arguments.metadata.sproc : "" );
-			beanmap.orderby = ( structKeyExists(arguments.metadata,"orderby") ? arguments.metadata.orderby : "" );
-			beanmap.schema = ( structKeyExists(arguments.metadata,"schema") ? arguments.metadata.schema : "" );
-			beanmap.cached = ( structKeyExists(arguments.metadata,"cached") && isBoolean(arguments.metadata.cached) ? arguments.metadata.cached : false );
-			beanmap.cacheparams = ( structKeyExists(arguments.metadata,"cacheparams") ? deserializeJSON(arguments.metadata.cacheparams) : [{}] );
+			beanmap.append({
+				"table" = arguments.metadata.table,
+				"primarykey" = arguments.metadata.primarykey,
+				"sproc" = ( structKeyExists(arguments.metadata,"sproc") ? arguments.metadata.sproc : "" ),
+				"orderby" = ( structKeyExists(arguments.metadata,"orderby") ? arguments.metadata.orderby : "" ),
+				"schema" = ( structKeyExists(arguments.metadata,"schema") ? arguments.metadata.schema : "" ),
+				"cached" = ( structKeyExists(arguments.metadata,"cached") && isBoolean(arguments.metadata.cached) ? arguments.metadata.cached : false ),
+				"cacheparams" = ( structKeyExists(arguments.metadata,"cacheparams") ? deserializeJSON(arguments.metadata.cacheparams) : [{}] )
+			});
 
 			if ( !isArray(beanmap.cacheparams) || !arrayLen(beanmap.cacheparams) || !isStruct(beanmap.cacheparams[1]) ) {
 				throw("Bean attribute cacheparams must be a json array of structures. Default is [{}]")
 			}
 
-			beanmap.cacheparamdefault = serializeJSON(beanmap.cacheparams[1]);
+			beanmap["cacheparamdefault"] = serializeJSON(beanmap.cacheparams[1]);
 
-			beanmap.cacheparamwild = [];
+			beanmap["cacheparamwild"] = [];
 			for ( var cacheparam in beanmap.cacheparams ) {
 				var keys = structKeyList(cacheparam);
 				if (
@@ -293,7 +295,7 @@
 				}
 			}
 		} else {
-			beanmap.cached = false;
+			beanmap["cached"] = false;
 		}
 		return beanmap;
 	}
@@ -370,22 +372,24 @@
 	private struct function getPropertyMetadata( required struct prop, required string beanname ) {
 		var metadata = {};
 		if ( structKeyExists(prop,"cfsqltype") ) {
-			metadata.name = prop.name;
-			metadata.defaultvalue = ( structKeyExists(prop,"default") ? prop.default : "" );
-			metadata.displayname = ( structKeyExists(prop,"displayname") ? prop.displayname : variables.UtilityService.upperFirst(prop.name) );
-			metadata.columnName = ( structKeyExists(prop,"columnName") ? prop.columnName : "" );
-			metadata.insert = ( structKeyExists(prop,"insert") ? prop.insert : true );
-			metadata.isidentity = ( structKeyExists(prop,"isidentity") ? prop.isidentity : false );
-			metadata.null = ( structKeyExists(prop,"null") ? prop.null : false );
-			metadata.sqltype = getCfSqlType(prop.cfsqltype);
-			metadata.valtype = ( structKeyExists(prop,"valtype") ? prop.valtype : "" );
-			metadata.regex = ( structKeyExists(prop,"regex") ? prop.regex : "" );
-			metadata.regexlabel = ( structKeyExists(prop,"regexlabel") ? prop.regexlabel : "" );
-			metadata.minvalue = ( structKeyExists(prop,"minvalue") ? prop.minvalue : "" );
-			metadata.maxvalue = ( structKeyExists(prop,"maxvalue") ? prop.maxvalue : "" );
-			metadata.minlength = ( structKeyExists(prop,"minlength") ? prop.minlength : "" );
-			metadata.maxlength = ( structKeyExists(prop,"maxlength") ? prop.maxlength : "" );
-			metadata.datatype = getDatatype(metadata.valtype,metadata.sqltype);
+			metadata.append({
+				"name" = prop.name,
+				"defaultvalue" = ( structKeyExists(prop,"default") ? prop.default : "" ),
+				"displayname" = ( structKeyExists(prop,"displayname") ? prop.displayname : variables.UtilityService.upperFirst(prop.name) ),
+				"columnName" = ( structKeyExists(prop,"columnName") ? prop.columnName : "" ),
+				"insert" = ( structKeyExists(prop,"insert") ? prop.insert : true ),
+				"isidentity" = ( structKeyExists(prop,"isidentity") ? prop.isidentity : false ),
+				"null" = ( structKeyExists(prop,"null") ? prop.null : false ),
+				"sqltype" = getCfSqlType(prop.cfsqltype),
+				"valtype" = ( structKeyExists(prop,"valtype") ? prop.valtype : "" ),
+				"regex" = ( structKeyExists(prop,"regex") ? prop.regex : "" ),
+				"regexlabel" = ( structKeyExists(prop,"regexlabel") ? prop.regexlabel : "" ),
+				"minvalue" = ( structKeyExists(prop,"minvalue") ? prop.minvalue : "" ),
+				"maxvalue" = ( structKeyExists(prop,"maxvalue") ? prop.maxvalue : "" ),
+				"minlength" = ( structKeyExists(prop,"minlength") ? prop.minlength : "" ),
+				"maxlength" = ( structKeyExists(prop,"maxlength") ? prop.maxlength : "" )
+			});
+			metadata["datatype"] = getDatatype(metadata.valtype,metadata.sqltype);
 
 			validatePropertyMetadata( metadata=metadata, beanname=arguments.beanname );
 		}
@@ -395,16 +399,18 @@
 	private struct function getRelationshipMetadata( required struct prop, required string beanname ) {
 		var metadata = {};
 		if ( structKeyExists(prop,"bean") ) {
-			metadata.name = prop.name;
-			metadata.bean = prop.bean;
-			metadata.joinType = ( structKeyExists(prop,"joinType") ? prop.joinType : "" );
-			metadata.contexts = ( structKeyExists(prop,"contexts") ? ( isArray(prop.contexts) ? prop.contexts : listToArray(prop.contexts) ) : [] );
-			metadata.fkColumn = ( structKeyExists(prop,"fkColumn") ? prop.fkColumn : "" );
-			metadata.fkName = ( structKeyExists(prop,"fkName") ? prop.fkName : "" );
-			metadata.fksqltype = ( structKeyExists(prop,"fksqltype") ? getCfSqlType(prop.fksqltype) : "" );
-			metadata.joinSchema = ( structKeyExists(prop,"joinSchema") ? prop.joinSchema : "" );
-			metadata.joinTable = ( structKeyExists(prop,"joinTable") ? prop.joinTable : "" );
-			metadata.joinColumn = ( structKeyExists(prop,"joinColumn") ? prop.joinColumn : "" );
+			metadata.append({
+				"name" = prop.name,
+				"bean" = prop.bean,
+				"joinType" = ( structKeyExists(prop,"joinType") ? prop.joinType : "" ),
+				"contexts" = ( structKeyExists(prop,"contexts") ? ( isArray(prop.contexts) ? prop.contexts : listToArray(prop.contexts) ) : [] ),
+				"fkColumn" = ( structKeyExists(prop,"fkColumn") ? prop.fkColumn : "" ),
+				"fkName" = ( structKeyExists(prop,"fkName") ? prop.fkName : "" ),
+				"fksqltype" = ( structKeyExists(prop,"fksqltype") ? getCfSqlType(prop.fksqltype) : "" ),
+				"joinSchema" = ( structKeyExists(prop,"joinSchema") ? prop.joinSchema : "" ),
+				"joinTable" = ( structKeyExists(prop,"joinTable") ? prop.joinTable : "" ),
+				"joinColumn" = ( structKeyExists(prop,"joinColumn") ? prop.joinColumn : "" )
+			});
 
 			validateRelationshipMetadata( relationship=metadata, beanname=arguments.beanname );
 		}
