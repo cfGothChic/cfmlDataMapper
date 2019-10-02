@@ -87,7 +87,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 					var result = testClass.getLocations();
 
-					expect( result ).toBeTypeOf( "string" );
+					expect( result ).toBeString();
 					expect( result ).toMatch( "(#beanModalLocation#)" );
 					expect( result ).toMatch( "(/cfmlDataMapper/model)" );
 				});
@@ -114,7 +114,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						expect( frameworkone.$once("onRequestStart") ).toBeTrue();
 						expect( frameworkone.$atLeast(1, "getDefaultBeanFactory") ).toBeTrue();
 
-						expect( result ).toBeTypeOf( "component" );
+						expect( result ).toBeComponent();
 					});
 
 					// getFactory()
@@ -125,7 +125,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 						var result = testClass.getFactory();
 
-						expect( result ).toBeTypeOf( "component" );
+						expect( result ).toBeComponent();
 						expect( result ).toBeInstanceOf( "cfmlDataMapper.model.factory.data" );
 
 						expect( testClass.$once("getBeanFactory") ).toBeTrue();
@@ -162,7 +162,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 						var result = testClass.get( bean="userType" );
 
-						expect( result ).toBeTypeOf( "component" );
+						expect( result ).toBeComponent();
 						expect( DataFactory.$once("get") ).toBeTrue();
 					});
 

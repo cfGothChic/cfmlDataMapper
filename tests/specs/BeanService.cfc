@@ -13,6 +13,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				beanmap = {
 					name = "test",
 					primarykey = "id",
+					dsn = "",
 					relationships = {
 						test = {
 							bean = "user",
@@ -55,7 +56,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				it( "returns the context that was passed into it", function(){
 					var result = testClass.getSprocContext( context="test" );
 
-					expect( result ).toBeTypeOf( "string" );
+					expect( result ).toBeString();
 					expect( result ).toBe( "test" );
 				});
 
@@ -63,7 +64,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				it( "returns the root bean context if the context was passed in but doesn't have a length", function(){
 					var result = testClass.getSprocContext( context="" );
 
-					expect( result ).toBeTypeOf( "string" );
+					expect( result ).toBeString();
 					expect( result ).toBe( "_bean" );
 				});
 
@@ -71,7 +72,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				it( "returns and empty string if the context doesn't exist", function(){
 					var result = testClass.getSprocContext();
 
-					expect( result ).toBeTypeOf( "string" );
+					expect( result ).toBeString();
 					expect( result ).toBeEmpty();
 				});
 
@@ -114,7 +115,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 						expect( DataFactory.$once("list") ).toBeTrue();
 
-						expect( result ).toBeTypeOf( "array" );
+						expect( result ).toBeArray();
 						expect( result ).toHaveLength( 1 );
 						expect( result[1] ).toBeInstanceOf( "cfmlDataMapper.model.base.bean" );
 					});
@@ -125,7 +126,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 						expect( DataFactory.$never("list") ).toBeTrue();
 
-						expect( result ).toBeTypeOf( "array" );
+						expect( result ).toBeArray();
 						expect( result ).toBeEmpty();
 					});
 
@@ -137,7 +138,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						expect( SQLService.$once("readByJoin") ).toBeTrue();
 						expect( DataFactory.$once("getBeansFromQuery") ).toBeTrue();
 
-						expect( result ).toBeTypeOf( "array" );
+						expect( result ).toBeArray();
 						expect( result ).toHaveLength( 1 );
 						expect( result[1] ).toBeInstanceOf( "cfmlDataMapper.model.base.bean" );
 					});
@@ -149,7 +150,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						expect( SQLService.$never("readByJoin") ).toBeTrue();
 						expect( DataFactory.$never("getBeansFromQuery") ).toBeTrue();
 
-						expect( result ).toBeTypeOf( "array" );
+						expect( result ).toBeArray();
 						expect( result ).toBeEmpty();
 					});
 
@@ -161,7 +162,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						expect( BaseBean.$once("getPropertyValue") ).toBeTrue();
 						expect( DataFactory.$once("get") ).toBeTrue();
 
-						expect( result ).toBeTypeOf( "component" );
+						expect( result ).toBeComponent();
 						expect( result ).toBeInstanceOf( "cfmlDataMapper.model.base.bean" );
 					});
 
@@ -181,7 +182,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 							expect( testClass.$once("populateByQuery") ).toBeTrue();
 							expect( DataFactory.$never("getBeansFromQuery") ).toBeTrue();
 
-							expect( result ).toBeTypeOf( "component" );
+							expect( result ).toBeComponent();
 							expect( result ).toBeInstanceOf( "cfmlDataMapper.model.base.bean" );
 						});
 
@@ -193,7 +194,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 							expect( testClass.$never("populateByQuery") ).toBeTrue();
 							expect( DataFactory.$once("getBeansFromQuery") ).toBeTrue();
 
-							expect( result ).toBeTypeOf( "array" );
+							expect( result ).toBeArray();
 							expect( result ).toHaveLength( 1 );
 							expect( result[1] ).toBeInstanceOf( "cfmlDataMapper.model.base.bean" );
 						});
@@ -206,7 +207,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 							expect( testClass.$never("populateByQuery") ).toBeTrue();
 							expect( DataFactory.$once("getBeansFromQuery") ).toBeTrue();
 
-							expect( result ).toBeTypeOf( "array" );
+							expect( result ).toBeArray();
 							expect( result ).toHaveLength( 1 );
 							expect( result[1] ).toBeInstanceOf( "cfmlDataMapper.model.base.bean" );
 						});
@@ -219,7 +220,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 							expect( testClass.$never("populateByQuery") ).toBeTrue();
 							expect( DataFactory.$once("getBeansFromQuery") ).toBeTrue();
 
-							expect( result ).toBeTypeOf( "array" );
+							expect( result ).toBeArray();
 							expect( result ).toHaveLength( 1 );
 							expect( result[1] ).toBeInstanceOf( "cfmlDataMapper.model.base.bean" );
 						});
@@ -243,7 +244,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 						expect( BaseBean.$once("getPropertyValue") ).toBeTrue();
 
-						expect( result ).toBeTypeOf( "numeric" );
+						expect( result ).toBeNumeric();
 						expect( result ).toBe( 1 );
 					});
 
@@ -253,7 +254,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 						expect( BaseBean.$never("getPropertyValue") ).toBeTrue();
 
-						expect( result ).toBeTypeOf( "numeric" );
+						expect( result ).toBeNumeric();
 						expect( result ).toBe( 0 );
 					});
 
@@ -262,7 +263,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					it( "returns an array of the bean key and relationship keys for the stored procedure context", function(){
 						var result = testClass.getRelationshipKeys( beanmap=beanmap, context="test" );
 
-						expect( result ).toBeTypeOf( "array" );
+						expect( result ).toBeArray();
 						expect( result ).toHaveLength( 2 );
 					});
 
@@ -270,7 +271,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					it( "returns an array with the bean key for the stored procedure when there isn't a context", function(){
 						var result = testClass.getRelationshipKeys( beanmap=beanmap, context="" );
 
-						expect( result ).toBeTypeOf( "array" );
+						expect( result ).toBeArray();
 						expect( result ).toHaveLength( 1 );
 					});
 
@@ -278,7 +279,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					it( "returns an array with the bean key for the stored procedure when the context is '_bean'", function(){
 						var result = testClass.getRelationshipKeys( beanmap=beanmap, context="_bean" );
 
-						expect( result ).toBeTypeOf( "array" );
+						expect( result ).toBeArray();
 						expect( result ).toHaveLength( 1 );
 					});
 
@@ -288,7 +289,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 						var result = testClass.getRelationshipKeys( beanmap=beanmap, context="test" );
 
-						expect( result ).toBeTypeOf( "array" );
+						expect( result ).toBeArray();
 						expect( result ).toHaveLength( 1 );
 					});
 
