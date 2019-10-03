@@ -1,8 +1,7 @@
 component accessors="true" extends="testbox.system.BaseSpec"{
 
 	function beforeAll(){
-		testClass = new cfmlDataMapper.model.services.validation();
-		prepareMock( testClass );
+		testClass = createMock("cfmlDataMapper.model.services.validation");
 	}
 
 	function run() {
@@ -25,7 +24,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				it( "returns an empty string if the value length is within the minimum and maximum length", function(){
 					var result = testClass.validateLength( minlength=10, maxlength=50, value="Daria Norris", displayname="Name" );
 
-					expect( result ).toBeTypeOf( "string" );
+					expect( result ).toBeString();
 					expect( result ).toBeEmpty();
 				});
 
@@ -33,7 +32,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				it( "returns an error message if the value length is not within the minimum and maximum length", function(){
 					var result = testClass.validateLength( minlength=10, maxlength=50, value="Daria", displayname="Name" );
 
-					expect( result ).toBeTypeOf( "string" );
+					expect( result ).toBeString();
 					expect( result ).toMatch( "(Name)" );
 					expect( result ).toMatch( "(between)" );
 				});
@@ -42,7 +41,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				it( "returns an empty string if the value length is above the minimum length", function(){
 					var result = testClass.validateLength( minlength=10, maxlength="", value="Daria Norris", displayname="Name" );
 
-					expect( result ).toBeTypeOf( "string" );
+					expect( result ).toBeString();
 					expect( result ).toBeEmpty();
 				});
 
@@ -50,7 +49,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				it( "returns an error message if the value length is below the minimum length", function(){
 					var result = testClass.validateLength( minlength=10, maxlength="", value="Daria", displayname="Name" );
 
-					expect( result ).toBeTypeOf( "string" );
+					expect( result ).toBeString();
 					expect( result ).toMatch( "(Name)" );
 					expect( result ).toMatch( "(longer)" );
 				});
@@ -59,7 +58,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				it( "returns an empty string if the value length is below the maximum length", function(){
 					var result = testClass.validateLength( minlength="", maxlength=10, value="Daria", displayname="Name" );
 
-					expect( result ).toBeTypeOf( "string" );
+					expect( result ).toBeString();
 					expect( result ).toBeEmpty();
 				});
 
@@ -67,7 +66,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				it( "returns an error message if the value length is above the maximum length", function(){
 					var result = testClass.validateLength( minlength="", maxlength=10, value="Daria Norris", displayname="Name" );
 
-					expect( result ).toBeTypeOf( "string" );
+					expect( result ).toBeString();
 					expect( result ).toMatch( "(Name)" );
 					expect( result ).toMatch( "(less)" );
 				});
@@ -77,7 +76,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				it( "returns an empty string if the value matches the regex string", function(){
 					var result = testClass.validateRegex( regex="(sentence)", regexlabel="sentence", value="This is a sentence.", displayname="Word" );
 
-					expect( result ).toBeTypeOf( "string" );
+					expect( result ).toBeString();
 					expect( result ).toBeEmpty();
 				});
 
@@ -85,7 +84,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				it( "returns an error message if the value does not match the regex string", function(){
 					var result = testClass.validateRegex( regex="(cat)", regexlabel="sentence", value="This is a sentence.", displayname="Word" );
 
-					expect( result ).toBeTypeOf( "string" );
+					expect( result ).toBeString();
 					expect( result ).toMatch( "(Word)" );
 					expect( result ).toMatch( "(sentence)" );
 				});
@@ -95,7 +94,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				it( "returns an empty string if the value is required and has a length", function(){
 					var result = testClass.validateRequired( value="This is a sentence.", displayname="Word" );
 
-					expect( result ).toBeTypeOf( "string" );
+					expect( result ).toBeString();
 					expect( result ).toBeEmpty();
 				});
 
@@ -103,7 +102,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				it( "returns an error message if the value is required and does not have a length", function(){
 					var result = testClass.validateRequired( value="", displayname="Word" );
 
-					expect( result ).toBeTypeOf( "string" );
+					expect( result ).toBeString();
 					expect( result ).toMatch( "(Word)" );
 					expect( result ).toMatch( "(required)" );
 				});
@@ -113,7 +112,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				it( "returns true if the value is a 5 digit zip code", function(){
 					var result = testClass.validateZipCode( value="12345" );
 
-					expect( result ).toBeTypeOf( "boolean" );
+					expect( result ).toBeBoolean();
 					expect( result ).toBeTrue();
 				});
 
@@ -121,7 +120,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				it( "returns true if the value is a 5 digit zip code with 4 digit extension", function(){
 					var result = testClass.validateZipCode( value="12345-6789" );
 
-					expect( result ).toBeTypeOf( "boolean" );
+					expect( result ).toBeBoolean();
 					expect( result ).toBeTrue();
 				});
 
@@ -129,7 +128,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				it( "returns false if the value is not a proper zip code", function(){
 					var result = testClass.validateZipCode( value="123456789" );
 
-					expect( result ).toBeTypeOf( "boolean" );
+					expect( result ).toBeBoolean();
 					expect( result ).toBeFalse();
 				});
 
@@ -147,7 +146,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 						expect( testClass.$never("validateZipCode") ).toBeTrue();
 
-						expect( result ).toBeTypeOf( "string" );
+						expect( result ).toBeString();
 						expect( result ).toBeEmpty();
 					});
 
@@ -157,7 +156,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 						expect( testClass.$never("validateZipCode") ).toBeTrue();
 
-						expect( result ).toBeTypeOf( "string" );
+						expect( result ).toBeString();
 						expect( result ).toMatch( "(Age)" );
 						expect( result ).toMatch( "(numeric)" );
 					});
@@ -168,7 +167,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 						expect( testClass.$never("validateZipCode") ).toBeTrue();
 
-						expect( result ).toBeTypeOf( "string" );
+						expect( result ).toBeString();
 						expect( result ).toBeEmpty();
 					});
 
@@ -178,7 +177,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 						expect( testClass.$never("validateZipCode") ).toBeTrue();
 
-						expect( result ).toBeTypeOf( "string" );
+						expect( result ).toBeString();
 						expect( result ).toMatch( "(Age)" );
 						expect( result ).toMatch( "(date)" );
 					});
@@ -189,7 +188,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 						expect( testClass.$never("validateZipCode") ).toBeTrue();
 
-						expect( result ).toBeTypeOf( "string" );
+						expect( result ).toBeString();
 						expect( result ).toBeEmpty();
 					});
 
@@ -199,7 +198,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 						expect( testClass.$never("validateZipCode") ).toBeTrue();
 
-						expect( result ).toBeTypeOf( "string" );
+						expect( result ).toBeString();
 						expect( result ).toMatch( "(Age)" );
 						expect( result ).toMatch( "(email)" );
 					});
@@ -210,7 +209,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 						expect( testClass.$never("validateZipCode") ).toBeTrue();
 
-						expect( result ).toBeTypeOf( "string" );
+						expect( result ).toBeString();
 						expect( result ).toBeEmpty();
 					});
 
@@ -220,7 +219,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 						expect( testClass.$never("validateZipCode") ).toBeTrue();
 
-						expect( result ).toBeTypeOf( "string" );
+						expect( result ).toBeString();
 						expect( result ).toMatch( "(Age)" );
 						expect( result ).toMatch( "(numeric)" );
 					});
@@ -231,7 +230,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 						expect( testClass.$never("validateZipCode") ).toBeTrue();
 
-						expect( result ).toBeTypeOf( "string" );
+						expect( result ).toBeString();
 						expect( result ).toBeEmpty();
 					});
 
@@ -241,7 +240,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 						expect( testClass.$never("validateZipCode") ).toBeTrue();
 
-						expect( result ).toBeTypeOf( "string" );
+						expect( result ).toBeString();
 						expect( result ).toMatch( "(Age)" );
 						expect( result ).toMatch( "(telephone)" );
 					});
@@ -252,7 +251,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 						expect( testClass.$once("validateZipCode") ).toBeTrue();
 
-						expect( result ).toBeTypeOf( "string" );
+						expect( result ).toBeString();
 						expect( result ).toMatch( "(Age)" );
 						expect( result ).toMatch( "(zipcode)" );
 					});
@@ -263,7 +262,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 						expect( testClass.$never("validateZipCode") ).toBeTrue();
 
-						expect( result ).toBeTypeOf( "string" );
+						expect( result ).toBeString();
 						expect( result ).toBeEmpty();
 					});
 
@@ -283,7 +282,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 						expect( testClass.$once("validateByDataType") ).toBeTrue();
 
-						expect( result ).toBeTypeOf( "string" );
+						expect( result ).toBeString();
 						expect( result ).toBeEmpty();
 					});
 
@@ -293,7 +292,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 						expect( testClass.$once("validateByDataType") ).toBeTrue();
 
-						expect( result ).toBeTypeOf( "string" );
+						expect( result ).toBeString();
 						expect( result ).toMatch( "(Age)" );
 						expect( result ).toMatch( "(between)" );
 					});
@@ -304,7 +303,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 						expect( testClass.$once("validateByDataType") ).toBeTrue();
 
-						expect( result ).toBeTypeOf( "string" );
+						expect( result ).toBeString();
 						expect( result ).toBeEmpty();
 					});
 
@@ -314,7 +313,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 						expect( testClass.$once("validateByDataType") ).toBeTrue();
 
-						expect( result ).toBeTypeOf( "string" );
+						expect( result ).toBeString();
 						expect( result ).toMatch( "(Age)" );
 						expect( result ).toMatch( "(greater)" );
 					});
@@ -325,7 +324,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 						expect( testClass.$once("validateByDataType") ).toBeTrue();
 
-						expect( result ).toBeTypeOf( "string" );
+						expect( result ).toBeString();
 						expect( result ).toBeEmpty();
 					});
 
@@ -335,7 +334,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 						expect( testClass.$once("validateByDataType") ).toBeTrue();
 
-						expect( result ).toBeTypeOf( "string" );
+						expect( result ).toBeString();
 						expect( result ).toMatch( "(Age)" );
 						expect( result ).toMatch( "(less)" );
 					});
@@ -375,7 +374,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						expect( testClass.$never("validateRange") ).toBeTrue();
 						expect( testClass.$never("validateLength") ).toBeTrue();
 
-						expect( result ).toBeTypeOf( "array" );
+						expect( result ).toBeArray();
 						expect( result ).toBeEmpty();
 					});
 
@@ -391,7 +390,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						expect( testClass.$never("validateRange") ).toBeTrue();
 						expect( testClass.$never("validateLength") ).toBeTrue();
 
-						expect( result ).toBeTypeOf( "array" );
+						expect( result ).toBeArray();
 						expect( result ).toHaveLength( 1 );
 					});
 
@@ -405,7 +404,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						expect( testClass.$never("validateRange") ).toBeTrue();
 						expect( testClass.$never("validateLength") ).toBeTrue();
 
-						expect( result ).toBeTypeOf( "array" );
+						expect( result ).toBeArray();
 						expect( result ).toHaveLength( 1 );
 					});
 
@@ -421,7 +420,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						expect( testClass.$never("validateRange") ).toBeTrue();
 						expect( testClass.$never("validateLength") ).toBeTrue();
 
-						expect( result ).toBeTypeOf( "array" );
+						expect( result ).toBeArray();
 						expect( result ).toHaveLength( 2 );
 					});
 
@@ -437,7 +436,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						expect( testClass.$once("validateRange") ).toBeTrue();
 						expect( testClass.$never("validateLength") ).toBeTrue();
 
-						expect( result ).toBeTypeOf( "array" );
+						expect( result ).toBeArray();
 						expect( result ).toHaveLength( 2 );
 					});
 
@@ -453,7 +452,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						expect( testClass.$once("validateRange") ).toBeTrue();
 						expect( testClass.$never("validateLength") ).toBeTrue();
 
-						expect( result ).toBeTypeOf( "array" );
+						expect( result ).toBeArray();
 						expect( result ).toHaveLength( 2 );
 					});
 
@@ -469,7 +468,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						expect( testClass.$never("validateRange") ).toBeTrue();
 						expect( testClass.$once("validateLength") ).toBeTrue();
 
-						expect( result ).toBeTypeOf( "array" );
+						expect( result ).toBeArray();
 						expect( result ).toHaveLength( 2 );
 					});
 
@@ -485,7 +484,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						expect( testClass.$never("validateRange") ).toBeTrue();
 						expect( testClass.$once("validateLength") ).toBeTrue();
 
-						expect( result ).toBeTypeOf( "array" );
+						expect( result ).toBeArray();
 						expect( result ).toHaveLength( 2 );
 					});
 
@@ -521,7 +520,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 					expect( testClass.$once("validateBeanProperty") ).toBeTrue();
 
-					expect( result ).toBeTypeOf( "array" );
+					expect( result ).toBeArray();
 					expect( result ).toBeEmpty();
 				});
 
@@ -533,7 +532,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 					expect( testClass.$never("validateBeanProperty") ).toBeTrue();
 
-					expect( result ).toBeTypeOf( "array" );
+					expect( result ).toBeArray();
 					expect( result ).toBeEmpty();
 				});
 
@@ -545,7 +544,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 					expect( testClass.$never("validateBeanProperty") ).toBeTrue();
 
-					expect( result ).toBeTypeOf( "array" );
+					expect( result ).toBeArray();
 					expect( result ).toBeEmpty();
 				});
 
@@ -555,7 +554,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 					expect( testClass.$once("validateBeanProperty") ).toBeTrue();
 
-					expect( result ).toBeTypeOf( "array" );
+					expect( result ).toBeArray();
 					expect( result ).toHaveLength( 1 );
 				});
 

@@ -1,8 +1,7 @@
 component accessors="true" extends="testbox.system.BaseSpec"{
 
 	function beforeAll(){
-		testClass = new cfmlDataMapper.model.services.sql();
-		prepareMock( testClass );
+		testClass = createMock("cfmlDataMapper.model.services.sql");
 	}
 
 	function run() {
@@ -51,7 +50,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 			it( "returns a structure of parsed orderby information with default direction", function(){
 				var result = testClass.getOrderInfo( orderby="email" );
 
-				expect( result ).toBeTypeOf( "struct" );
+				expect( result ).toBeStruct();
 				expect( result ).toHaveKey( "propname" );
 				expect( result ).toHaveKey( "direction" );
 				expect( result.propname ).toBe( "email" );
@@ -62,7 +61,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 			it( "returns a structure of parsed orderby information with descending direction", function(){
 				var result = testClass.getOrderInfo( orderby="email desc" );
 
-				expect( result ).toBeTypeOf( "struct" );
+				expect( result ).toBeStruct();
 				expect( result ).toHaveKey( "propname" );
 				expect( result ).toHaveKey( "direction" );
 				expect( result.propname ).toBe( "email" );
@@ -73,7 +72,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 			it( "returns a structure of parsed orderby information with default direction if the string is invalid", function(){
 				var result = testClass.getOrderInfo( orderby="email address" );
 
-				expect( result ).toBeTypeOf( "struct" );
+				expect( result ).toBeStruct();
 				expect( result ).toHaveKey( "propname" );
 				expect( result ).toHaveKey( "direction" );
 				expect( result.propname ).toBe( "email" );
@@ -85,7 +84,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 			it( "returns the default server type", function(){
 				var result = testClass.getServerType();
 
-				expect( result ).toBeTypeOf( "string" );
+				expect( result ).toBeString();
 				expect( result ).toBe( "mssql" );
 			});
 
@@ -95,7 +94,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 				var result = testClass.getServerType();
 
-				expect( result ).toBeTypeOf( "string" );
+				expect( result ).toBeString();
 				expect( result ).toBe( "mysql" );
 			});
 
@@ -112,7 +111,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 			it( "returns true if the sqltype is an integer and it is 0", function(){
 				var result = testClass.isNullInteger( sqltype="integer", value=0 );
 
-				expect( result ).toBeTypeOf( "boolean" );
+				expect( result ).toBeBoolean();
 				expect( result ).toBeTrue();
 			});
 
@@ -120,7 +119,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 			it( "returns false if the sqltype is an integer and it is not 0", function(){
 				var result = testClass.isNullInteger( sqltype="integer", value=1 );
 
-				expect( result ).toBeTypeOf( "boolean" );
+				expect( result ).toBeBoolean();
 				expect( result ).toBeFalse();
 			});
 
@@ -128,7 +127,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 			it( "returns false if the sqltype is not an integer", function(){
 				var result = testClass.isNullInteger( sqltype="varchar", value="" );
 
-				expect( result ).toBeTypeOf( "boolean" );
+				expect( result ).toBeBoolean();
 				expect( result ).toBeFalse();
 			});
 
@@ -145,7 +144,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						pkOnly=false
 					);
 
-					expect( result ).toBeTypeOf( "boolean" );
+					expect( result ).toBeBoolean();
 					expect( result ).toBeTrue();
 				});
 
@@ -159,7 +158,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						pkOnly=true
 					);
 
-					expect( result ).toBeTypeOf( "boolean" );
+					expect( result ).toBeBoolean();
 					expect( result ).toBeTrue();
 				});
 
@@ -173,7 +172,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						pkOnly=true
 					);
 
-					expect( result ).toBeTypeOf( "boolean" );
+					expect( result ).toBeBoolean();
 					expect( result ).toBeFalse();
 				});
 
@@ -187,7 +186,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						pkOnly=false
 					);
 
-					expect( result ).toBeTypeOf( "boolean" );
+					expect( result ).toBeBoolean();
 					expect( result ).toBeTrue();
 				});
 
@@ -201,7 +200,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						pkOnly=false
 					);
 
-					expect( result ).toBeTypeOf( "boolean" );
+					expect( result ).toBeBoolean();
 					expect( result ).toBeTrue();
 				});
 
@@ -215,7 +214,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						pkOnly=false
 					);
 
-					expect( result ).toBeTypeOf( "boolean" );
+					expect( result ).toBeBoolean();
 					expect( result ).toBeFalse();
 				});
 
@@ -230,7 +229,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						pkOnly=false
 					);
 
-					expect( result ).toBeTypeOf( "boolean" );
+					expect( result ).toBeBoolean();
 					expect( result ).toBeFalse();
 				});
 
@@ -262,7 +261,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 					expect( ValidationService.$never("validateByDataType") ).toBeTrue();
 
-					expect( result ).toBeTypeOf( "boolean" );
+					expect( result ).toBeBoolean();
 					expect( result ).toBeTrue();
 				});
 
@@ -275,7 +274,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 					expect( ValidationService.$once("validateByDataType") ).toBeTrue();
 
-					expect( result ).toBeTypeOf( "boolean" );
+					expect( result ).toBeBoolean();
 					expect( result ).toBeTrue();
 				});
 
@@ -287,7 +286,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 					expect( ValidationService.$never("validateByDataType") ).toBeTrue();
 
-					expect( result ).toBeTypeOf( "boolean" );
+					expect( result ).toBeBoolean();
 					expect( result ).toBeFalse();
 				});
 
@@ -336,7 +335,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 					expect( testClass.$once("isNullInteger") ).toBeTrue();
 
-					expect( result ).toBeTypeOf( "struct" );
+					expect( result ).toBeStruct();
 					expect( result ).toHaveKey( "value" );
 					expect( result ).toHaveKey( "cfsqltype" );
 					expect( result ).toHaveKey( "null" );
@@ -349,7 +348,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 					expect( testClass.$never("isNullInteger") ).toBeTrue();
 
-					expect( result ).toBeTypeOf( "struct" );
+					expect( result ).toBeStruct();
 					expect( result ).toHaveKey( "value" );
 					expect( result ).toHaveKey( "cfsqltype" );
 					expect( result ).toHaveKey( "null" );
@@ -364,7 +363,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 					expect( testClass.$once("isNullInteger") ).toBeTrue();
 
-					expect( result ).toBeTypeOf( "struct" );
+					expect( result ).toBeStruct();
 					expect( result ).toHaveKey( "value" );
 					expect( result ).toHaveKey( "cfsqltype" );
 					expect( result ).toHaveKey( "null" );
@@ -377,7 +376,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 					expect( testClass.$never("isNullInteger") ).toBeTrue();
 
-					expect( result ).toBeTypeOf( "struct" );
+					expect( result ).toBeStruct();
 					expect( result ).toHaveKey( "value" );
 					expect( result ).toHaveKey( "cfsqltype" );
 					expect( result ).toHaveKey( "null" );
@@ -404,7 +403,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					expect( testClass.$once("validateQueryParam") ).toBeTrue();
 					expect( testClass.$once("getSQLParam") ).toBeTrue();
 
-					expect( result ).toBeTypeOf( "struct" );
+					expect( result ).toBeStruct();
 					expect( result ).toHaveLength( 1 );
 				});
 
@@ -415,7 +414,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					expect( testClass.$never("validateQueryParam") ).toBeTrue();
 					expect( testClass.$never("getSQLParam") ).toBeTrue();
 
-					expect( result ).toBeTypeOf( "struct" );
+					expect( result ).toBeStruct();
 					expect( result ).toBeEmpty();
 				});
 
@@ -428,7 +427,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					expect( testClass.$once("validateQueryParam") ).toBeTrue();
 					expect( testClass.$never("getSQLParam") ).toBeTrue();
 
-					expect( result ).toBeTypeOf( "struct" );
+					expect( result ).toBeStruct();
 					expect( result ).toBeEmpty();
 				});
 
@@ -455,7 +454,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					expect( userBean.$count("getPropertyValue") ).toBe( 2 );
 					expect( testClass.$count("getSQLParam") ).toBe( 2 );
 
-					expect( result ).toBeTypeOf( "struct" );
+					expect( result ).toBeStruct();
 					expect( result ).toHaveLength( 2 );
 				});
 
@@ -469,7 +468,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					expect( userBean.$never("getPropertyValue") ).toBeTrue();
 					expect( testClass.$never("getSQLParam") ).toBeTrue();
 
-					expect( result ).toBeTypeOf( "struct" );
+					expect( result ).toBeStruct();
 					expect( result ).toBeEmpty();
 				});
 
@@ -496,7 +495,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 					expect( testClass.$once("getServerType") ).toBeTrue();
 
-					expect( result ).toBeTypeOf( "component" );
+					expect( result ).toBeComponent();
 					expect( result ).toBeInstanceOf( "cfmlDataMapper.model.services.mssql" );
 				});
 
@@ -508,7 +507,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 					expect( testClass.$once("getServerType") ).toBeTrue();
 
-					expect( result ).toBeTypeOf( "component" );
+					expect( result ).toBeComponent();
 					expect( result ).toBeInstanceOf( "cfmlDataMapper.model.services.mysql" );
 				});
 
@@ -535,7 +534,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 						expect( MSSQLService.$once("getPropertyField") ).toBeTrue();
 
-						expect( result ).toBeTypeOf( "string" );
+						expect( result ).toBeString();
 						expect( result ).toMatch( "(email)" );
 					});
 
@@ -546,7 +545,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 						var result = testClass.getPropertyByColumnName( beanmap=beanmap, columnname="emailaddress" );
 
-						expect( result ).toBeTypeOf( "struct" );
+						expect( result ).toBeStruct();
 						expect( result ).notToBeEmpty();
 					});
 
@@ -554,7 +553,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					it( "return an empty structure if there isn't a property that matches a columnname", function(){
 						var result = testClass.getPropertyByColumnName( beanmap=beanmap, columnname="emailaddress" );
 
-						expect( result ).toBeTypeOf( "struct" );
+						expect( result ).toBeStruct();
 						expect( result ).toBeEmpty();
 					});
 
@@ -582,7 +581,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 							expect( MSSQLService.$never("getSelectAsField") ).toBeTrue();
 
-							expect( result ).toBeTypeOf( "string" );
+							expect( result ).toBeString();
 							expect( result ).toMatch( "(email)" );
 						});
 
@@ -594,7 +593,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 							expect( MSSQLService.$never("getSelectAsField") ).toBeTrue();
 
-							expect( result ).toBeTypeOf( "string" );
+							expect( result ).toBeString();
 							expect( result ).toMatch( "(emailaddress)" );
 						});
 
@@ -606,7 +605,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 							expect( MSSQLService.$never("getSelectAsField") ).toBeTrue();
 
-							expect( result ).toBeTypeOf( "string" );
+							expect( result ).toBeString();
 							expect( result ).toMatch( "(email)" );
 						});
 
@@ -618,7 +617,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 							expect( MSSQLService.$never("getSelectAsField") ).toBeTrue();
 
-							expect( result ).toBeTypeOf( "string" );
+							expect( result ).toBeString();
 							expect( result ).toMatch( "(emailaddress)" );
 							expect( result ).toMatch( "(email)" );
 						});
@@ -631,7 +630,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 							expect( MSSQLService.$never("getSelectAsField") ).toBeTrue();
 
-							expect( result ).toBeTypeOf( "string" );
+							expect( result ).toBeString();
 							expect( result ).toMatch( "(email)" );
 						});
 
@@ -644,7 +643,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 							expect( MSSQLService.$once("getSelectAsField") ).toBeTrue();
 
-							expect( result ).toBeTypeOf( "string" );
+							expect( result ).toBeString();
 							expect( result ).toMatch( "(id)" );
 						});
 
@@ -658,7 +657,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 							expect( MSSQLService.$once("getSelectAsField") ).toBeTrue();
 
-							expect( result ).toBeTypeOf( "string" );
+							expect( result ).toBeString();
 							expect( result ).toMatch( "(id)" );
 						});
 
@@ -700,7 +699,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 							expect( MSSQLService.$count("getPropertyField") ).toBe( 2 );
 							expect( testClass.$count("getFieldByType") ).toBe( 2 );
 
-							expect( result ).toBeTypeOf( "string" );
+							expect( result ).toBeString();
 							expect( result ).toMatch( "(email)" );
 							expect( result ).toMatch( "(,)" );
 							expect( result ).toMatch( "(id)" );
@@ -726,7 +725,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 							expect( MSSQLService.$once("getPropertyField") ).toBeTrue();
 							expect( testClass.$once("getFieldByType") ).toBeTrue();
 
-							expect( result ).toBeTypeOf( "string" );
+							expect( result ).toBeString();
 							expect( result ).toMatch( "(email)" );
 						});
 
@@ -746,7 +745,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 							expect( MSSQLService.$once("getPropertyField") ).toBeTrue();
 							expect( testClass.$once("getFieldByType") ).toBeTrue();
 
-							expect( result ).toBeTypeOf( "string" );
+							expect( result ).toBeString();
 							expect( result ).toMatch( "(id)" );
 						});
 
@@ -768,7 +767,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 							expect( MSSQLService.$never("getPropertyField") ).toBeTrue();
 
-							expect( result ).toBeTypeOf( "string" );
+							expect( result ).toBeString();
 							expect( result ).toBeEmpty();
 						});
 
@@ -778,7 +777,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 							expect( MSSQLService.$once("getPropertyField") ).toBeTrue();
 
-							expect( result ).toBeTypeOf( "string" );
+							expect( result ).toBeString();
 							expect( result ).toMatch( "(WHERE)" );
 							expect( result ).notToMatch( "(AND)" );
 						});
@@ -789,7 +788,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 							expect( MSSQLService.$count("getPropertyField") ).toBe( 2 );
 
-							expect( result ).toBeTypeOf( "string" );
+							expect( result ).toBeString();
 							expect( result ).toMatch( "(WHERE)" );
 							expect( result ).toMatch( "(AND)" );
 						});
@@ -826,7 +825,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 							expect( MSSQLService.$never("getPropertyField") ).toBeTrue();
 							expect( testClass.$once("getPrimaryKeyField") ).toBeTrue();
 
-							expect( result ).toBeTypeOf( "string" );
+							expect( result ).toBeString();
 							expect( result ).toMatch( "(id)" );
 							expect( result ).toMatch( "(ASC)" );
 						});
@@ -841,7 +840,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 							expect( MSSQLService.$once("getPropertyField") ).toBeTrue();
 							expect( testClass.$never("getPrimaryKeyField") ).toBeTrue();
 
-							expect( result ).toBeTypeOf( "string" );
+							expect( result ).toBeString();
 							expect( result ).toMatch( "(email)" );
 							expect( result ).toMatch( "(ASC)" );
 						});
@@ -858,7 +857,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 							expect( MSSQLService.$never("getPropertyField") ).toBeTrue();
 							expect( testClass.$once("getPrimaryKeyField") ).toBeTrue();
 
-							expect( result ).toBeTypeOf( "string" );
+							expect( result ).toBeString();
 							expect( result ).toMatch( "(id)" );
 							expect( result ).toMatch( "(ASC)" );
 						});
@@ -873,7 +872,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 							expect( MSSQLService.$once("getPropertyField") ).toBeTrue();
 							expect( testClass.$never("getPrimaryKeyField") ).toBeTrue();
 
-							expect( result ).toBeTypeOf( "string" );
+							expect( result ).toBeString();
 							expect( result ).toMatch( "(email)" );
 							expect( result ).toMatch( "(ASC)" );
 						});
@@ -891,7 +890,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 							expect( MSSQLService.$once("getPropertyField") ).toBeTrue();
 							expect( testClass.$never("getPrimaryKeyField") ).toBeTrue();
 
-							expect( result ).toBeTypeOf( "string" );
+							expect( result ).toBeString();
 							expect( result ).toMatch( "(email)" );
 							expect( result ).toMatch( "(ASC)" );
 						});
@@ -912,7 +911,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 							expect( MSSQLService.$count("getPropertyField") ).toBe( 2 );
 							expect( testClass.$never("getPrimaryKeyField") ).toBeTrue();
 
-							expect( result ).toBeTypeOf( "string" );
+							expect( result ).toBeString();
 							expect( result ).toMatch( "(email)" );
 							expect( result ).toMatch( "(DESC)" );
 							expect( result ).toMatch( "(,)" );
@@ -945,7 +944,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 							expect( MSSQLService.$once("getCreateValues") ).toBeTrue();
 							expect( MSSQLService.$once("getCreateNewId") ).toBeTrue();
 
-							expect( result ).toBeTypeOf( "string" );
+							expect( result ).toBeString();
 							expect( result ).toMatch( "(INSERT)" );
 							expect( result ).notToMatch( "(id,)" );
 						});
@@ -964,7 +963,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 							expect( MSSQLService.$once("getCreateValues") ).toBeTrue();
 							expect( MSSQLService.$once("getCreateNewId") ).toBeTrue();
 
-							expect( result ).toBeTypeOf( "string" );
+							expect( result ).toBeString();
 							expect( result ).toMatch( "(INSERT)" );
 							expect( result ).toMatch( "(id,)" );
 						});
@@ -984,7 +983,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 							expect( MSSQLService.$once("getCreateValues") ).toBeTrue();
 							expect( MSSQLService.$once("getCreateNewId") ).toBeTrue();
 
-							expect( result ).toBeTypeOf( "string" );
+							expect( result ).toBeString();
 							expect( result ).toMatch( "(INSERT)" );
 							expect( result ).toMatch( "(userid,)" );
 						});
@@ -997,7 +996,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 							expect( MSSQLService.$once("getTableName") ).toBeTrue();
 							expect( MSSQLService.$once("getPropertyField") ).toBeTrue();
 
-							expect( result ).toBeTypeOf( "string" );
+							expect( result ).toBeString();
 							expect( result ).toMatch( "(DELETE)" );
 							expect( result ).toMatch( "(WHERE)" );
 							expect( result ).toMatch( "(NOT)" );
@@ -1011,7 +1010,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 							expect( MSSQLService.$once("getTableName") ).toBeTrue();
 							expect( testClass.$once("getPrimaryKeyField") ).toBeTrue();
 
-							expect( result ).toBeTypeOf( "string" );
+							expect( result ).toBeString();
 							expect( result ).toMatch( "(DELETE)" );
 							expect( result ).toMatch( "(WHERE)" );
 						});
@@ -1034,7 +1033,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 							expect( MSSQLService.$count("getPropertyField") ).toBe( 2 );
 							expect( testClass.$once("getFullOrderBy") ).toBeTrue();
 
-							expect( result ).toBeTypeOf( "string" );
+							expect( result ).toBeString();
 							expect( result ).toMatch( "(SELECT)" );
 							expect( result ).toMatch( "(FROM)" );
 							expect( result ).toMatch( "(JOIN)" );
@@ -1053,7 +1052,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 							expect( testClass.$never("getWhereStatement") ).toBeTrue();
 							expect( testClass.$once("getFullOrderBy") ).toBeTrue();
 
-							expect( result ).toBeTypeOf( "string" );
+							expect( result ).toBeString();
 							expect( result ).toMatch( "(SELECT)" );
 							expect( result ).toMatch( "(FROM)" );
 							expect( result ).notToMatch( "(WHERE)" );
@@ -1069,7 +1068,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 							expect( testClass.$once("getWhereStatement") ).toBeTrue();
 							expect( testClass.$once("getFullOrderBy") ).toBeTrue();
 
-							expect( result ).toBeTypeOf( "string" );
+							expect( result ).toBeString();
 							expect( result ).toMatch( "(SELECT)" );
 							expect( result ).toMatch( "(FROM)" );
 							expect( result ).toMatch( "(WHERE)" );
@@ -1085,7 +1084,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 							expect( testClass.$once("getFields") ).toBeTrue();
 							expect( testClass.$once("getPrimaryKeyField") ).toBeTrue();
 
-							expect( result ).toBeTypeOf( "string" );
+							expect( result ).toBeString();
 							expect( result ).toMatch( "(UPDATE)" );
 							expect( result ).toMatch( "(SET)" );
 							expect( result ).toMatch( "(WHERE)" );
@@ -1134,7 +1133,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					expect( testClass.$once("getPropertyParams") ).toBeTrue();
 					expect( DataGateway.$once("create") ).toBeTrue();
 
-					expect( result ).toBeTypeOf( "numeric" );
+					expect( result ).toBeNumeric();
 				});
 
 
@@ -1167,7 +1166,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					expect( testClass.$once("readSQL") ).toBeTrue();
 					expect( DataGateway.$once("read") ).toBeTrue();
 
-					expect( result ).toBeTypeOf( "query" );
+					expect( result ).toBeQuery();
 				});
 
 
@@ -1185,7 +1184,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					expect( testClass.$once("readByJoinSQL") ).toBeTrue();
 					expect( DataGateway.$once("readByJoin") ).toBeTrue();
 
-					expect( result ).toBeTypeOf( "query" );
+					expect( result ).toBeQuery();
 				});
 
 

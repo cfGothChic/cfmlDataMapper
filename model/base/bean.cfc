@@ -5,6 +5,7 @@
 	property beanName;
 
 	// dependencies
+	property beanFactory;
 	property BeanService;
 	property CacheService;
 	property DataFactory;

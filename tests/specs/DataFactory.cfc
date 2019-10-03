@@ -61,7 +61,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					it( "returns a structure of metadata related to a bean", function(){
 						var result = testClass.getBeanMap( bean="user" );
 
-						expect( result ).toBeTypeOf( "struct" );
+						expect( result ).toBeStruct();
 						expect( result ).toHaveKey( "bean" );
 						expect( result.bean ).toBe( "user" );
 					});
@@ -71,7 +71,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					it( "returns true if the bean is in the bean map", function(){
 							var result = testClass.checkBeanExists( beanname="user" );
 
-							expect( result ).toBeTypeOf( "boolean" );
+							expect( result ).toBeBoolean();
 							expect( result ).toBeTrue();
 					});
 
@@ -105,7 +105,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						expect( frameworkone.$once("getDefaultBeanFactory") ).toBeTrue();
 						expect( frameworkone.$once("getSubsystemBeanFactory") ).toBeFalse();
 
-						expect( result ).toBeTypeOf( "component" );
+						expect( result ).toBeComponent();
 						expect( result ).toBeInstanceOf( "model.beans.user" );
 					});
 
@@ -117,7 +117,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						expect( frameworkone.$once("getDefaultBeanFactory") ).toBeFalse();
 						expect( frameworkone.$once("getSubsystemBeanFactory") ).toBeTrue();
 
-						expect( result ).toBeTypeOf( "component" );
+						expect( result ).toBeComponent();
 						expect( result ).toBeInstanceOf( "model.beans.userType" );
 					});
 
@@ -149,7 +149,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 							expect( testClass.$once("getModuleBean") ).toBeTrue();
 							expect( BeanFactory.$atLeast(1, "injectProperties") ).toBeTrue();
 
-							expect( result ).toBeTypeOf( "array" );
+							expect( result ).toBeArray();
 							expect( result ).toHaveLength( 1 );
 							expect( result[1] ).toBeInstanceOf( "model.beans.user" );
 						});
@@ -162,8 +162,8 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 							expect( testClass.$once("getModuleBean") ).toBeTrue();
 							expect( BeanFactory.$atLeast(1, "injectProperties") ).toBeTrue();
 
-							expect( result ).toBeTypeOf( "struct" );
-							expect( structCount(result) ).toBe( 1 );
+							expect( result ).toBeStruct();
+							expect( result ).toHaveLength( 1 );
 							expect( result[1] ).toBeInstanceOf( "model.beans.user" );
 						});
 
@@ -184,7 +184,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 							expect( testClass.$once("getModuleBean") ).toBeTrue();
 							expect( BeanFactory.$atLeast(1, "injectProperties") ).toBeTrue();
 
-							expect( result ).toBeTypeOf( "array" );
+							expect( result ).toBeArray();
 							expect( result ).toHaveLength( 1 );
 							expect( result[1] ).toBeInstanceOf( "model.beans.user" );
 						});
@@ -246,10 +246,10 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						var result = testClass.get( bean="userType" );
 
 						expect( CacheService.$once("get") ).toBeTrue();
-						expect( testClass.$once("getByParams") ).toBeFalse();
-						expect( testClass.$once("getModuleBean") ).toBeFalse();
+						expect( testClass.$never("getByParams") ).toBeTrue();
+						expect( testClass.$never("getModuleBean") ).toBeTrue();
 
-						expect( result ).toBeTypeOf( "component" );
+						expect( result ).toBeComponent();
 						expect( result ).toBeInstanceOf( "model.beans.userType" );
 					});
 
@@ -261,9 +261,9 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 						expect( CacheService.$once("get") ).toBeTrue();
 						expect( testClass.$once("getByParams") ).toBeTrue();
-						expect( testClass.$once("getModuleBean") ).toBeFalse();
+						expect( testClass.$never("getModuleBean") ).toBeTrue();
 
-						expect( result ).toBeTypeOf( "component" );
+						expect( result ).toBeComponent();
 						expect( result ).toBeInstanceOf( "model.beans.department" );
 					});
 
@@ -274,10 +274,10 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						var result = testClass.get( bean="userType" );
 
 						expect( CacheService.$once("get") ).toBeTrue();
-						expect( testClass.$once("getByParams") ).toBeFalse();
+						expect( testClass.$never("getByParams") ).toBeTrue();
 						expect( testClass.$once("getModuleBean") ).toBeTrue();
 
-						expect( result ).toBeTypeOf( "component" );
+						expect( result ).toBeComponent();
 						expect( result ).toBeInstanceOf( "model.beans.user" );
 					});
 
@@ -305,7 +305,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						expect( testClass.$once("get") ).toBeTrue();
 						expect( BeanService.$never("populateByQuery") ).toBeTrue();
 
-						expect( result ).toBeTypeOf( "component" );
+						expect( result ).toBeComponent();
 						expect( result ).toBeInstanceOf( "model.beans.user" );
 					});
 
@@ -323,7 +323,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						expect( testClass.$once("get") ).toBeTrue();
 						expect( BeanService.$once("populateByQuery") ).toBeTrue();
 
-						expect( result ).toBeTypeOf( "component" );
+						expect( result ).toBeComponent();
 						expect( result ).toBeInstanceOf( "model.beans.userType" );
 					});
 
@@ -357,7 +357,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						expect( CacheService.$once("list") ).toBeTrue();
 						expect( testClass.$once("getBeansFromQuery") ).toBeFalse();
 
-						expect( result ).toBeTypeOf( "array" );
+						expect( result ).toBeArray();
 						expect( result ).toHaveLength( 1 );
 						expect( result[1] ).toBeInstanceOf( "model.beans.userType" );
 					});
@@ -371,7 +371,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						expect( CacheService.$once("list") ).toBeTrue();
 						expect( testClass.$once("getBeansFromQuery") ).toBeTrue();
 
-						expect( result ).toBeTypeOf( "array" );
+						expect( result ).toBeArray();
 						expect( result ).toHaveLength( 1 );
 						expect( result[1] ).toBeInstanceOf( "model.beans.user" );
 					});
@@ -504,7 +504,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				it( "returns an empty string if nothing is being inherited", function(){
 					var result = testClass.getInheritanceMetadata( metadata=metadata );
 
-					expect( result ).toBeTypeOf( "string" );
+					expect( result ).toBeString();
 					expect( result ).toBeEmpty();
 				});
 
@@ -514,7 +514,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 					var result = testClass.getInheritanceMetadata( metadata=metadata );
 
-					expect( result ).toBeTypeOf( "string" );
+					expect( result ).toBeString();
 					expect( result ).toBe( "user" );
 				});
 
@@ -525,7 +525,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 					var result = testClass.getInheritanceMetadata( metadata=metadata );
 
-					expect( result ).toBeTypeOf( "string" );
+					expect( result ).toBeString();
 					expect( result ).toBe( "security.user" );
 				});
 
@@ -660,8 +660,8 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 					var result = testClass.getPropertyMetadata( prop={}, beanname="test" );
 
-					expect( result ).toBeTypeOf( "struct" );
-					expect( structCount(result) ).toBe( 0 );
+					expect( result ).toBeStruct();
+					expect( result ).toBeEmpty();
 				});
 
 
@@ -670,8 +670,8 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 					var result = testClass.getPropertyMetadata( prop=metadata.properties[1], beanname="test" );
 
-					expect( result ).toBeTypeOf( "struct" );
-					expect( structCount(result) ).toBe( 16 );
+					expect( result ).toBeStruct();
+					expect( result ).toHaveLength( 16 );
 					expect( result ).toHaveKey( "name" );
 					expect( result ).toHaveKey( "defaultvalue" );
 					expect( result ).toHaveKey( "displayname" );
@@ -695,7 +695,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				it( "returns the full queryparam cfsqltype declaration", function(){
 					var result = testClass.getCfSqlType( sqltype="int" );
 
-					expect( result ).toBeTypeOf( "string" );
+					expect( result ).toBeString();
 					expect( result ).toBe( "cf_sql_integer" );
 				});
 
@@ -704,7 +704,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				it( "returns the datatype when there is a valtype property declaration", function(){
 					var result = testClass.getDatatype( valtype="email", sqltype="cf_sql_varchar" );
 
-					expect( result ).toBeTypeOf( "string" );
+					expect( result ).toBeString();
 					expect( result ).toBe( "email" );
 				});
 
@@ -712,7 +712,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				it( "returns the boolean datatype for the cf_sql_bit sqltype", function(){
 					var result = testClass.getDatatype( valtype="", sqltype="cf_sql_bit" );
 
-					expect( result ).toBeTypeOf( "string" );
+					expect( result ).toBeString();
 					expect( result ).toBe( "boolean" );
 				});
 
@@ -720,7 +720,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				it( "returns the string datatype for the cf_sql_varchar sqltype", function(){
 					var result = testClass.getDatatype( valtype="", sqltype="cf_sql_varchar" );
 
-					expect( result ).toBeTypeOf( "string" );
+					expect( result ).toBeString();
 					expect( result ).toBe( "string" );
 				});
 
@@ -728,7 +728,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				it( "returns the string datatype for the cf_sql_nvarchar sqltype", function(){
 					var result = testClass.getDatatype( valtype="", sqltype="cf_sql_nvarchar" );
 
-					expect( result ).toBeTypeOf( "string" );
+					expect( result ).toBeString();
 					expect( result ).toBe( "string" );
 				});
 
@@ -736,7 +736,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				it( "returns the string datatype for the cf_sql_text sqltype", function(){
 					var result = testClass.getDatatype( valtype="", sqltype="cf_sql_text" );
 
-					expect( result ).toBeTypeOf( "string" );
+					expect( result ).toBeString();
 					expect( result ).toBe( "string" );
 				});
 
@@ -744,7 +744,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				it( "returns the string datatype for the cf_sql_ntext sqltype", function(){
 					var result = testClass.getDatatype( valtype="", sqltype="cf_sql_ntext" );
 
-					expect( result ).toBeTypeOf( "string" );
+					expect( result ).toBeString();
 					expect( result ).toBe( "string" );
 				});
 
@@ -752,7 +752,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				it( "returns the numeric datatype for the cf_sql_integer sqltype", function(){
 					var result = testClass.getDatatype( valtype="", sqltype="cf_sql_integer" );
 
-					expect( result ).toBeTypeOf( "string" );
+					expect( result ).toBeString();
 					expect( result ).toBe( "numeric" );
 				});
 
@@ -760,7 +760,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				it( "returns the numeric datatype for the cf_sql_float sqltype", function(){
 					var result = testClass.getDatatype( valtype="", sqltype="cf_sql_float" );
 
-					expect( result ).toBeTypeOf( "string" );
+					expect( result ).toBeString();
 					expect( result ).toBe( "numeric" );
 				});
 
@@ -768,7 +768,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				it( "returns the any datatype when no types are passed in", function(){
 					var result = testClass.getDatatype( valtype="", sqltype="" );
 
-					expect( result ).toBeTypeOf( "string" );
+					expect( result ).toBeString();
 					expect( result ).toBe( "any" );
 				});
 
@@ -783,8 +783,8 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					//expect( testClass.$never("getCfSqlType") ).toBeTrue();
 					expect( testClass.$never("validateRelationshipMetadata") ).toBeTrue();
 
-					expect( result ).toBeTypeOf( "struct" );
-					expect( structCount(result) ).toBe( 0 );
+					expect( result ).toBeStruct();
+					expect( result ).toBeEmpty();
 				});
 
 
@@ -797,8 +797,8 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					//expect( testClass.$once("getCfSqlType") ).toBeTrue();
 					expect( testClass.$once("validateRelationshipMetadata") ).toBeTrue();
 
-					expect( result ).toBeTypeOf( "struct" );
-					expect( structCount(result) ).toBe( 10 );
+					expect( result ).toBeStruct();
+					expect( result ).toHaveLength( 10 );
 					expect( result ).toHaveKey( "name" );
 					expect( result ).toHaveKey( "bean" );
 					expect( result ).toHaveKey( "joinType" );
@@ -816,8 +816,8 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				it( "creates a basic structure of object metadata for a bean without a table definition", function(){
 					var result = testClass.getBeanMapMetadata( metadata={} );
 
-					expect( result ).toBeTypeOf( "struct" );
-					expect( structCount(result) ).toBe( 1 );
+					expect( result ).toBeStruct();
+					expect( result ).toHaveLength( 1 );
 					expect( result ).toHaveKey( "cached" );
 				});
 
@@ -825,10 +825,11 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				it( "creates a structure of object metadata for a bean with a table definition", function(){
 					var result = testClass.getBeanMapMetadata( metadata=metadata );
 
-					expect( result ).toBeTypeOf( "struct" );
-					expect( structCount(result) ).toBe( 9 );
+					expect( result ).toBeStruct();
+					expect( result ).toHaveLength( 10 );
 					expect( result ).toHaveKey( "table" );
 					expect( result ).toHaveKey( "primarykey" );
+					expect( result ).toHaveKey( "database" );
 					expect( result ).toHaveKey( "sproc" );
 					expect( result ).toHaveKey( "orderby" );
 					expect( result ).toHaveKey( "schema" );

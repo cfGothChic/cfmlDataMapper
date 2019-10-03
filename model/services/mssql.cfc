@@ -74,7 +74,8 @@
 	}
 
 	public string function getTableName( required struct beanmap ) {
-		return "[" & ( len(arguments.beanmap.schema) ? arguments.beanmap.schema : "dbo" ) & "].[" & arguments.beanmap.table & "]";
+		return ( len(arguments.beanmap.database) ? "[" & arguments.beanmap.database & "]." : "" )
+			& "[" & ( len(arguments.beanmap.schema) ? arguments.beanmap.schema : "dbo" ) & "].[" & arguments.beanmap.table & "]";
 	}
 
 }

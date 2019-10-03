@@ -1,8 +1,7 @@
 component accessors="true" extends="testbox.system.BaseSpec"{
 
 	function beforeAll(){
-		testClass = new cfmlDataMapper.model.services.cache();
-		prepareMock( testClass );
+		testClass = createMock("cfmlDataMapper.model.services.cache");
 
 		userBean = createMock("model.beans.user");
 		userBean.$( "getPropertyValue" ).$args( item="id" ).$results( 1 );
@@ -400,7 +399,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				it( "returns an array of bean ids for the params", function(){
 					var result = testClass.getParamBeanIds( beanname="user", params=params );
 
-					expect( result ).toBeTypeOf( "array" );
+					expect( result ).toBeArray();
 					expect( result ).toHaveLength( 1 );
 				});
 
@@ -448,7 +447,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 						var result = testClass.getCachedBean( beanname="user", beanData=beanCache.user, primaryKey=1 );
 
-						expect( result ).toBeTypeOf( "component" );
+						expect( result ).toBeComponent();
 						expect( result ).toBeInstanceOf( "model.beans.user" );
 					});
 
@@ -499,7 +498,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 						expect( testClass.$never("getParamBeanIds") ).toBeTrue();
 
-						expect( result ).toBeTypeOf( "array" );
+						expect( result ).toBeArray();
 						expect( result ).toHaveLength( 3 );
 						expect( result[1] ).toBeInstanceOf( "model.beans.user" );
 					});
@@ -514,7 +513,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 						expect( testClass.$never("getParamBeanIds") ).toBeTrue();
 
-						expect( result ).toBeTypeOf( "array" );
+						expect( result ).toBeArray();
 						expect( result ).toHaveLength( 1 );
 						expect( result[1] ).toBeInstanceOf( "model.beans.userType" );
 					});
@@ -529,7 +528,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 						expect( testClass.$once("getParamBeanIds") ).toBeTrue();
 
-						expect( result ).toBeTypeOf( "array" );
+						expect( result ).toBeArray();
 						expect( result ).toHaveLength( 1 );
 						expect( result[1] ).toBeInstanceOf( "model.beans.department" );
 					});
@@ -544,7 +543,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 						expect( testClass.$never("getParamBeanIds") ).toBeTrue();
 
-						expect( result ).toBeTypeOf( "array" );
+						expect( result ).toBeArray();
 						expect( result ).toHaveLength( 1 );
 						expect( result[1] ).toBeInstanceOf( "model.beans.userType" );
 					});
@@ -597,7 +596,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 						expect( result.success ).toBeTrue();
 						expect( result ).toHaveKey( "bean" );
-						expect( result.bean ).toBeTypeOf( "component" );
+						expect( result.bean ).toBeComponent();
 						expect( result.bean ).toBeInstanceOf( "model.beans.user" );
 					});
 
@@ -621,7 +620,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 						expect( result.success ).toBeTrue();
 						expect( result ).toHaveKey( "bean" );
-						expect( result.bean ).toBeTypeOf( "component" );
+						expect( result.bean ).toBeComponent();
 						expect( result.bean ).toBeInstanceOf( "model.beans.userType" );
 					});
 

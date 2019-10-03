@@ -30,7 +30,12 @@
 		var beanmap = variables.DataFactory.getBeanMap( bean=arguments.beanname );
 		var pkproperty = beanmap.properties[ arguments.key ];
 		var sql = deleteByNotInSQL( beanmap=beanmap, pkproperty=pkproperty );
-		variables.DataGateway.deleteByNotIn( sql=sql, key=arguments.key, list=arguments.list, sqltype=pkproperty.sqltype );
+		variables.DataGateway.deleteByNotIn(
+			sql=sql,
+			key=arguments.key,
+			list=arguments.list,
+			sqltype=pkproperty.sqltype
+		);
 	}
 
 	public string function getServerType() {

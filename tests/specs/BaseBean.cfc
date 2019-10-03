@@ -105,7 +105,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					it( "returns 0 if the id property doesn't exist", function(){
 						var result = testClass.getId();
 
-						expect( result ).toBeTypeOf( "numeric" );
+						expect( result ).toBeNumeric();
 						expect( result ).toBe( 0 );
 					});
 
@@ -115,7 +115,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 						var result = testClass.getId();
 
-						expect( result ).toBeTypeOf( "numeric" );
+						expect( result ).toBeNumeric();
 						expect( result ).toBe( 1 );
 					});
 
@@ -124,7 +124,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					it( "returns false if the bean doesn't have a soft delete property defined", function(){
 						var result = testClass.getIsDeleted();
 
-						expect( result ).toBeTypeOf( "boolean" );
+						expect( result ).toBeBoolean();
 						expect( result ).toBeFalse();
 					});
 
@@ -134,7 +134,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 						var result = testClass.getIsDeleted();
 
-						expect( result ).toBeTypeOf( "boolean" );
+						expect( result ).toBeBoolean();
 						expect( result ).toBeTrue();
 					});
 
@@ -147,7 +147,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 							var result = testClass.getBeanPropertyValue( propertyname="test" );
 
-							expect( result ).toBeTypeOf( "array" );
+							expect( result ).toBeArray();
 							expect( result ).toBeEmpty();
 						});
 
@@ -158,7 +158,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 							var result = testClass.getBeanPropertyValue( propertyname="test" );
 
-							expect( result ).toBeTypeOf( "binary" );
+							expect( result ).toBeBinary();
 							expect( result ).toBe( test );
 						});
 
@@ -168,7 +168,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 							var result = testClass.getBeanPropertyValue( propertyname="test" );
 
-							expect( result ).toBeTypeOf( "boolean" );
+							expect( result ).toBeBoolean();
 							expect( result ).toBeTrue();
 						});
 
@@ -178,7 +178,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 							var result = testClass.getBeanPropertyValue( propertyname="test" );
 
-							expect( result ).toBeTypeOf( "component" );
+							expect( result ).toBeComponent();
 							expect( result ).toBeInstanceOf( "model.beans.user" );
 						});
 
@@ -188,7 +188,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 							var result = testClass.getBeanPropertyValue( propertyname="test" );
 
-							expect( result ).toBeTypeOf( "date" );
+							expect( result ).toBeDate();
 							expect( result ).notToBeEmpty();
 						});
 
@@ -198,7 +198,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 							var result = testClass.getBeanPropertyValue( propertyname="test" );
 
-							expect( result ).toBeTypeOf( "float" );
+							expect( result ).toBeFloat();
 							expect( result ).toBe( 1.1 );
 						});
 
@@ -208,7 +208,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 							var result = testClass.getBeanPropertyValue( propertyname="test" );
 
-							expect( result ).toBeTypeOf( "integer" );
+							expect( result ).toBeInteger();
 							expect( result ).toBe( 1 );
 						});
 
@@ -218,7 +218,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 							var result = testClass.getBeanPropertyValue( propertyname="test" );
 
-							expect( result ).toBeTypeOf( "numeric" );
+							expect( result ).toBeNumeric();
 							expect( result ).toBe( 1 );
 						});
 
@@ -228,7 +228,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 							var result = testClass.getBeanPropertyValue( propertyname="test" );
 
-							expect( result ).toBeTypeOf( "query" );
+							expect( result ).toBeQuery();
 							expect( result ).toBeEmpty();
 						});
 
@@ -238,7 +238,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 							var result = testClass.getBeanPropertyValue( propertyname="test" );
 
-							expect( result ).toBeTypeOf( "string" );
+							expect( result ).toBeString();
 							expect( result ).toBe( "test" );
 						});
 
@@ -248,7 +248,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 							var result = testClass.getBeanPropertyValue( propertyname="test" );
 
-							expect( result ).toBeTypeOf( "struct" );
+							expect( result ).toBeStruct();
 							expect( result ).toBeEmpty();
 						});
 
@@ -258,7 +258,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 							var result = testClass.getBeanPropertyValue( propertyname="test" );
 
-							expect( result ).toBeTypeOf( "time" );
+							expect( result ).toBeTime();
 							expect( result ).notToBeEmpty();
 						});
 
@@ -268,7 +268,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 							var result = testClass.getBeanPropertyValue( propertyname="test" );
 
-							expect( result ).toBeTypeOf( "url" );
+							expect( result ).toBeUrl();
 							expect( result ).notToBeEmpty();
 						});
 
@@ -278,7 +278,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 							var result = testClass.getBeanPropertyValue( propertyname="test" );
 
-							expect( result ).toBeTypeOf( "uuid" );
+							expect( result ).toBeUUID();
 							expect( result ).notToBeEmpty();
 						});
 
@@ -310,7 +310,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 							expect( testClass.$once("getId") ).toBeTrue();
 							expect( testClass.$once("getIsDeleted") ).toBeTrue();
 
-							expect( result ).toBeTypeOf( "boolean" );
+							expect( result ).toBeBoolean();
 							expect( result ).toBeTrue();
 						});
 
@@ -323,7 +323,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 							expect( testClass.$once("getId") ).toBeTrue();
 							expect( testClass.$never("getIsDeleted") ).toBeTrue();
 
-							expect( result ).toBeTypeOf( "boolean" );
+							expect( result ).toBeBoolean();
 							expect( result ).toBeFalse();
 						});
 
@@ -336,7 +336,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 							expect( testClass.$once("getId") ).toBeTrue();
 							expect( testClass.$once("getIsDeleted") ).toBeTrue();
 
-							expect( result ).toBeTypeOf( "boolean" );
+							expect( result ).toBeBoolean();
 							expect( result ).toBeFalse();
 						});
 
@@ -380,7 +380,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						expect( testClass.$once("getBeanName") ).toBeTrue();
 						expect( DataFactory.$once("getBeanMap") ).toBeTrue();
 
-						expect( result ).toBeTypeOf( "struct" );
+						expect( result ).toBeStruct();
 						expect( result ).notToBeEmpty();
 					});
 
@@ -425,7 +425,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 							expect( result ).toHaveKey( "error" );
 							if ( structKeyExists(server, "lucee") ) {
-								expect( result.error ).toBeTypeOf( "struct" );
+								expect( result.error ).toBeStruct();
 							}
 
 							expect( UtilityService.$once("getResultStruct") ).toBeTrue();
@@ -569,7 +569,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 						expect( testClass.$once("getBeanMap") ).toBeTrue();
 
-						expect( result ).toBeTypeOf( "string" );
+						expect( result ).toBeString();
 						expect( result ).toBe( "test" );
 					});
 
@@ -580,7 +580,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 						expect( testClass.$once("getBeanMap") ).toBeTrue();
 
-						expect( result ).toBeTypeOf( "string" );
+						expect( result ).toBeString();
 						expect( result ).toBeEmpty();
 					});
 
@@ -602,7 +602,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						expect( testClass.$once("getBeanMap") ).toBeTrue();
 						expect( ValidationService.$once("validateBean") ).toBeTrue();
 
-						expect( result ).toBeTypeOf( "array" );
+						expect( result ).toBeArray();
 						expect( result ).toBeEmpty();
 					});
 
@@ -620,7 +620,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 							expect( testClass.$once("getBeanPropertyValue") ).toBeTrue();
 							expect( testClass.$never("getPropertyDefault") ).toBeTrue();
 
-							expect( result ).toBeTypeOf( "string" );
+							expect( result ).toBeString();
 							expect( result ).toBe( "test" );
 						});
 
@@ -632,7 +632,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 							expect( testClass.$once("getBeanPropertyValue") ).toBeTrue();
 							expect( testClass.$once("getPropertyDefault") ).toBeTrue();
 
-							expect( result ).toBeTypeOf( "string" );
+							expect( result ).toBeString();
 							expect( result ).toBe( "user" );
 						});
 
@@ -783,7 +783,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 						expect( result ).toHaveKey( "error" );
 						if ( structKeyExists(server, "lucee") ) {
-							expect( result.error ).toBeTypeOf( "struct" );
+							expect( result.error ).toBeStruct();
 						}
 
 						expect( UtilityService.$once("getResultStruct") ).toBeTrue();
@@ -853,7 +853,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					expect( BeanService.$once("populateBySproc") ).toBeFalse();
 					expect( BeanService.$once("populateById") ).toBeFalse();
 
-					expect( result ).toBeTypeOf( "component" );
+					expect( result ).toBeComponent();
 					expect( result ).toBeInstanceOf( "cfmlDataMapper.model.base.bean" );
 				});
 
@@ -871,7 +871,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						expect( BeanService.$never("populateBySproc") ).toBeTrue();
 						expect( BeanService.$once("populateById") ).toBeTrue();
 
-						expect( result ).toBeTypeOf( "component" );
+						expect( result ).toBeComponent();
 						expect( result ).toBeInstanceOf( "cfmlDataMapper.model.base.bean" );
 					});
 
@@ -883,7 +883,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						expect( BeanService.$once("populateBySproc") ).toBeTrue();
 						expect( BeanService.$never("populateById") ).toBeTrue();
 
-						expect( result ).toBeTypeOf( "component" );
+						expect( result ).toBeComponent();
 						expect( result ).toBeInstanceOf( "cfmlDataMapper.model.base.bean" );
 					});
 
@@ -902,6 +902,6 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 	}
 
-	include template="/cfmlDataMapper/tests/helpers/testResultStruct.cfm";
+	include "/cfmlDataMapper/tests/helpers/testResultStruct.cfm";
 
 }
