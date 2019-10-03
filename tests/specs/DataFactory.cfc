@@ -246,8 +246,8 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						var result = testClass.get( bean="userType" );
 
 						expect( CacheService.$once("get") ).toBeTrue();
-						expect( testClass.$once("getByParams") ).toBeFalse();
-						expect( testClass.$once("getModuleBean") ).toBeFalse();
+						expect( testClass.$never("getByParams") ).toBeTrue();
+						expect( testClass.$never("getModuleBean") ).toBeTrue();
 
 						expect( result ).toBeComponent();
 						expect( result ).toBeInstanceOf( "model.beans.userType" );
@@ -261,7 +261,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 						expect( CacheService.$once("get") ).toBeTrue();
 						expect( testClass.$once("getByParams") ).toBeTrue();
-						expect( testClass.$once("getModuleBean") ).toBeFalse();
+						expect( testClass.$never("getModuleBean") ).toBeTrue();
 
 						expect( result ).toBeComponent();
 						expect( result ).toBeInstanceOf( "model.beans.department" );
@@ -274,7 +274,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						var result = testClass.get( bean="userType" );
 
 						expect( CacheService.$once("get") ).toBeTrue();
-						expect( testClass.$once("getByParams") ).toBeFalse();
+						expect( testClass.$never("getByParams") ).toBeTrue();
 						expect( testClass.$once("getModuleBean") ).toBeTrue();
 
 						expect( result ).toBeComponent();
