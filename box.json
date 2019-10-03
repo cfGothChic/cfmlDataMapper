@@ -32,7 +32,7 @@
     ],
     "devDependencies":{
         "fw1":"3.5",
-        "testbox":"^2.5.0+107"
+        "testbox":"^3.1.0+339"
     },
     "installPaths":{
         "fw1":"framework",
