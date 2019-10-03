@@ -2,9 +2,6 @@
     "name":"cfmlDataMapper",
     "openBrowserURL":"http://localhost:8080/tests/runner.cfm",
     "trayEnable":false,
-    "app":{
-        "cfengine":"lucee@5.*"
-    },
     "web":{
         "http":{
             "port":"8080"
