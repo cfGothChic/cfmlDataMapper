@@ -271,10 +271,10 @@
 			beanmap.append({
 				"table" = arguments.metadata.table,
 				"primarykey" = arguments.metadata.primarykey,
-				"database" = ( structKeyExists(arguments.metadata,"database") ? arguments.metadata.database : "" ),
 				"sproc" = ( structKeyExists(arguments.metadata,"sproc") ? arguments.metadata.sproc : "" ),
 				"orderby" = ( structKeyExists(arguments.metadata,"orderby") ? arguments.metadata.orderby : "" ),
 				"schema" = ( structKeyExists(arguments.metadata,"schema") ? arguments.metadata.schema : "" ),
+				"database" = ( structKeyExists(arguments.metadata,"database") ? arguments.metadata.database : "" ),
 				"cached" = ( structKeyExists(arguments.metadata,"cached") && isBoolean(arguments.metadata.cached) ? arguments.metadata.cached : false ),
 				"cacheparams" = ( structKeyExists(arguments.metadata,"cacheparams") ? deserializeJSON(arguments.metadata.cacheparams) : [{}] )
 			});

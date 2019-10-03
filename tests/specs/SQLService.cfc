@@ -11,7 +11,6 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 			beforeEach(function( currentSpec ){
 				beanmap = {
 					bean = "user",
-					database = "",
 					schema = "",
 					table = "users",
 					primarykey = "id",

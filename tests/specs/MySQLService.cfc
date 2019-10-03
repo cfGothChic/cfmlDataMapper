@@ -10,6 +10,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 			beforeEach(function( currentSpec ){
 				beanmap = {
+					database = "",
 					table = "users",
 					properties = {
 						email = {
@@ -126,6 +127,15 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 					expect( result ).toBeString();
 					expect( result ).toBe( "`users`" );
+				});
+
+				it( "return the table name sql string with a database name", function(){
+					beanmap.database = "database";
+
+					var result = testClass.getTableName( beanmap=beanmap );
+
+					expect( result ).toBeString();
+					expect( result ).toBe( "`database`.`users`" );
 				});
 
 			});
