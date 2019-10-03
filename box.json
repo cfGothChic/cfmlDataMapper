@@ -31,8 +31,8 @@
         }
     ],
     "devDependencies":{
-        "fw1":"3.5",
-        "testbox":"^2.5.0+107"
+        "fw1":"^4.2.0",
+        "testbox":"^2.8.0+191"
     },
     "installPaths":{
         "fw1":"framework",
