@@ -430,7 +430,7 @@ component accessors="true" output="false" {
 		var sqlparam = {
 			value = arguments.value,
 			cfsqltype = arguments.prop.sqltype,
-			"null" = false
+			usenull = false
 		};
 
 		if (
@@ -442,7 +442,7 @@ component accessors="true" output="false" {
 			)
 		) {
 			sqlparam.value = "";
-			sqlparam.null = true;
+			sqlparam.usenull = true;
 		}
 
 		return sqlparam;

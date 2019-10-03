@@ -338,8 +338,8 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					expect( result ).toBeStruct();
 					expect( result ).toHaveKey( "value" );
 					expect( result ).toHaveKey( "cfsqltype" );
-					expect( result ).toHaveKey( "null" );
-					expect( result.null ).toBeFalse();
+					expect( result ).toHaveKey( "usenull" );
+					expect( result.usenull ).toBeFalse();
 				});
 
 
@@ -351,8 +351,8 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					expect( result ).toBeStruct();
 					expect( result ).toHaveKey( "value" );
 					expect( result ).toHaveKey( "cfsqltype" );
-					expect( result ).toHaveKey( "null" );
-					expect( result.null ).toBeTrue();
+					expect( result ).toHaveKey( "usenull" );
+					expect( result.usenull ).toBeTrue();
 				});
 
 
@@ -366,8 +366,8 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					expect( result ).toBeStruct();
 					expect( result ).toHaveKey( "value" );
 					expect( result ).toHaveKey( "cfsqltype" );
-					expect( result ).toHaveKey( "null" );
-					expect( result.null ).toBeTrue();
+					expect( result ).toHaveKey( "usenull" );
+					expect( result.usenull ).toBeTrue();
 				});
 
 
@@ -379,8 +379,8 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					expect( result ).toBeStruct();
 					expect( result ).toHaveKey( "value" );
 					expect( result ).toHaveKey( "cfsqltype" );
-					expect( result ).toHaveKey( "null" );
-					expect( result.null ).toBeFalse();
+					expect( result ).toHaveKey( "usenull" );
+					expect( result.usenull ).toBeFalse();
 				});
 
 			});
