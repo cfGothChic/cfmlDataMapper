@@ -32,7 +32,7 @@
     ],
     "devDependencies":{
         "fw1":"^4.2.0",
-        "testbox":"^2.8.0+191"
+        "testbox":"^3.1.0+339"
     },
     "installPaths":{
         "fw1":"framework",
@@ -41,7 +41,7 @@
     "testbox":{
         "runner":[
             {
-                "default":"/tests/runner.cfm"
+                "default":"http://localhost:8080/tests/runner.cfm"
             }
         ],
         "directory":"tests.specs",
