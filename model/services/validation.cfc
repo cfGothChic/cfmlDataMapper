@@ -76,9 +76,8 @@ component accessors="true" {
 		var validationMessage = "";
 
 		var displayname = arguments.beanProperty.displayname;
-		var isRequired = !(arguments.beanProperty.null);
 
-		if( isRequired ){
+		if( arguments.beanProperty.isrequired ){
 			validationMessage = validateRequired( value=arguments.value, displayname=displayname );
 			if( len(trim(validationMessage)) ){
 				arrayAppend(errors, validationMessage);

@@ -380,7 +380,7 @@
 				"columnName" = ( structKeyExists(prop,"columnName") ? prop.columnName : "" ),
 				"insert" = ( structKeyExists(prop,"insert") ? prop.insert : true ),
 				"isidentity" = ( structKeyExists(prop,"isidentity") ? prop.isidentity : false ),
-				"null" = ( structKeyExists(prop,"null") ? prop.null : false ),
+				"isrequired" = ( structKeyExists(prop,"isrequired") ? prop.isrequired : false ),
 				"sqltype" = getCfSqlType(prop.cfsqltype),
 				"valtype" = ( structKeyExists(prop,"valtype") ? prop.valtype : "" ),
 				"regex" = ( structKeyExists(prop,"regex") ? prop.regex : "" ),
@@ -450,8 +450,8 @@
 		if ( !isBoolean(arguments.metadata.isidentity) ) {
 			throw("The 'isidentity' attribute must be a boolean" & message);
 		}
-		if ( !isBoolean(arguments.metadata.null) ) {
-			throw("The 'null' attribute must be a boolean" & message);
+		if ( !isBoolean(arguments.metadata.isrequired) ) {
+			throw("The 'isrequired' attribute must be a boolean" & message);
 		}
 
 		if ( len(arguments.metadata.minvalue) && !isNumeric(arguments.metadata.minvalue) ) {

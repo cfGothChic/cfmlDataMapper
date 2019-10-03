@@ -1,4 +1,4 @@
-﻿component accessors="true" output="false" {
+component accessors="true" output="false" {
 
 	property DataGateway;
 	property DataFactory;
@@ -256,12 +256,12 @@
 				break;
 
 			default:
-				if ( len(arguments.prop.columnName) || ( arguments.prop.sqltype == "cf_sql_integer" && arguments.prop.null ) ) {
+				if ( len(arguments.prop.columnName) || ( arguments.prop.sqltype == "cf_sql_integer" && !arguments.prop.isrequired ) ) {
 					field &= getServerTypeService().getSelectAsField(
 						propname=arguments.propname,
 						columnname=columnname,
 						sqltype=arguments.prop.sqltype,
-						isNull=arguments.prop.null
+						isNull=!arguments.prop.isrequired
 					);
 				}
 				else {
@@ -435,7 +435,7 @@
 
 		if (
 			arguments.allowNull
-			&& arguments.prop.null
+			&& !arguments.prop.isrequired
 			&& (
 				!len(arguments.value)
 				|| isNullInteger( sqltype=arguments.prop.sqltype, value=arguments.value )

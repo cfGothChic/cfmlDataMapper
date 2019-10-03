@@ -6,17 +6,17 @@ component accessors="true" extends="cfmlDataMapper.model.base.bean"
 
 	// columns
 	property name="id" columnName="userId" cfsqltype="integer" isidentity="true" default="0";
-	property name="firstName" cfsqltype="varchar" maxlength="50" default="";
-	property name="lastName" cfsqltype="varchar" maxlength="50" default="";
-	property name="email" cfsqltype="varchar" maxlength="50" null="true" default="";
+	property name="firstName" cfsqltype="varchar" maxlength="50" isrequired="true" default="";
+	property name="lastName" cfsqltype="varchar" maxlength="50" isrequired="true" default="";
+	property name="email" cfsqltype="varchar" maxlength="50"default="";
 	property name="createDate" cfsqltype="timestamp" insert="false" default="";
-	property name="updateDate" cfsqltype="timestamp" default="";
+	property name="updateDate" cfsqltype="timestamp" isrequired="true" default="";
 
 	// many-to-one relationships
-	property name="departmentId" cfsqltype="integer" null="true" default="0";
+	property name="departmentId" cfsqltype="integer" default="0";
 	property name="department" bean="department" joinType="one" fkName="departmentId" default="";
 
-	property name="userTypeId" cfsqltype="integer" null="true" default="0";
+	property name="userTypeId" cfsqltype="integer" default="0";
 	property name="userType" bean="userType" joinType="one" fkName="userTypeId" default="";
 
 	// many-to-many relationships

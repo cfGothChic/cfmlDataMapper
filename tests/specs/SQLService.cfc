@@ -23,7 +23,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 							insert = true,
 							datatype = "integer",
 							sqltype = "cf_sql_integer",
-							"null" = true,
+							isrequired = false,
 							isidentity = true
 						},
 						email = {
@@ -33,7 +33,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 							insert = true,
 							datatype = "string",
 							sqltype = "cf_sql_varchar",
-							"null" = true
+							isrequired = false
 						}
 					}
 				};
@@ -648,8 +648,8 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						});
 
 
-						it( "returns a field string for the select statement if it is null and an integer", function(){
-							beanmap.properties.id.null = true;
+						it( "returns a field string for the select statement if it is not required and an integer", function(){
+							beanmap.properties.id.isrequired = false;
 							args.prop=beanmap.properties.id;
 							args.type = "select";
 

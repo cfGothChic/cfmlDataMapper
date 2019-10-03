@@ -446,7 +446,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						name = "user",
 						insert = true,
 						isidentity = true,
-						null = true,
+						isrequired = false,
 						minvalue = 0,
 						maxvalue = 0,
 						minlength = 0,
@@ -547,11 +547,11 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				});
 
 
-				it( "errors if the null attribute of a property is not a boolean", function(){
-					propertyMetadata.null = "test";
+				it( "errors if the isrequired attribute of a property is not a boolean", function(){
+					propertyMetadata.isrequired = "test";
 
 					expect( function(){ testClass.validatePropertyMetadata( metadata=propertyMetadata, beanname="test" ); } )
-						.toThrow(type="application", regex="(null)");
+						.toThrow(type="application", regex="(isrequired)");
 				});
 
 
@@ -678,7 +678,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					expect( result ).toHaveKey( "columnName" );
 					expect( result ).toHaveKey( "insert" );
 					expect( result ).toHaveKey( "isidentity" );
-					expect( result ).toHaveKey( "null" );
+					expect( result ).toHaveKey( "isrequired" );
 					expect( result ).toHaveKey( "sqltype" );
 					expect( result ).toHaveKey( "valtype" );
 					expect( result ).toHaveKey( "regex" );

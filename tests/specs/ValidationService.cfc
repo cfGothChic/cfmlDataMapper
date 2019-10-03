@@ -353,7 +353,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 						beanProperty = {
 							displayname = "Test",
-							"null" = true,
+							isrequired = false,
 							datatype = "any",
 							regex = "",
 							regexlabel = "",
@@ -380,7 +380,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 
 					it( "returns an array with a message if the value does not exist and is required", function(){
-						beanProperty["null"] = false;
+						beanProperty.isrequired = true;
 
 						var result = testClass.validateBeanProperty( value="", beanProperty=beanProperty );
 
