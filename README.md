@@ -1,10 +1,10 @@
-# cfmlDataMapper [![Build Status](https://travis-ci.org/cfGothChic/cfmlDataMapper.png)](https://travis-ci.org/cfGothChic/cfmlDataMapper)
+# cfmlDataMapper [![Build Status](https://travis-ci.org/cfGothChic/cfmlDataMapper.svg?branch=master)](https://travis-ci.org/cfGothChic/cfmlDataMapper)
 
 CFML Data Mapper is a flexible transient bean factory that manages the relationship between an application's beans and the data layer, providing basic database functionality reducing the need for boilerplate code. It can also handle lazy loading specific relationship data for a request through the use of stored procedures. A standalone implementation is available, but it can also be integrated into a FW/1 application.
 
 It can be used as an ORM alternative and the bean structure will be familiar if you have used it. The benefit of the Data Mapper is that it removes the overhead and performance hit of using the built in ORM functions available in CFML.
 
-* Tested on CF 10, 11 & 2016 and Lucee 4.5 & 5
+* Tested on CF11+ and Lucee 4.5+
 * Works with FW/1 3.1+ (Standalone version requires 3.5+)
 * Works with SQL Server and MySQL
 
