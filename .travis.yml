@@ -23,10 +23,9 @@ before_install:
 install:
   - sudo apt-get update && sudo apt-get --assume-yes install commandbox
   - box install
-  - box server start port=8080 openbrowser=false
 
 before_script:
-  - box server start cfengine=$ENGINE port=8500 openbrowser=false --force
+  - box server start cfengine=$ENGINE port=8080 openbrowser=false --force
 
 script:
   - box testbox run reporter=mintext
