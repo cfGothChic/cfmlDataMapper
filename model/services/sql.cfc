@@ -322,8 +322,8 @@
 
 			if ( structCount(prop) ) {
 				fullorderby &= ( len(fullorderby) ? ", " : "" );
-				fullorderby &= getServerTypeService().getTableName( beanmap=arguments.beanmap )
-				fullorderby &= "." & getServerTypeService().getPropertyField( prop=prop )
+				fullorderby &= getServerTypeService().getTableName( beanmap=arguments.beanmap );
+				fullorderby &= "." & getServerTypeService().getPropertyField( prop=prop );
 				fullorderby &= " " & orderinfo.direction;
 			}
 		}

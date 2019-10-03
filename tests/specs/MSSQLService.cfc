@@ -16,7 +16,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					properties = {
 						email = {
 							name = "email",
-							columnname = "",
+							columnname = ""
 						}
 					}
 				};
