@@ -1,4 +1,4 @@
-# cfmlDataMapper [![Build Status](https://travis-ci.org/cfGothChic/cfmlDataMapper.png)](https://travis-ci.org/cfGothChic/cfmlDataMapper)
+# cfmlDataMapper [![Build Status](https://travis-ci.org/cfGothChic/cfmlDataMapper.svg?branch=master)](https://travis-ci.org/cfGothChic/cfmlDataMapper)
 
 CFML Data Mapper is a flexible transient bean factory that manages the relationship between an application's beans and the data layer, providing basic database functionality reducing the need for boilerplate code. It can also handle lazy loading specific relationship data for a request through the use of stored procedures. A standalone implementation is available, but it can also be integrated into a FW/1 application.
 
