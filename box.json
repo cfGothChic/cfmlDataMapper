@@ -41,7 +41,7 @@
     "testbox":{
         "runner":[
             {
-                "default":"/tests/runner.cfm"
+                "default":"http://localhost:8080/tests/runner.cfm"
             }
         ],
         "directory":"tests.specs",
