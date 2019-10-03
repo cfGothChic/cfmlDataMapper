@@ -271,7 +271,7 @@
 			beanmap.append({
 				"table" = arguments.metadata.table,
 				"primarykey" = arguments.metadata.primarykey,
-				"dsn" = ( structKeyExists(arguments.metadata,"dsn") ? arguments.metadata.dsn : "" ),
+				"database" = ( structKeyExists(arguments.metadata,"database") ? arguments.metadata.database : "" ),
 				"sproc" = ( structKeyExists(arguments.metadata,"sproc") ? arguments.metadata.sproc : "" ),
 				"orderby" = ( structKeyExists(arguments.metadata,"orderby") ? arguments.metadata.orderby : "" ),
 				"schema" = ( structKeyExists(arguments.metadata,"schema") ? arguments.metadata.schema : "" ),

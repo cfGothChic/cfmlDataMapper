@@ -829,7 +829,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					expect( result ).toHaveLength( 10 );
 					expect( result ).toHaveKey( "table" );
 					expect( result ).toHaveKey( "primarykey" );
-					expect( result ).toHaveKey( "dsn" );
+					expect( result ).toHaveKey( "database" );
 					expect( result ).toHaveKey( "sproc" );
 					expect( result ).toHaveKey( "orderby" );
 					expect( result ).toHaveKey( "schema" );

@@ -16,14 +16,14 @@
 		var beanmap = variables.DataFactory.getBeanMap( bean=arguments.beanname );
 		var sql = createSQL( beanmap=beanmap );
 		var sqlparams = getPropertyParams( bean=arguments.bean, beanmap=beanmap, includepk=0 );
-		var newid = variables.DataGateway.create( sql=sql, sqlparams=sqlparams, dsn=beanmap.dsn );
+		var newid = variables.DataGateway.create( sql=sql, sqlparams=sqlparams );
 		return newid;
 	}
 
 	public void function delete( required string beanname, required numeric id ) {
 		var beanmap = variables.DataFactory.getBeanMap( bean=arguments.beanname );
 		var sql = deleteSQL( beanmap=beanmap );
-		variables.DataGateway.delete( sql=sql, primarykey=beanmap.primarykey, id=arguments.id, dsn=beanmap.dsn );
+		variables.DataGateway.delete( sql=sql, primarykey=beanmap.primarykey, id=arguments.id );
 	}
 
 	public void function deleteByNotIn( required string beanname, required string key, required string list ) {
@@ -34,8 +34,7 @@
 			sql=sql,
 			key=arguments.key,
 			list=arguments.list,
-			sqltype=pkproperty.sqltype,
-			dsn=beanmap.dsn
+			sqltype=pkproperty.sqltype
 		);
 	}
 
@@ -98,7 +97,7 @@
 			pkOnly=arguments.pkOnly
 		);
 
-		var qRecords = variables.DataGateway.read( sql=sql, sqlparams=sqlparams, beanmap=beanmap, dsn=beanmap.dsn );
+		var qRecords = variables.DataGateway.read( sql=sql, sqlparams=sqlparams, beanmap=beanmap );
 		return qRecords;
 	}
 
@@ -111,8 +110,7 @@
 			sql=sql,
 			beanid=arguments.beanid,
 			fkColumn=arguments.relationship.fkColumn,
-			fksqltype=arguments.relationship.fksqltype,
-			dsn=beanmap.dsn
+			fksqltype=arguments.relationship.fksqltype
 		);
 
 		return qRecords;
@@ -122,7 +120,7 @@
 		var beanmap = variables.DataFactory.getBeanMap( arguments.beanname );
 		var sql = updateSQL( beanmap=beanmap );
 		var sqlparams = getPropertyParams( bean=arguments.bean, beanmap=beanmap );
-		variables.DataGateway.update( sql=sql, sqlparams=sqlparams, dsn=beanmap.dsn );
+		variables.DataGateway.update( sql=sql, sqlparams=sqlparams );
 	}
 
 	/* raw sql building functions */
