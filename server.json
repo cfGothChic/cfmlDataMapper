@@ -3,7 +3,7 @@
     "openBrowserURL":"http://localhost:8080/tests/runner.cfm",
     "trayEnable":false,
     "app":{
-        "cfengine":"lucee@5.*"
+        "cfengine":"adobe@11"
     },
     "web":{
         "http":{
