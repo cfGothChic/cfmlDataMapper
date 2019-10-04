@@ -12,6 +12,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				beanmap = {
 					bean = "user",
 					schema = "",
+					database = "",
 					table = "users",
 					primarykey = "id",
 					orderby = "name",

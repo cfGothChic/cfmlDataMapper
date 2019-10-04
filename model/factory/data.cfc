@@ -40,6 +40,10 @@
 		return variables.beanmaps[ arguments.bean ];
 	}
 
+	public struct function getBeanMaps() {
+		return variables.beanmaps;
+	}
+
 	public array function getBeanListProperties( required array beans, boolean eagerFetch=false ) {
 		var result = [];
 		arguments.beans.each(function(bean){

@@ -1,9 +1,9 @@
 component accessors=true {
 
+	property dsn;
 	property storedprocTag;
 
-	public function init( dsn ) {
-		variables.dsn = arguments.dsn;
+	public function init() {
 		return this;
 	}
 

@@ -169,6 +169,7 @@ component accessors="true" output="false" {
 		var primarykey = getPrimaryKeyField( beanmap=arguments.beanmap );
 
 		var rBeanMap = {
+			database = arguments.beanmap.database,
 			schema = arguments.relationship.joinSchema,
 			table = arguments.relationship.joinTable
 		};
