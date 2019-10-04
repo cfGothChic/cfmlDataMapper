@@ -261,7 +261,7 @@ component accessors="true" output="false" {
 						propname=arguments.propname,
 						columnname=columnname,
 						sqltype=arguments.prop.sqltype,
-						isNull=!arguments.prop.isrequired
+						isRequired=arguments.prop.isrequired
 					);
 				}
 				else {
