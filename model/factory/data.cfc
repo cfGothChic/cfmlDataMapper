@@ -338,6 +338,7 @@
 					datatype = "string";
 				break;
 
+				case "bigint":
 				case "integer":
 				case "float":
 					datatype = "numeric";

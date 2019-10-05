@@ -92,7 +92,15 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 				// validateRequired()
 				it( "returns an empty string if the value is required and has a length", function(){
-					var result = testClass.validateRequired( value="This is a sentence.", displayname="Word" );
+					var result = testClass.validateRequired( datatype="string", value="This is a sentence.", displayname="Word" );
+
+					expect( result ).toBeString();
+					expect( result ).toBeEmpty();
+				});
+
+
+				it( "returns an empty string if the numeric value is required and is above 0", function(){
+					var result = testClass.validateRequired( datatype="numeric", value=1, displayname="Number" );
 
 					expect( result ).toBeString();
 					expect( result ).toBeEmpty();
@@ -100,10 +108,19 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 
 				it( "returns an error message if the value is required and does not have a length", function(){
-					var result = testClass.validateRequired( value="", displayname="Word" );
+					var result = testClass.validateRequired( datatype="string", value="", displayname="Word" );
 
 					expect( result ).toBeString();
 					expect( result ).toMatch( "(Word)" );
+					expect( result ).toMatch( "(required)" );
+				});
+
+
+				it( "returns an error message if the numeric value is required and is 0", function(){
+					var result = testClass.validateRequired( datatype="numeric", value=0, displayname="Number" );
+
+					expect( result ).toBeString();
+					expect( result ).toMatch( "(Number)" );
 					expect( result ).toMatch( "(required)" );
 				});
 

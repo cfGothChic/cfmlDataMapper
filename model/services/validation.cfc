@@ -79,7 +79,11 @@ component accessors="true" {
 		var displayname = arguments.beanProperty.displayname;
 
 		if( arguments.beanProperty.isrequired ){
-			validationMessage = validateRequired( value=arguments.value, displayname=displayname );
+			validationMessage = validateRequired(
+				datatype=arguments.beanproperty.datatype,
+				value=arguments.value,
+				displayname=displayname
+			);
 			if( len(trim(validationMessage)) ){
 				arrayAppend(errors, validationMessage);
 			}
@@ -196,15 +200,15 @@ component accessors="true" {
 		return returnString;
 	}
 
-	private string function validateRequired( required string value, required string displayname ){
+	private string function validateRequired( required string datatype, required string value, required string displayname ){
 		var returnString = "";
 
-		// todo: add validation for a fkColumn related to a relationship join
-		/*if( arguments.datatype == 'numeric' && arguments.value <= 0){
+		// validate numeric fields like fk fields that are marked required and default to 0
+		if( arguments.datatype == 'numeric' && arguments.value <= 0){
 			returnString = arguments.displayname & " is required.";
-		} else*/
+		}
 
-		if( !len(trim(arguments.value)) ){
+		else if( !len(trim(arguments.value)) ){
 			returnString = arguments.displayname & " is required.";
 		}
 

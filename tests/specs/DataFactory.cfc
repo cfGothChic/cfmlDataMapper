@@ -749,6 +749,14 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				});
 
 
+				it( "returns the numeric datatype for the cf_sql_bigint sqltype", function(){
+					var result = testClass.getDatatype( valtype="", sqltype="cf_sql_bigint" );
+
+					expect( result ).toBeString();
+					expect( result ).toBe( "numeric" );
+				});
+
+
 				it( "returns the numeric datatype for the cf_sql_integer sqltype", function(){
 					var result = testClass.getDatatype( valtype="", sqltype="cf_sql_integer" );
 
