@@ -13,10 +13,10 @@ component accessors="true" extends="cfmlDataMapper.model.base.bean"
 	property name="updateDate" cfsqltype="timestamp" isrequired="true" default="";
 
 	// many-to-one relationships
-	property name="departmentId" cfsqltype="integer" default="0";
+	property name="departmentId" cfsqltype="integer" valtype="foreignkey" default="0";
 	property name="department" bean="department" joinType="one" fkName="departmentId" default="";
 
-	property name="userTypeId" cfsqltype="integer" default="0";
+	property name="userTypeId" cfsqltype="integer" isrequired="true" valtype="foreignkey" default="0";
 	property name="userType" bean="userType" joinType="one" fkName="userTypeId" default="";
 
 	// many-to-many relationships
