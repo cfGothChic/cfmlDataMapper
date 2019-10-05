@@ -116,8 +116,8 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				});
 
 
-				it( "returns an error message if the numeric value is required and is 0", function(){
-					var result = testClass.validateRequired( datatype="numeric", value=0, displayname="Number" );
+				it( "returns an error message if the foreignkey value is required and is 0", function(){
+					var result = testClass.validateRequired( datatype="foreignkey", value=0, displayname="Number" );
 
 					expect( result ).toBeString();
 					expect( result ).toMatch( "(Number)" );
@@ -238,6 +238,27 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 						expect( result ).toBeString();
 						expect( result ).toMatch( "(Age)" );
+						expect( result ).toMatch( "(numeric)" );
+					});
+
+
+					it( "returns an empty string if the foreignkey is numeric", function(){
+						var result = testClass.validateByDataType( datatype="foreignkey", value=0, displayname="Type" );
+
+						expect( testClass.$never("validateZipCode") ).toBeTrue();
+
+						expect( result ).toBeString();
+						expect( result ).toBeEmpty();
+					});
+
+
+					it( "returns an error message if the foreignkey isn't numeric", function(){
+						var result = testClass.validateByDataType( datatype="foreignkey", value="", displayname="Type" );
+
+						expect( testClass.$never("validateZipCode") ).toBeTrue();
+
+						expect( result ).toBeString();
+						expect( result ).toMatch( "(Type)" );
 						expect( result ).toMatch( "(numeric)" );
 					});
 

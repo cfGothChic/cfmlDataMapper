@@ -447,6 +447,8 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						insert = true,
 						isidentity = true,
 						isrequired = false,
+						valtype = "",
+						cfsqltype = "cf_sql_integer",
 						minvalue = 0,
 						maxvalue = 0,
 						minlength = 0,
@@ -552,6 +554,15 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 					expect( function(){ testClass.validatePropertyMetadata( metadata=propertyMetadata, beanname="test" ); } )
 						.toThrow(type="application", regex="(isrequired)");
+				});
+
+
+				it( "errors if the valtype attribute of a property is foreignkey and sqltype isn't integer", function(){
+					propertyMetadata.valtype = "foreignkey";
+					propertyMetadata.sqltype = "cf_sql_varchar";
+
+					expect( function(){ testClass.validatePropertyMetadata( metadata=propertyMetadata, beanname="test" ); } )
+						.toThrow(type="application", regex="(foreignkey)");
 				});
 
 

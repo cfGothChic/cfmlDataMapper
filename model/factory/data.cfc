@@ -1,4 +1,4 @@
-﻿component accessors=true {
+component accessors=true {
 
 	property BeanFactory;
 	property BeanService;
@@ -395,7 +395,7 @@
 				"minlength" = ( structKeyExists(prop,"minlength") ? prop.minlength : "" ),
 				"maxlength" = ( structKeyExists(prop,"maxlength") ? prop.maxlength : "" )
 			});
-			metadata["datatype"] = getDatatype(metadata.valtype,metadata.sqltype);
+			metadata["datatype"] = getDatatype( valtype=metadata.valtype, sqltype=metadata.sqltype );
 
 			validatePropertyMetadata( metadata=metadata, beanname=arguments.beanname );
 		}
@@ -457,6 +457,10 @@
 		}
 		if ( !isBoolean(arguments.metadata.isrequired) ) {
 			throw("The 'isrequired' attribute must be a boolean" & message);
+		}
+
+		if ( arguments.metadata.valtype == "foreignkey" && arguments.metadata.sqltype != "cf_sql_integer" ) {
+			throw("When the 'valtype' attribute is 'foreignkey', the 'cfsqltype' attribute must be an integer" & message);
 		}
 
 		if ( len(arguments.metadata.minvalue) && !isNumeric(arguments.metadata.minvalue) ) {

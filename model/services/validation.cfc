@@ -49,6 +49,7 @@ component accessors="true" {
 				}
 			break;
 
+			case "foreignkey":
 			case "numeric":
 				if( !isNumeric(arguments.value) ){
 					returnString = arguments.displayname & " must be a numeric value.";
@@ -203,8 +204,7 @@ component accessors="true" {
 	private string function validateRequired( required string datatype, required string value, required string displayname ){
 		var returnString = "";
 
-		// validate numeric fields like fk fields that are marked required and default to 0
-		if( arguments.datatype == 'numeric' && arguments.value <= 0){
+		if( arguments.datatype == "foreignkey" && arguments.value <= 0){
 			returnString = arguments.displayname & " is required.";
 		}
 
