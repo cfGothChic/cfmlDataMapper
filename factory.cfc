@@ -41,10 +41,6 @@ component accessors="true" output="false" {
 		return constants;
 	}
 
-	private struct function getFactoryConfig() {
-		return variables.factoryConfig;
-	}
-
 	private struct function getFrameworkConfig() {
 		return {
 			applicationKey = 'framework.one',
