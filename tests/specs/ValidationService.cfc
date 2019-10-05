@@ -493,15 +493,21 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 			});
 
 
+			// validateBean()
 			describe("calls public functions and", function(){
 
 				beforeEach(function( currentSpec ){
 					userBean = createMock("model.beans.user");
 					userBean.$( "getPropertyValue" ).$args( item="test" ).$results( "test" );
+					userBean.$( "getPropertyValue" ).$args( item="name" ).$results( "name" );
 
 					beanmap = {
 						properties = {
 							test = {
+								insert = true,
+								isidentity = false
+							},
+							name = {
 								insert = true,
 								isidentity = false
 							}
@@ -512,13 +518,12 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				});
 
 
-				// validateBean()
 				it( "returns an empty array if the bean's property value matches the beanmap's property definition", function(){
 					testClass.$( "validateBeanProperty", [] );
 
 					var result = testClass.validateBean( beanmap=beanmap, bean=userBean );
 
-					expect( testClass.$once("validateBeanProperty") ).toBeTrue();
+					expect( testClass.$count("validateBeanProperty") ).toBe(2);
 
 					expect( result ).toBeArray();
 					expect( result ).toBeEmpty();
@@ -527,6 +532,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 				it( "returns an empty array if the bean's property won't be inserted", function(){
 					beanmap.properties.test.insert = false;
+					beanmap.properties.name.insert = false;
 
 					var result = testClass.validateBean( beanmap=beanmap, bean=userBean );
 
@@ -539,6 +545,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 				it( "returns an empty array if the bean's property is an identity", function(){
 					beanmap.properties.test.isidentity = true;
+					beanmap.properties.name.isidentity = true;
 
 					var result = testClass.validateBean( beanmap=beanmap, bean=userBean );
 
@@ -552,10 +559,14 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				it( "returns an array of error messages if the bean's data doesn't match the beanmap definition", function(){
 					var result = testClass.validateBean( beanmap=beanmap, bean=userBean );
 
-					expect( testClass.$once("validateBeanProperty") ).toBeTrue();
+					expect( testClass.$count("validateBeanProperty") ).toBe(2);
 
 					expect( result ).toBeArray();
-					expect( result ).toHaveLength( 1 );
+					expect( result ).toHaveLength( 2 );
+
+					arrayEach(result, function(message){
+						expect( message ).toBeString();
+					});
 				});
 
 			});
