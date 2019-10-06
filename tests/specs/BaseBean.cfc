@@ -3,6 +3,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 	function beforeAll(){
 		userBean = createMock("model.beans.user");
 
+		BeanFactory = createStub().$( "injectProperties" );
 		BeanService = createEmptyMock("cfmlDataMapper.model.services.bean");
 		DataFactory = createEmptyMock("cfmlDataMapper.model.factory.data");
 		SQLService = createEmptyMock("cfmlDataMapper.model.services.sql");
@@ -40,11 +41,20 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					UtilityService.$( "getResultStruct", { "success"=true, "code"=001, "messages"=[] } );
 
 					testClass
+						.$property( propertyName="BeanFactory", mock=BeanFactory )
 						.$property( propertyName="BeanService", mock=BeanService )
 						.$property( propertyName="DataFactory", mock=DataFactory )
 						.$property( propertyName="SQLService", mock=SQLService )
 						.$property( propertyName="UtilityService", mock=UtilityService );
 				});
+
+				// populate()
+				it( "populates the bean properties", function(){
+					testClass.populate({});
+
+					expect( BeanFactory.$once("injectProperties") ).toBeTrue();
+				});
+
 
 				describe("uses bean metadata and", function(){
 

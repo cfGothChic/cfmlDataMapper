@@ -127,9 +127,9 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				describe("takes", function(){
 
 					beforeEach(function( currentSpec ){
-						BeanFactory.$( "injectProperties" );
+						userBean.$( "getId", 1 )
+							.$( "populate" );
 
-						userBean.$( "getId", 1 );
 						testClass.$( "getModuleBean", userBean );
 					});
 
@@ -147,7 +147,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 							var result = testClass.getBeansFromQuery( bean="user", qRecords=qRecords );
 
 							expect( testClass.$once("getModuleBean") ).toBeTrue();
-							expect( BeanFactory.$atLeast(1, "injectProperties") ).toBeTrue();
+							expect( userBean.$atLeast(1, "populate") ).toBeTrue();
 
 							expect( result ).toBeArray();
 							expect( result ).toHaveLength( 1 );
@@ -160,7 +160,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 							var result = testClass.getBeansFromQueryAsStruct( bean="user", qRecords=qRecords );
 
 							expect( testClass.$once("getModuleBean") ).toBeTrue();
-							expect( BeanFactory.$atLeast(1, "injectProperties") ).toBeTrue();
+							expect( userBean.$atLeast(1, "populate") ).toBeTrue();
 
 							expect( result ).toBeStruct();
 							expect( result ).toHaveLength( 1 );
@@ -182,7 +182,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 							var result = testClass.getBeansFromArray( bean="user", beansArray=beansArray );
 
 							expect( testClass.$once("getModuleBean") ).toBeTrue();
-							expect( BeanFactory.$atLeast(1, "injectProperties") ).toBeTrue();
+							expect( userBean.$atLeast(1, "populate") ).toBeTrue();
 
 							expect( result ).toBeArray();
 							expect( result ).toHaveLength( 1 );

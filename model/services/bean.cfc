@@ -1,6 +1,5 @@
 component accessors="true" output="false" {
 
-	property BeanFactory;
 	property DataFactory;
 	property DataGateway;
 	property SQLService;
@@ -42,7 +41,7 @@ component accessors="true" output="false" {
 			properties[columnname] = qRecord[columnname][1];
 		}
 
-		variables.BeanFactory.injectProperties(arguments.bean, properties);
+		arguments.bean.populate(properties);
 	}
 
 	public void function populateBySproc(
@@ -118,7 +117,7 @@ component accessors="true" output="false" {
 			}
 
 			if ( !isSimpleValue(value) ) {
-				variables.BeanFactory.injectProperties(arguments.bean, { "#arguments.relationshipName#" = value });
+				arguments.bean.populate({ "#arguments.relationshipName#" = value });
 			}
 		}
 
@@ -238,7 +237,7 @@ component accessors="true" output="false" {
 		}
 
 		if ( structCount(properties) ) {
-			variables.BeanFactory.injectProperties(arguments.bean, properties);
+			arguments.bean.populate(properties);
 		}
 	}
 

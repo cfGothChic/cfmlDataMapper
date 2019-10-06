@@ -5,7 +5,7 @@
 	property beanName;
 
 	// dependencies
-	property beanFactory;
+	property BeanFactory;
 	property BeanService;
 	property CacheService;
 	property DataFactory;
@@ -111,6 +111,10 @@
 		if ( left(arguments.missingMethodName,3) != "set" ) {
 			throw(message="Method '" & arguments.missingMethodName & "' not defined in bean " & getBeanName() );
 		}
+	}
+
+	public void function populate( required struct properties ) {
+		variables.BeanFactory.injectProperties(this, properties);
 	}
 
 	public struct function save( validate=true ) {

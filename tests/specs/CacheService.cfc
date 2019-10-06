@@ -407,10 +407,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				describe("caches the user bean and", function(){
 
 					beforeEach(function( currentSpec ){
-						BeanFactory = createEmptyMock("framework.ioc");
-						BeanFactory.$( "injectProperties" );
-						testClass.$property( propertyName="BeanFactory", mock=BeanFactory );
-
+						userBean.$( "populate" );
 						DataFactory.$( "get", userBean );
 
 						testClass.$property( propertyName="beanCache", mock=beanCache );

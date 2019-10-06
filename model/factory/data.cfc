@@ -72,7 +72,7 @@ component accessors=true {
 						properties[columnname] = arguments.qRecords[columnname][i];
 					}
 
-					variables.BeanFactory.injectProperties(recordbean, properties);
+					recordbean.populate(properties);
 
 					arrayAppend(beans,recordbean);
 				}
@@ -85,7 +85,7 @@ component accessors=true {
 						properties[columnname] = arguments.qRecords[columnname][i];
 					}
 
-					variables.BeanFactory.injectProperties(recordbean, properties);
+					recordbean.populate(properties);
 
 					arrayAppend(beans,recordbean);
 				}
@@ -104,14 +104,14 @@ component accessors=true {
 
 				for ( var beandata in arguments.beansArray ) {
 					var recordbean = structcopy(recordbeantemplate);
-					variables.BeanFactory.injectProperties(recordbean, beandata);
+					recordbean.populate(beandata);
 					arrayAppend(beans,recordbean);
 				}
 
 			} else {
 				for ( var beandata in arguments.beansArray ) {
 					var recordbean = getModuleBean(arguments.bean);
-					variables.BeanFactory.injectProperties(recordbean, beandata);
+					recordbean.populate(beandata);
 					arrayAppend(beans,recordbean);
 				}
 			}
@@ -137,7 +137,7 @@ component accessors=true {
 						properties[columnname] = arguments.qRecords[columnname][i];
 					}
 
-					variables.BeanFactory.injectProperties(recordbean, properties);
+					recordbean.populate(properties);
 
 					beans[ recordbean.getPropertyValue( propertyname=beanmap.primarykey ) ] = recordbean;
 				}
@@ -150,7 +150,7 @@ component accessors=true {
 						properties[columnname] = arguments.qRecords[columnname][i];
 					}
 
-					variables.BeanFactory.injectProperties(recordbean, properties);
+					recordbean.populate(properties);
 
 					beans[ recordbean.getId() ] = recordbean;
 				}
