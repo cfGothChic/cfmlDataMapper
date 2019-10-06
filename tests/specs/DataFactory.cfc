@@ -446,7 +446,9 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						name = "user",
 						insert = true,
 						isidentity = true,
-						null = true,
+						isrequired = false,
+						valtype = "",
+						cfsqltype = "cf_sql_integer",
 						minvalue = 0,
 						maxvalue = 0,
 						minlength = 0,
@@ -547,11 +549,20 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				});
 
 
-				it( "errors if the null attribute of a property is not a boolean", function(){
-					propertyMetadata.null = "test";
+				it( "errors if the isrequired attribute of a property is not a boolean", function(){
+					propertyMetadata.isrequired = "test";
 
 					expect( function(){ testClass.validatePropertyMetadata( metadata=propertyMetadata, beanname="test" ); } )
-						.toThrow(type="application", regex="(null)");
+						.toThrow(type="application", regex="(isrequired)");
+				});
+
+
+				it( "errors if the valtype attribute of a property is foreignkey and sqltype isn't integer", function(){
+					propertyMetadata.valtype = "foreignkey";
+					propertyMetadata.sqltype = "cf_sql_varchar";
+
+					expect( function(){ testClass.validatePropertyMetadata( metadata=propertyMetadata, beanname="test" ); } )
+						.toThrow(type="application", regex="(foreignkey)");
 				});
 
 
@@ -678,7 +689,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					expect( result ).toHaveKey( "columnName" );
 					expect( result ).toHaveKey( "insert" );
 					expect( result ).toHaveKey( "isidentity" );
-					expect( result ).toHaveKey( "null" );
+					expect( result ).toHaveKey( "isrequired" );
 					expect( result ).toHaveKey( "sqltype" );
 					expect( result ).toHaveKey( "valtype" );
 					expect( result ).toHaveKey( "regex" );
@@ -746,6 +757,14 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 					expect( result ).toBeString();
 					expect( result ).toBe( "string" );
+				});
+
+
+				it( "returns the numeric datatype for the cf_sql_bigint sqltype", function(){
+					var result = testClass.getDatatype( valtype="", sqltype="cf_sql_bigint" );
+
+					expect( result ).toBeString();
+					expect( result ).toBe( "numeric" );
 				});
 
 

@@ -1,9 +1,9 @@
 component accessors=true {
 
+	property dsn;
 	property storedprocTag;
 
-	public function init( dsn ) {
-		variables.dsn = arguments.dsn;
+	public function init() {
 		return this;
 	}
 
@@ -82,7 +82,7 @@ component accessors=true {
 	private void function addParams( required component querycfc, required struct sqlparams ) {
 		for ( var fieldkey in arguments.sqlparams ) {
 			var field = arguments.sqlparams[ fieldkey ];
-			arguments.querycfc.addParam( name=fieldkey, value=field.value, null=field.null, cfsqltype=field.cfsqltype );
+			arguments.querycfc.addParam( name=fieldkey, value=field.value, null=field.usenull, cfsqltype=field.cfsqltype );
 		}
 	}
 

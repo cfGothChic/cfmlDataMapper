@@ -92,7 +92,15 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 				// validateRequired()
 				it( "returns an empty string if the value is required and has a length", function(){
-					var result = testClass.validateRequired( value="This is a sentence.", displayname="Word" );
+					var result = testClass.validateRequired( datatype="string", value="This is a sentence.", displayname="Word" );
+
+					expect( result ).toBeString();
+					expect( result ).toBeEmpty();
+				});
+
+
+				it( "returns an empty string if the numeric value is required and is above 0", function(){
+					var result = testClass.validateRequired( datatype="numeric", value=1, displayname="Number" );
 
 					expect( result ).toBeString();
 					expect( result ).toBeEmpty();
@@ -100,10 +108,19 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 
 				it( "returns an error message if the value is required and does not have a length", function(){
-					var result = testClass.validateRequired( value="", displayname="Word" );
+					var result = testClass.validateRequired( datatype="string", value="", displayname="Word" );
 
 					expect( result ).toBeString();
 					expect( result ).toMatch( "(Word)" );
+					expect( result ).toMatch( "(required)" );
+				});
+
+
+				it( "returns an error message if the foreignkey value is required and is 0", function(){
+					var result = testClass.validateRequired( datatype="foreignkey", value=0, displayname="Number" );
+
+					expect( result ).toBeString();
+					expect( result ).toMatch( "(Number)" );
 					expect( result ).toMatch( "(required)" );
 				});
 
@@ -221,6 +238,27 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 						expect( result ).toBeString();
 						expect( result ).toMatch( "(Age)" );
+						expect( result ).toMatch( "(numeric)" );
+					});
+
+
+					it( "returns an empty string if the foreignkey is numeric", function(){
+						var result = testClass.validateByDataType( datatype="foreignkey", value=0, displayname="Type" );
+
+						expect( testClass.$never("validateZipCode") ).toBeTrue();
+
+						expect( result ).toBeString();
+						expect( result ).toBeEmpty();
+					});
+
+
+					it( "returns an error message if the foreignkey isn't numeric", function(){
+						var result = testClass.validateByDataType( datatype="foreignkey", value="", displayname="Type" );
+
+						expect( testClass.$never("validateZipCode") ).toBeTrue();
+
+						expect( result ).toBeString();
+						expect( result ).toMatch( "(Type)" );
 						expect( result ).toMatch( "(numeric)" );
 					});
 
@@ -353,7 +391,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 						beanProperty = {
 							displayname = "Test",
-							"null" = true,
+							isrequired = false,
 							datatype = "any",
 							regex = "",
 							regexlabel = "",
@@ -380,7 +418,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 
 					it( "returns an array with a message if the value does not exist and is required", function(){
-						beanProperty["null"] = false;
+						beanProperty.isrequired = true;
 
 						var result = testClass.validateBeanProperty( value="", beanProperty=beanProperty );
 
@@ -493,15 +531,21 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 			});
 
 
+			// validateBean()
 			describe("calls public functions and", function(){
 
 				beforeEach(function( currentSpec ){
 					userBean = createMock("model.beans.user");
 					userBean.$( "getPropertyValue" ).$args( item="test" ).$results( "test" );
+					userBean.$( "getPropertyValue" ).$args( item="name" ).$results( "name" );
 
 					beanmap = {
 						properties = {
 							test = {
+								insert = true,
+								isidentity = false
+							},
+							name = {
 								insert = true,
 								isidentity = false
 							}
@@ -512,13 +556,12 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				});
 
 
-				// validateBean()
 				it( "returns an empty array if the bean's property value matches the beanmap's property definition", function(){
 					testClass.$( "validateBeanProperty", [] );
 
 					var result = testClass.validateBean( beanmap=beanmap, bean=userBean );
 
-					expect( testClass.$once("validateBeanProperty") ).toBeTrue();
+					expect( testClass.$count("validateBeanProperty") ).toBe(2);
 
 					expect( result ).toBeArray();
 					expect( result ).toBeEmpty();
@@ -527,6 +570,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 				it( "returns an empty array if the bean's property won't be inserted", function(){
 					beanmap.properties.test.insert = false;
+					beanmap.properties.name.insert = false;
 
 					var result = testClass.validateBean( beanmap=beanmap, bean=userBean );
 
@@ -539,6 +583,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 				it( "returns an empty array if the bean's property is an identity", function(){
 					beanmap.properties.test.isidentity = true;
+					beanmap.properties.name.isidentity = true;
 
 					var result = testClass.validateBean( beanmap=beanmap, bean=userBean );
 
@@ -552,10 +597,14 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				it( "returns an array of error messages if the bean's data doesn't match the beanmap definition", function(){
 					var result = testClass.validateBean( beanmap=beanmap, bean=userBean );
 
-					expect( testClass.$once("validateBeanProperty") ).toBeTrue();
+					expect( testClass.$count("validateBeanProperty") ).toBe(2);
 
 					expect( result ).toBeArray();
-					expect( result ).toHaveLength( 1 );
+					expect( result ).toHaveLength( 2 );
+
+					arrayEach(result, function(message){
+						expect( message ).toBeString();
+					});
 				});
 
 			});
