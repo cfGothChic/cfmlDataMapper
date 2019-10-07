@@ -2,12 +2,10 @@
 // use this file to help write unit tests for beans to mock functions in the base bean
 
 function mockSuperDelete( required component testClass ){
-	var SQLService = createEmptyMock("cfmlDataMapper.model.services.sql");
-	SQLService.$( "delete" );
+	var SQLService = createStub().$( "delete" );
 	testClass.$property( propertyName="sqlService", mock=SQLService );
 
-	var UtilityService = createEmptyMock("cfmlDataMapper.model.services.utility");
-	UtilityService.$( "getResultStruct", { "success"=true, "code"=001, "messages"=[] } );
+	var UtilityService = createStub().$( "getResultStruct", { "success"=true, "code"=001, "messages"=[] } );
 	testClass.$property( propertyName="UtilityService", mock=UtilityService );
 
 	testClass.$( "getBeanMap", {
@@ -24,13 +22,12 @@ function mockSuperGetProperties( required component testClass ){
 }
 
 function mockSuperSave( required component testClass ){
-	var SQLService = createEmptyMock("cfmlDataMapper.model.services.sql");
-	SQLService.$( "create", 1 )
+	var SQLService = createStub()
+		.$( "create", 1 )
 		.$( "update" );
 	testClass.$property( propertyName="sqlService", mock=SQLService );
 
-	var UtilityService = createEmptyMock("cfmlDataMapper.model.services.utility");
-	UtilityService.$( "getResultStruct", { "success"=true, "code"=001, "messages"=[] } );
+	var UtilityService = createStub().$( "getResultStruct", { "success"=true, "code"=001, "messages"=[] } );
 	testClass.$property( propertyName="UtilityService", mock=UtilityService );
 
 	testClass.$( "clearCache" )
@@ -46,8 +43,7 @@ function mockSuperSave( required component testClass ){
 }
 
 function mockSuperValidate( required component testClass ){
-	var ValidationService = createEmptyMock("cfmlDataMapper.model.services.validation");
-	ValidationService.$( "validateBean", [] );
+	var ValidationService = createStub().$( "validateBean", [] );
 	testClass.$property( propertyName="validationService", mock=ValidationService );
 
 	testClass.$( "getBeanMap", {} );
