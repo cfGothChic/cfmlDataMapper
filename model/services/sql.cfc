@@ -195,8 +195,8 @@ component accessors="true" output="false" {
 
 	public string function readSQL(
 		required struct beanmap,
-		required struct sqlparams={},
-		required string orderby="",
+		struct sqlparams={},
+		string orderby="",
 		boolean pkOnly=false
 	) {
 		var tablename = getServerTypeService().getTableName( beanmap=arguments.beanmap );
