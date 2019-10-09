@@ -76,9 +76,9 @@ component accessors="true" output="false" {
 			}
 
 			var sprocData = variables.DataGateway.readSproc(
-				sprocname=arguments.sproc,
-				params=arguments.params,
-				resultkeys=arguments.resultkeys
+				sprocname = ( len(beanmap.database) ? beanmap.database & "." : "" ) & arguments.sproc,
+				params = arguments.params,
+				resultkeys = arguments.resultkeys
 			);
 			populateSprocData( bean=arguments.bean, beanmap=beanmap, data=sprocData, resultkeys=arguments.resultkeys );
 
