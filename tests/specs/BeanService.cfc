@@ -13,7 +13,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				beanmap = {
 					name = "test",
 					primarykey = "id",
-					dsn = "",
+					database = "",
 					relationships = {
 						test = {
 							bean = "user",
