@@ -97,24 +97,24 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 
 				// getSelectAsField()
-				it( "return the just the column name if the property isn't an integer", function(){
-					var result = testClass.getSelectAsField( propname="name", columnname="`fullname`", sqltype="cf_sql_varchar", isNull=true );
+				it( "return the just the column name if the property is not required", function(){
+					var result = testClass.getSelectAsField( propname="name", columnname="`fullname`", sqltype="cf_sql_varchar", isRequired=false );
 
 					expect( result ).toBeString();
 					expect( result ).toBe( "`fullname` AS `name`" );
 				});
 
 
-				it( "return the just the column name if the property is an integer but isn't null", function(){
-					var result = testClass.getSelectAsField( propname="name", columnname="`fullname`", sqltype="cf_sql_integer", isNull=false );
+				it( "return the just the column name if the property is an integer but is required", function(){
+					var result = testClass.getSelectAsField( propname="name", columnname="`fullname`", sqltype="cf_sql_integer", isRequired=true );
 
 					expect( result ).toBeString();
 					expect( result ).toBe( "`fullname` AS `name`" );
 				});
 
 
-				it( "return the column name defaulted to 0 if the property is an integer and it is null", function(){
-					var result = testClass.getSelectAsField( propname="name", columnname="`fullname`", sqltype="cf_sql_integer", isNull=true );
+				it( "return the column name defaulted to 0 if the property is an integer and it is not required", function(){
+					var result = testClass.getSelectAsField( propname="name", columnname="`fullname`", sqltype="cf_sql_integer", isRequired=false );
 
 					expect( result ).toBeString();
 					expect( result ).toBe( "IFNULL(`fullname`,0) AS `name`" );

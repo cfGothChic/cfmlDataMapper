@@ -52,17 +52,17 @@
 		required string propname,
 		required string columnname,
 		required string sqltype,
-		required boolean isNull
+		required boolean isRequired
 	) {
 		var fieldresult = "";
 
-		if ( arguments.sqltype == "cf_sql_integer" && arguments.isNull ) {
+		if ( arguments.sqltype == "cf_sql_integer" && !arguments.isRequired ) {
 			fieldresult &= "IFNULL(";
 		}
 
 		fieldresult &= arguments.columnname;
 
-		if ( arguments.sqltype == "cf_sql_integer" && arguments.isNull ) {
+		if ( arguments.sqltype == "cf_sql_integer" && !arguments.isRequired ) {
 			fieldresult &= ",0)";
 		}
 

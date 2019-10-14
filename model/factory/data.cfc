@@ -1,4 +1,4 @@
-﻿component accessors=true {
+component accessors=true {
 
 	property BeanFactory;
 	property BeanService;
@@ -38,6 +38,10 @@
 		checkBeanExists(arguments.bean);
 		addInheritanceMapping(arguments.bean);
 		return variables.beanmaps[ arguments.bean ];
+	}
+
+	public struct function getBeanMaps() {
+		return variables.beanmaps;
 	}
 
 	public array function getBeanListProperties( required array beans, boolean eagerFetch=false ) {
@@ -334,6 +338,7 @@
 					datatype = "string";
 				break;
 
+				case "bigint":
 				case "integer":
 				case "float":
 					datatype = "numeric";
@@ -380,7 +385,7 @@
 				"columnName" = ( structKeyExists(prop,"columnName") ? prop.columnName : "" ),
 				"insert" = ( structKeyExists(prop,"insert") ? prop.insert : true ),
 				"isidentity" = ( structKeyExists(prop,"isidentity") ? prop.isidentity : false ),
-				"null" = ( structKeyExists(prop,"null") ? prop.null : false ),
+				"isrequired" = ( structKeyExists(prop,"isrequired") ? prop.isrequired : false ),
 				"sqltype" = getCfSqlType(prop.cfsqltype),
 				"valtype" = ( structKeyExists(prop,"valtype") ? prop.valtype : "" ),
 				"regex" = ( structKeyExists(prop,"regex") ? prop.regex : "" ),
@@ -390,7 +395,7 @@
 				"minlength" = ( structKeyExists(prop,"minlength") ? prop.minlength : "" ),
 				"maxlength" = ( structKeyExists(prop,"maxlength") ? prop.maxlength : "" )
 			});
-			metadata["datatype"] = getDatatype(metadata.valtype,metadata.sqltype);
+			metadata["datatype"] = getDatatype( valtype=metadata.valtype, sqltype=metadata.sqltype );
 
 			validatePropertyMetadata( metadata=metadata, beanname=arguments.beanname );
 		}
@@ -450,8 +455,12 @@
 		if ( !isBoolean(arguments.metadata.isidentity) ) {
 			throw("The 'isidentity' attribute must be a boolean" & message);
 		}
-		if ( !isBoolean(arguments.metadata.null) ) {
-			throw("The 'null' attribute must be a boolean" & message);
+		if ( !isBoolean(arguments.metadata.isrequired) ) {
+			throw("The 'isrequired' attribute must be a boolean" & message);
+		}
+
+		if ( arguments.metadata.valtype == "foreignkey" && arguments.metadata.sqltype != "cf_sql_integer" ) {
+			throw("When the 'valtype' attribute is 'foreignkey', the 'cfsqltype' attribute must be an integer" & message);
 		}
 
 		if ( len(arguments.metadata.minvalue) && !isNumeric(arguments.metadata.minvalue) ) {

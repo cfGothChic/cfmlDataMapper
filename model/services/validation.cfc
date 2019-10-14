@@ -18,8 +18,9 @@ component accessors="true" {
 			}
 
 			var value = arguments.bean.getPropertyValue( propertyname=name );
+			var messages = validateBeanProperty( value=value, beanProperty=beanProperty );
 
-			errors = validateBeanProperty( value=value, beanProperty=beanProperty );
+			errors.append(messages, true);
 		}
 
 		return errors;
@@ -48,6 +49,7 @@ component accessors="true" {
 				}
 			break;
 
+			case "foreignkey":
 			case "numeric":
 				if( !isNumeric(arguments.value) ){
 					returnString = arguments.displayname & " must be a numeric value.";
@@ -76,10 +78,13 @@ component accessors="true" {
 		var validationMessage = "";
 
 		var displayname = arguments.beanProperty.displayname;
-		var isRequired = !(arguments.beanProperty.null);
 
-		if( isRequired ){
-			validationMessage = validateRequired( value=arguments.value, displayname=displayname );
+		if( arguments.beanProperty.isrequired ){
+			validationMessage = validateRequired(
+				datatype=arguments.beanproperty.datatype,
+				value=arguments.value,
+				displayname=displayname
+			);
 			if( len(trim(validationMessage)) ){
 				arrayAppend(errors, validationMessage);
 			}
@@ -196,15 +201,14 @@ component accessors="true" {
 		return returnString;
 	}
 
-	private string function validateRequired( required string value, required string displayname ){
+	private string function validateRequired( required string datatype, required string value, required string displayname ){
 		var returnString = "";
 
-		// todo: add validation for a fkColumn related to a relationship join
-		/*if( arguments.datatype == 'numeric' && arguments.value <= 0){
+		if( arguments.datatype == "foreignkey" && arguments.value <= 0){
 			returnString = arguments.displayname & " is required.";
-		} else*/
+		}
 
-		if( !len(trim(arguments.value)) ){
+		else if( !len(trim(arguments.value)) ){
 			returnString = arguments.displayname & " is required.";
 		}
 
