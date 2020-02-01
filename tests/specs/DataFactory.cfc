@@ -200,7 +200,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						});
 
 						it( "returns an array of bean property structures", function(){
-							var result = testClass.getBeanListProperties( beans=beans, eagerFetch=false );
+							var result = testClass.getBeanListProperties( beans=beans, params={ eagerFetch=false } );
 
 							expect( result ).toBeArray();
 							expect( result ).toHaveLength( 1 );
@@ -211,14 +211,14 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 
 						it( "errors if the array doesn't contain objects", function(){
 							expect( function(){
-								testClass.getBeanListProperties( beans=[1], eagerFetch=false );
+								testClass.getBeanListProperties( beans=[1], params={ eagerFetch=false } );
 							})
 								.toThrow(type="application", regex="(beans)");
 						});
 
 						it( "errors if the array doesn't contain data factory beans", function(){
 							expect( function(){
-								testClass.getBeanListProperties( beans=[createStub()], eagerFetch=false );
+								testClass.getBeanListProperties( beans=[createStub()], params={ eagerFetch=false } );
 							})
 								.toThrow(regex="(beans)");
 						});

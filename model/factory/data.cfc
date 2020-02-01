@@ -44,13 +44,13 @@ component accessors=true {
 		return variables.beanmaps;
 	}
 
-	public array function getBeanListProperties( required array beans, boolean eagerFetch=false ) {
+	public array function getBeanListProperties( required array beans, struct params={} ) {
 		var result = [];
 		arguments.beans.each(function(bean){
 			if ( !isObject(bean) || !structKeyExists(bean, "getBeanMap") ) {
 				throw("The beans array must contain data factory beans.");
 			}
-			var beanProps = bean.getProperties( eagerFetch=eagerFetch );
+			var beanProps = bean.getProperties( argumentCollection=params );
 			result.append(beanProps);
 		});
 		return result;
@@ -198,13 +198,13 @@ component accessors=true {
 
 	public array function listWithProperties(
 		required string bean,
-		boolean eagerFetch=false,
 		struct params={},
+		struct propertyParams={},
 		string orderby=""
 	) {
 		arguments.beanname = arguments.bean;
 		var beans = list( argumentCollection=arguments );
-		return getBeanListProperties( beans=beans, eagerFetch=arguments.eagerFetch );
+		return getBeanListProperties( beans=beans, params=propertyParams );
 	}
 
 	private void function addInheritanceMapping( required string bean ) {
