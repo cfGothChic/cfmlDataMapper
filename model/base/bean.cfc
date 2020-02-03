@@ -97,13 +97,13 @@
 		return data;
 	}
 
-	public any function getRelationshipProperties( required string name ) {
+	public any function getRelationshipProperties( required string name, struct params={} ) {
 		var relationship = getRelationship( name=arguments.name );
 		if ( isArray(relationship) ) {
-			return variables.dataFactory.getBeanListProperties( beans=relationship );
+			return variables.dataFactory.getBeanListProperties( beans=relationship, params=arguments.params );
 		}
 		else {
-			return relationship.getProperties();
+			return relationship.getProperties( argumentCollection=arguments.params );
 		}
 	}
 
