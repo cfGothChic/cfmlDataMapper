@@ -1,4 +1,4 @@
-﻿component accessors="true" {
+component accessors="true" {
 
 	// bean metadata
 	property beanMap;
@@ -75,7 +75,7 @@
 	public any function getPropertyValue( required string propertyname ){
 		var value = getBeanPropertyValue( propertyname=arguments.propertyname );
 
-		if( !len(value) ){
+		if( isSimpleValue(value) && !len(value) ){
 			value = getPropertyDefault( propertyname=arguments.propertyname );
 		}
 
