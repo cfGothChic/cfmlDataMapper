@@ -34,17 +34,7 @@ component accessors=true {
 		}
 	}
 
-	public struct function getBeanMap( required string bean ) {
-		checkBeanExists(arguments.bean);
-		addInheritanceMapping(arguments.bean);
-		return variables.beanmaps[ arguments.bean ];
-	}
-
-	public struct function getBeanMaps() {
-		return variables.beanmaps;
-	}
-
-	public array function getBeanListProperties( required array beans, struct params={} ) {
+	public array function getBeanArrayProperties( required array beans, struct params={} ) {
 		var result = [];
 		arguments.beans.each(function(bean){
 			if ( !isObject(bean) || !structKeyExists(bean, "getBeanMap") ) {
@@ -54,6 +44,16 @@ component accessors=true {
 			result.append(beanProps);
 		});
 		return result;
+	}
+
+	public struct function getBeanMap( required string bean ) {
+		checkBeanExists(arguments.bean);
+		addInheritanceMapping(arguments.bean);
+		return variables.beanmaps[ arguments.bean ];
+	}
+
+	public struct function getBeanMaps() {
+		return variables.beanmaps;
 	}
 
 	public array function getBeansFromQuery( required string bean, required query qRecords ) {
@@ -204,7 +204,7 @@ component accessors=true {
 	) {
 		arguments.beanname = arguments.bean;
 		var beans = list( argumentCollection=arguments );
-		return getBeanListProperties( beans=beans, params=propertyParams );
+		return getBeanArrayProperties( beans=beans, params=propertyParams );
 	}
 
 	private void function addInheritanceMapping( required string bean ) {

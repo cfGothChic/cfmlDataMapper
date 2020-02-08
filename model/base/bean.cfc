@@ -49,6 +49,20 @@ component accessors="true" {
 		return ( getId() && !getIsDeleted() ? true : false );
 	}
 
+	public array function getBeanArrayProperties( array beans=[], string relationshipName="", struct params={} ) {
+		if ( arguments.relationshipName.len() && !arguments.beans.len() ) {
+			var relationship = getRelationship( name=arguments.relationshipName );
+			if ( isArray(relationship) ) {
+				arguments.beans = relationship;
+			}
+		}
+
+		if ( arguments.beans.len() ) {
+			return variables.dataFactory.getBeanArrayProperties( beans=arguments.beans, params=arguments.params );
+		}
+		return [];
+	}
+
 	public struct function getBeanMap() {
 		if ( isNull(variables.beanMap) ) {
 			var beanname = getBeanName();
@@ -95,16 +109,6 @@ component accessors="true" {
 		}
 
 		return data;
-	}
-
-	public any function getRelationshipProperties( required string name, struct params={} ) {
-		var relationship = getRelationship( name=arguments.name );
-		if ( isArray(relationship) ) {
-			return variables.dataFactory.getBeanListProperties( beans=relationship, params=arguments.params );
-		}
-		else {
-			return relationship.getProperties( argumentCollection=arguments.params );
-		}
 	}
 
 	public void function onMissingMethod( required string missingMethodName, required struct missingMethodArguments ){

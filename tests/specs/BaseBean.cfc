@@ -471,16 +471,12 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						beforeEach(function( currentSpec ){
 							makePublic( testClass, "hasRelationship" );
 
-							DataFactory.$( "getBeanListProperties", [{}] );
+							DataFactory.$( "getBeanArrayProperties", [{}] );
 
 							userBean.$( "exists", true )
 								.$( "getProperties", {} );
 
 							testClass.$( "getRelationship", userBean );
-						});
-
-						afterEach(function( currentSpec ){
-							expect( testClass.$once("getRelationship") ).toBeTrue();
 						});
 
 						// hasRelationship()
@@ -491,6 +487,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 							expect( result ).toBeTrue();
 
 							expect( userBean.$once("exists") ).toBeTrue();
+							expect( testClass.$once("getRelationship") ).toBeTrue();
 						});
 
 						it( "returns false if the relationship is an object and it doesn't exist", function(){
@@ -502,6 +499,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 							expect( result ).toBeFalse();
 
 							expect( userBean.$once("exists") ).toBeTrue();
+							expect( testClass.$once("getRelationship") ).toBeTrue();
 						});
 
 						it( "returns true if the relationship is an array and it has a length", function(){
@@ -513,6 +511,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 							expect( result ).toBeTrue();
 
 							expect( userBean.$never("exists") ).toBeTrue();
+							expect( testClass.$once("getRelationship") ).toBeTrue();
 						});
 
 						it( "returns false if the relationship is an array and its empty", function(){
@@ -524,6 +523,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 							expect( result ).toBeFalse();
 
 							expect( userBean.$never("exists") ).toBeTrue();
+							expect( testClass.$once("getRelationship") ).toBeTrue();
 						});
 
 						it( "returns false if the relationship isn't an object or an array", function(){
@@ -535,28 +535,50 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 							expect( result ).toBeFalse();
 
 							expect( userBean.$never("exists") ).toBeTrue();
+							expect( testClass.$once("getRelationship") ).toBeTrue();
 						});
 
-						// getRelationshipProperties()
-						it( "returns an array of bean property structures if the relationship is an array", function(){
-							testClass.$( "getRelationship", [userBean] );
-
-							var result = testClass.getRelationshipProperties( name="user" );
+						// getBeanArrayProperties()
+						it( "returns an array of bean property structures from an array", function(){
+							var result = testClass.getBeanArrayProperties( beans=[userBean] );
 
 							expect( result ).toBeArray();
 							expect( result[1] ).toBeStruct();
 
-							expect( DataFactory.$once("getBeanListProperties") ).toBeTrue();
-							expect( userBean.$never("getProperties") ).toBeTrue();
+							expect( DataFactory.$once("getBeanArrayProperties") ).toBeTrue();
+							expect( testClass.$never("getRelationship") ).toBeTrue();
 						});
 
-						it( "returns a structure with the bean properties", function(){
-							var result = testClass.getRelationshipProperties( name="user" );
+						it( "returns an array of bean property structures if the relationship is an array", function(){
+							testClass.$( "getRelationship", [userBean] );
 
-							expect( result ).toBeStruct();
+							var result = testClass.getBeanArrayProperties( relationshipName="user" );
 
-							expect( DataFactory.$never("getBeanListProperties") ).toBeTrue();
-							expect( userBean.$once("getProperties") ).toBeTrue();
+							expect( result ).toBeArray();
+							expect( result[1] ).toBeStruct();
+
+							expect( DataFactory.$once("getBeanArrayProperties") ).toBeTrue();
+							expect( testClass.$once("getRelationship") ).toBeTrue();
+						});
+
+						it( "returns an empty array if the relationship isn't an array", function(){
+							var result = testClass.getBeanArrayProperties( relationshipName="user" );
+
+							expect( result ).toBeArray();
+							expect( result ).toBeEmpty();
+
+							expect( DataFactory.$never("getBeanArrayProperties") ).toBeTrue();
+							expect( testClass.$once("getRelationship") ).toBeTrue();
+						});
+
+						it( "returns an empty array if no arguments are provided", function(){
+							var result = testClass.getBeanArrayProperties();
+
+							expect( result ).toBeArray();
+							expect( result ).toBeEmpty();
+
+							expect( DataFactory.$never("getBeanArrayProperties") ).toBeTrue();
+							expect( testClass.$never("getRelationship") ).toBeTrue();
 						});
 
 					});
@@ -867,7 +889,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					expect( result ).toBeInstanceOf( "cfmlDataMapper.model.base.bean" );
 				});
 
-				xdescribe("after the initial DI/1 call", function(){
+				describe("after the initial DI/1 call", function(){
 
 					beforeEach(function( currentSpec ){
 						testClass.$( "getBeanMap", beanmap );
