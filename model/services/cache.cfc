@@ -1,6 +1,5 @@
 component accessors="true" {
 
-	property BeanFactory;
 	property DataFactory;
 	property SQLService;
 	property UtilityService;
@@ -216,7 +215,7 @@ component accessors="true" {
 			var thisbean = arguments.beanData.beans[ arguments.primarykey ];
 			var cachedStruct = thisbean.getProperties();
 			var cachedbean = variables.DataFactory.get( bean=arguments.beanname );
-			variables.BeanFactory.injectProperties(cachedbean, cachedStruct);
+			cachedbean.populate(cachedStruct);
 		}
 		return cachedbean;
 	}

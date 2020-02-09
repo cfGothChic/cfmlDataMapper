@@ -1,7 +1,6 @@
 component accessors=true {
 
 	property dsn;
-	property storedprocTag;
 
 	public function init() {
 		return this;
@@ -47,27 +46,17 @@ component accessors=true {
 	public struct function readSproc( required string sprocname, array params=[], array resultkeys=[] ) {
 		var result = {};
 
-			// because "new storedproc()" doesn't exist in railo and the railo script version causes a syntax error in cf9
-		if ( structKeyExists(server, "lucee") ) {
-			result = variables.storedprocTag.storedproc( argumentCollection=arguments );
-
-		} else {
-			var sproc = new storedproc();
-			sproc.setDatasource(variables.dsn);
-			sproc.setProcedure(arguments.sprocname);
-
+		cfstoredproc( procedure=arguments.sprocname, datasource=variables.dsn ) {
 			for ( var param in arguments.params ) {
 				if ( isStruct(param) && structKeyExists(param,"cfsqltype") && structKeyExists(param,"value") ) {
-					sproc.addParam( cfsqltype=param.cfsqltype, type="in", value=param.value );
+					cfprocparam( cfsqltype=param.cfsqltype, value=param.value );
 				}
 			}
 			var k = 0;
 			for ( var key in arguments.resultkeys ) {
 				k++;
-				sproc.addProcResult( name=key, resultset=k );
+				cfprocresult( name="result.#key#", resultset=k );
 			}
-
-			result = sproc.execute().getProcResultSets();
 		}
 
 		return result;

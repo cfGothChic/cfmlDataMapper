@@ -1,11 +1,11 @@
-﻿component accessors="true" {
+component accessors="true" {
 
 	// bean metadata
 	property beanMap;
 	property beanName;
 
 	// dependencies
-	property beanFactory;
+	property BeanFactory;
 	property BeanService;
 	property CacheService;
 	property DataFactory;
@@ -49,6 +49,20 @@
 		return ( getId() && !getIsDeleted() ? true : false );
 	}
 
+	public array function getBeanArrayProperties( array beans=[], string relationshipName="", struct params={} ) {
+		if ( arguments.relationshipName.len() && !arguments.beans.len() ) {
+			var relationship = getRelationship( name=arguments.relationshipName );
+			if ( isArray(relationship) ) {
+				arguments.beans = relationship;
+			}
+		}
+
+		if ( arguments.beans.len() ) {
+			return variables.dataFactory.getBeanArrayProperties( beans=arguments.beans, params=arguments.params );
+		}
+		return [];
+	}
+
 	public struct function getBeanMap() {
 		if ( isNull(variables.beanMap) ) {
 			var beanname = getBeanName();
@@ -75,7 +89,7 @@
 	public any function getPropertyValue( required string propertyname ){
 		var value = getBeanPropertyValue( propertyname=arguments.propertyname );
 
-		if( !len(value) ){
+		if( isSimpleValue(value) && !len(value) ){
 			value = getPropertyDefault( propertyname=arguments.propertyname );
 		}
 
@@ -97,20 +111,14 @@
 		return data;
 	}
 
-	public any function getRelationshipProperties( required string name ) {
-		var relationship = getRelationship( name=arguments.name );
-		if ( isArray(relationship) ) {
-			return variables.dataFactory.getBeanListProperties( beans=relationship );
-		}
-		else {
-			return relationship.getProperties();
-		}
-	}
-
 	public void function onMissingMethod( required string missingMethodName, required struct missingMethodArguments ){
 		if ( left(arguments.missingMethodName,3) != "set" ) {
 			throw(message="Method '" & arguments.missingMethodName & "' not defined in bean " & getBeanName() );
 		}
+	}
+
+	public void function populate( required struct properties ) {
+		variables.BeanFactory.injectProperties(this, properties);
 	}
 
 	public struct function save( validate=true ) {

@@ -226,14 +226,14 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 						expect( DataFactory.$once("getBeansFromQueryAsStruct") ).toBeTrue();
 					});
 
-					// getBeanListProperties()
+					// getBeanArrayProperties()
 					it( "returns an array of bean property structures from an array of beans", function(){
-						DataFactory.$( "getBeanListProperties", [] );
+						DataFactory.$( "getBeanArrayProperties", [] );
 
-						var result = testClass.getBeanListProperties( beans=[userTypeBean] );
+						var result = testClass.getBeanArrayProperties( beans=[userTypeBean] );
 
 						expect( result ).toBeArray();
-						expect( DataFactory.$once("getBeanListProperties") ).toBeTrue();
+						expect( DataFactory.$once("getBeanArrayProperties") ).toBeTrue();
 					});
 
 					// listWithProperties()

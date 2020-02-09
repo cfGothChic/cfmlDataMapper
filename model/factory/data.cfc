@@ -34,6 +34,18 @@ component accessors=true {
 		}
 	}
 
+	public array function getBeanArrayProperties( required array beans, struct params={} ) {
+		var result = [];
+		arguments.beans.each(function(bean){
+			if ( !isObject(bean) || !structKeyExists(bean, "getBeanMap") ) {
+				throw("The beans array must contain data factory beans.");
+			}
+			var beanProps = bean.getProperties( argumentCollection=params );
+			result.append(beanProps);
+		});
+		return result;
+	}
+
 	public struct function getBeanMap( required string bean ) {
 		checkBeanExists(arguments.bean);
 		addInheritanceMapping(arguments.bean);
@@ -42,18 +54,6 @@ component accessors=true {
 
 	public struct function getBeanMaps() {
 		return variables.beanmaps;
-	}
-
-	public array function getBeanListProperties( required array beans, boolean eagerFetch=false ) {
-		var result = [];
-		arguments.beans.each(function(bean){
-			if ( !isObject(bean) || !structKeyExists(bean, "getBeanMap") ) {
-				throw("The beans array must contain data factory beans.");
-			}
-			var beanProps = bean.getProperties( eagerFetch=eagerFetch );
-			result.append(beanProps);
-		});
-		return result;
 	}
 
 	public array function getBeansFromQuery( required string bean, required query qRecords ) {
@@ -72,7 +72,7 @@ component accessors=true {
 						properties[columnname] = arguments.qRecords[columnname][i];
 					}
 
-					variables.BeanFactory.injectProperties(recordbean, properties);
+					recordbean.populate(properties);
 
 					arrayAppend(beans,recordbean);
 				}
@@ -85,7 +85,7 @@ component accessors=true {
 						properties[columnname] = arguments.qRecords[columnname][i];
 					}
 
-					variables.BeanFactory.injectProperties(recordbean, properties);
+					recordbean.populate(properties);
 
 					arrayAppend(beans,recordbean);
 				}
@@ -104,14 +104,14 @@ component accessors=true {
 
 				for ( var beandata in arguments.beansArray ) {
 					var recordbean = structcopy(recordbeantemplate);
-					variables.BeanFactory.injectProperties(recordbean, beandata);
+					recordbean.populate(beandata);
 					arrayAppend(beans,recordbean);
 				}
 
 			} else {
 				for ( var beandata in arguments.beansArray ) {
 					var recordbean = getModuleBean(arguments.bean);
-					variables.BeanFactory.injectProperties(recordbean, beandata);
+					recordbean.populate(beandata);
 					arrayAppend(beans,recordbean);
 				}
 			}
@@ -137,7 +137,7 @@ component accessors=true {
 						properties[columnname] = arguments.qRecords[columnname][i];
 					}
 
-					variables.BeanFactory.injectProperties(recordbean, properties);
+					recordbean.populate(properties);
 
 					beans[ recordbean.getPropertyValue( propertyname=beanmap.primarykey ) ] = recordbean;
 				}
@@ -150,7 +150,7 @@ component accessors=true {
 						properties[columnname] = arguments.qRecords[columnname][i];
 					}
 
-					variables.BeanFactory.injectProperties(recordbean, properties);
+					recordbean.populate(properties);
 
 					beans[ recordbean.getId() ] = recordbean;
 				}
@@ -198,13 +198,13 @@ component accessors=true {
 
 	public array function listWithProperties(
 		required string bean,
-		boolean eagerFetch=false,
 		struct params={},
+		struct propertyParams={},
 		string orderby=""
 	) {
 		arguments.beanname = arguments.bean;
 		var beans = list( argumentCollection=arguments );
-		return getBeanListProperties( beans=beans, eagerFetch=arguments.eagerFetch );
+		return getBeanArrayProperties( beans=beans, params=propertyParams );
 	}
 
 	private void function addInheritanceMapping( required string bean ) {

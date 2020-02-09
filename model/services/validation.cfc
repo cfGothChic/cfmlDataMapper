@@ -158,9 +158,9 @@ component accessors="true" {
 		){
 			returnString = arguments.displayname & " must be between " & arguments.minlength & " and " & arguments.maxlength & " characters long.";
 		} else if( len(arguments.minlength) && arguments.minlength > len(arguments.value)){
-			returnString = arguments.displayname & " must be longer than " & arguments.minlength & " characters.";
+			returnString = arguments.displayname & " must be longer than or equal to " & arguments.minlength & " characters.";
 		} else if( len(arguments.maxlength) && arguments.maxlength < len(arguments.value)){
-			returnString = arguments.displayname & " must be less than " & arguments.maxlength & " characters.";
+			returnString = arguments.displayname & " must be less than or equal to " & arguments.maxlength & " characters.";
 		}
 
 		return returnString;

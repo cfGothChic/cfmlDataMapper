@@ -13,7 +13,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				beanmap = {
 					name = "test",
 					primarykey = "id",
-					dsn = "",
+					database = "",
 					relationships = {
 						test = {
 							bean = "user",
@@ -28,6 +28,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				BaseBean.$( "getBeanMap", beanmap )
 					.$( "getBeanName", "test" )
 					.$( "getPropertyValue", 1 )
+					.$( "populate" )
 					.$( "setBeanName" )
 					.$( "setPrimaryKey" );
 
@@ -45,10 +46,6 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 					UtilityService = createEmptyMock("cfmlDataMapper.model.services.utility");
 					UtilityService.$( "getResultStruct", { "success"=true, "code"=001, "messages"=[] } );
 					testClass.$property( propertyName="UtilityService", mock=UtilityService );
-
-					BeanFactory = createEmptyMock("framework.ioc");
-					BeanFactory.$( "injectProperties" );
-					testClass.$property( propertyName="BeanFactory", mock=BeanFactory );
 				});
 
 
@@ -81,7 +78,7 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				it( "processes a query and injects it into the bean", function(){
 					testClass.populateByQuery( bean=BaseBean, qRecord=qRecords );
 
-					expect( BeanFactory.$once("injectProperties") ).toBeTrue();
+					expect( BaseBean.$once("populate") ).toBeTrue();
 				});
 
 
@@ -296,112 +293,108 @@ component accessors="true" extends="testbox.system.BaseSpec"{
 				});
 
 
-				describe("uses the BeanFactory and", function(){
+				// populateRelationship()
+				describe("calls populateRelationship() and", function(){
 
-					// populateRelationship()
-					describe("calls populateRelationship() and", function(){
-
-						beforeEach(function( currentSpec ){
-							testClass.$( "getManyToManyRelationship", [] )
-								.$( "getOneToManyRelationship", [] )
-								.$( "getRelationshipBean", BaseBean )
-								.$( "getNext" )
-								.$( "getTest" );
-						});
-
-
-						it( "populates a one-to-one or many-to-one relationship", function(){
-							var result = testClass.populateRelationship( bean=BaseBean, relationshipName="test" );
-
-							expect( BaseBean.$count("getPropertyValue") ).toBe( 2 );
-							expect( BaseBean.$once("getBeanMap") ).toBeTrue();
-							expect( testClass.$once("getRelationshipBean") ).toBeTrue();
-							expect( testClass.$never("getOneToManyRelationship") ).toBeTrue();
-							expect( testClass.$never("getManyToManyRelationship") ).toBeTrue();
-							expect( BeanFactory.$once("injectProperties") ).toBeTrue();
-
-							expect( result ).toBeComponent();
-						});
-
-
-						it( "populates a one-to-many relationship", function(){
-							beanmap.relationships.test.joinType = "one-to-many";
-
-							var result = testClass.populateRelationship( bean=BaseBean, relationshipName="test" );
-
-							expect( BaseBean.$count("getPropertyValue") ).toBe( 2 );
-							expect( BaseBean.$once("getBeanMap") ).toBeTrue();
-							expect( testClass.$never("getRelationshipBean") ).toBeTrue();
-							expect( testClass.$once("getOneToManyRelationship") ).toBeTrue();
-							expect( testClass.$never("getManyToManyRelationship") ).toBeTrue();
-							expect( BeanFactory.$once("injectProperties") ).toBeTrue();
-
-							expect( result ).toBeArray();
-						});
-
-
-						it( "populates a many-to-many relationship", function(){
-							beanmap.relationships.test.joinType = "many-to-many";
-
-							var result = testClass.populateRelationship( bean=BaseBean, relationshipName="test" );
-
-							expect( BaseBean.$count("getPropertyValue") ).toBe( 2 );
-							expect( BaseBean.$once("getBeanMap") ).toBeTrue();
-							expect( testClass.$never("getRelationshipBean") ).toBeTrue();
-							expect( testClass.$never("getOneToManyRelationship") ).toBeTrue();
-							expect( testClass.$once("getManyToManyRelationship") ).toBeTrue();
-							expect( BeanFactory.$once("injectProperties") ).toBeTrue();
-
-							expect( result ).toBeArray();
-						});
-
-
-						it( "errors if the relationship isn't defined in the bean map", function(){
-							expect( function(){ testClass.populateRelationship( bean=BaseBean, relationshipName="next" ); } )
-								.toThrow(type="application", regex="(relationship)");
-						});
-
+					beforeEach(function( currentSpec ){
+						testClass.$( "getManyToManyRelationship", [] )
+							.$( "getOneToManyRelationship", [] )
+							.$( "getRelationshipBean", BaseBean )
+							.$( "getNext" )
+							.$( "getTest" );
 					});
 
 
-					// populateSprocData()
-					describe("calls populateSprocData() and", function(){
+					it( "populates a one-to-one or many-to-one relationship", function(){
+						var result = testClass.populateRelationship( bean=BaseBean, relationshipName="test" );
 
-						beforeEach(function( currentSpec ){
-							makePublic( testClass, "populateSprocData" );
+						expect( BaseBean.$count("getPropertyValue") ).toBe( 2 );
+						expect( BaseBean.$once("getBeanMap") ).toBeTrue();
+						expect( testClass.$once("getRelationshipBean") ).toBeTrue();
+						expect( testClass.$never("getOneToManyRelationship") ).toBeTrue();
+						expect( testClass.$never("getManyToManyRelationship") ).toBeTrue();
+						expect( BaseBean.$once("populate") ).toBeTrue();
 
-							testClass.$( "getBeanMap", beanmap )
-								.$( "getSprocRelationship", [] )
-								.$( "populateByQuery" );
-						});
-
-
-						it( "populates the bean properties from stored procedure data", function(){
-							testClass.populateSprocData( bean=BaseBean, beanmap=beanmap, data={ "_bean"=qRecords }, resultkeys=["_bean"] );
-
-							expect( testClass.$once("populateByQuery") ).toBeTrue();
-							expect( testClass.$never("getSprocRelationship") ).toBeTrue();
-							expect( BeanFactory.$never("injectProperties") ).toBeTrue();
-						});
+						expect( result ).toBeComponent();
+					});
 
 
-						it( "doesn't populate the bean properties when the stored procedure bean query has no results", function(){
-							testClass.populateSprocData( bean=BaseBean, beanmap=beanmap, data={ "_bean"=querySim("") }, resultkeys=["_bean"] );
+					it( "populates a one-to-many relationship", function(){
+						beanmap.relationships.test.joinType = "one-to-many";
 
-							expect( testClass.$never("populateByQuery") ).toBeTrue();
-							expect( testClass.$never("getSprocRelationship") ).toBeTrue();
-							expect( BeanFactory.$never("injectProperties") ).toBeTrue();
-						});
+						var result = testClass.populateRelationship( bean=BaseBean, relationshipName="test" );
+
+						expect( BaseBean.$count("getPropertyValue") ).toBe( 2 );
+						expect( BaseBean.$once("getBeanMap") ).toBeTrue();
+						expect( testClass.$never("getRelationshipBean") ).toBeTrue();
+						expect( testClass.$once("getOneToManyRelationship") ).toBeTrue();
+						expect( testClass.$never("getManyToManyRelationship") ).toBeTrue();
+						expect( BaseBean.$once("populate") ).toBeTrue();
+
+						expect( result ).toBeArray();
+					});
 
 
-						it( "populates a bean relationship from stored procedure data", function(){
-							testClass.populateSprocData( bean=BaseBean, beanmap=beanmap, data={ "test"=qRecords }, resultkeys=["test"] );
+					it( "populates a many-to-many relationship", function(){
+						beanmap.relationships.test.joinType = "many-to-many";
 
-							expect( testClass.$never("populateByQuery") ).toBeTrue();
-							expect( testClass.$once("getSprocRelationship") ).toBeTrue();
-							expect( BeanFactory.$once("injectProperties") ).toBeTrue();
-						});
+						var result = testClass.populateRelationship( bean=BaseBean, relationshipName="test" );
 
+						expect( BaseBean.$count("getPropertyValue") ).toBe( 2 );
+						expect( BaseBean.$once("getBeanMap") ).toBeTrue();
+						expect( testClass.$never("getRelationshipBean") ).toBeTrue();
+						expect( testClass.$never("getOneToManyRelationship") ).toBeTrue();
+						expect( testClass.$once("getManyToManyRelationship") ).toBeTrue();
+						expect( BaseBean.$once("populate") ).toBeTrue();
+
+						expect( result ).toBeArray();
+					});
+
+
+					it( "errors if the relationship isn't defined in the bean map", function(){
+						expect( function(){ testClass.populateRelationship( bean=BaseBean, relationshipName="next" ); } )
+							.toThrow(type="application", regex="(relationship)");
+					});
+
+				});
+
+
+				// populateSprocData()
+				describe("calls populateSprocData() and", function(){
+
+					beforeEach(function( currentSpec ){
+						makePublic( testClass, "populateSprocData" );
+
+						testClass.$( "getBeanMap", beanmap )
+							.$( "getSprocRelationship", [] )
+							.$( "populateByQuery" );
+					});
+
+
+					it( "populates the bean properties from stored procedure data", function(){
+						testClass.populateSprocData( bean=BaseBean, beanmap=beanmap, data={ "_bean"=qRecords }, resultkeys=["_bean"] );
+
+						expect( testClass.$once("populateByQuery") ).toBeTrue();
+						expect( testClass.$never("getSprocRelationship") ).toBeTrue();
+						expect( BaseBean.$never("populate") ).toBeTrue();
+					});
+
+
+					it( "doesn't populate the bean properties when the stored procedure bean query has no results", function(){
+						testClass.populateSprocData( bean=BaseBean, beanmap=beanmap, data={ "_bean"=querySim("") }, resultkeys=["_bean"] );
+
+						expect( testClass.$never("populateByQuery") ).toBeTrue();
+						expect( testClass.$never("getSprocRelationship") ).toBeTrue();
+						expect( BaseBean.$never("populate") ).toBeTrue();
+					});
+
+
+					it( "populates a bean relationship from stored procedure data", function(){
+						testClass.populateSprocData( bean=BaseBean, beanmap=beanmap, data={ "test"=qRecords }, resultkeys=["test"] );
+
+						expect( testClass.$never("populateByQuery") ).toBeTrue();
+						expect( testClass.$once("getSprocRelationship") ).toBeTrue();
+						expect( BaseBean.$once("populate") ).toBeTrue();
 					});
 
 				});

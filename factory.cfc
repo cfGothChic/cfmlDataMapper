@@ -85,6 +85,10 @@ component accessors="true" output="false" {
 		return getFactory().get( argumentCollection=arguments );
 	}
 
+	public array function getBeanArrayProperties() {
+		return getFactory().getBeanArrayProperties( argumentCollection=arguments );
+	}
+
 	public struct function getBeanMap() {
 		return getFactory().getBeanMap( argumentCollection=arguments );
 	}
@@ -99,10 +103,6 @@ component accessors="true" output="false" {
 
 	public array function getBeansFromArray() {
 		return getFactory().getBeansFromArray( argumentCollection=arguments );
-	}
-
-	public array function getBeanListProperties() {
-		return getFactory().getBeanListProperties( argumentCollection=arguments );
 	}
 
 	public struct function getResultStruct() {
